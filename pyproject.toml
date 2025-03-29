@@ -62,3 +62,8 @@ nuclearmasses = [
  "data/2016/*.*", 
  "data/2020/*.*", 
 ]
+
+[tool.coverage.report]
+omit = [
+ "tests/*"
+]
