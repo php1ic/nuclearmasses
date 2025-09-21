@@ -10,7 +10,7 @@ class Parse:
     """
 
     def __init__(self):
-        """Construct the symbol to Z map.
+        """Construct the symbol -> Z and Z -> symbol dictionaries.
 
         The _read functions could be taken out of the class, but then they wouldn't be inherited by the file parsers,
         so lets leave them as members for the moment.
@@ -29,6 +29,9 @@ class Parse:
             100: "Fm", 101: "Md", 102: "No", 103: "Lr", 104: "Rf", 105: "Db", 106: "Sg", 107: "Bh", 108: "Hs", 109: "Mt",
             110: "Ds", 111: "Rg", 112: "Cn", 113: "Ed", 114: "Fl", 115: "Ef", 116: "Lv", 117: "Ts", 118: "Og"
         }
+
+        # Switch the keys and values of the z_to_symbol dictionary so a user can access the Z value using the symbol
+        self.symbol_to_z: dict[str, int] = {val: key for key, val in self.z_to_symbol.items()}
 
     def _read_as_int(self, line: str, start: int, end: int, default: typing.Optional[int] = None) -> typing.Optional[int]:
         """Slice the string and return as an int, or None if the slice is empty."""
