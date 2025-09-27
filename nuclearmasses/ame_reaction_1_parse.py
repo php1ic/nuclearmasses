@@ -23,7 +23,7 @@ class AMEReactionParserOne(AMEReactionFileOne):
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
         match self.year:
-            case 2020:
+            case _:
                 return [
                         "A",
                         "Z",
@@ -44,7 +44,7 @@ class AMEReactionParserOne(AMEReactionFileOne):
     def _data_types(self) -> dict:
         """Set the data type depending on the year"""
         match self.year:
-            case 2020:
+            case _:
                 return {
                         "Symbol": "string",
                         "A": "Int64",
@@ -67,8 +67,9 @@ class AMEReactionParserOne(AMEReactionFileOne):
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
         match self.year:
-            case 2020:
+            case _:
                 return {
+                        "A": [''],
                         "TwoNeutronSeparationEnergy": ['', '*'],
                         "TwoNeutronSeparationEnergyError": ['', '*'],
                         "TwoProtonSeparationEnergy": ['', '*'],
@@ -101,12 +102,18 @@ class AMEReactionParserOne(AMEReactionFileOne):
                     skiprows=self.HEADER,
                     skipfooter=self.FOOTER
                     )
-            df["N"] = df["A"] - df["Z"]
-            df["Symbol"] = df["Z"].map(self.z_to_symbol)
-
             # We use the NUBASE data to define whether or not an isotope is experimentally measured,
             # so for this data we'll just drop any and all '#' characters
             df.replace("#", "", regex=True, inplace=True)
+
+            if self.year == 1983:
+                # The column headers and units are repeated in the 1983 table
+                df = df[(df['A'] != 'A') & (df['Z'] != '')]
+                # The A value is not in the column if it doesn't change so we need to fill down
+                df['A'] = df['A'].ffill()
+
+            df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
+            df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
 
             return df.astype(self._data_types())
         except ValueError as e:

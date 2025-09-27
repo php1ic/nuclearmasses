@@ -6,6 +6,35 @@ import pandas.testing as pdt
 
 
 def test_read_line():
+    # We are cheating a little here because this line does not have the A value in the file
+    # To test properly either choose a different isotope or read from the first instance with A so it gets populated
+    line = io.StringIO(" 186 Ir  77   15780     250      9536      20      3850     100     -7600#    300#    -2639      20    -10640#    200#")
+    parser = AMEReactionParserOne(line, 1983)
+    parser.HEADER = 0
+    parser.FOOTER = 0
+    df = parser.read_file()
+
+    expected = pd.DataFrame({
+        'Symbol': ['Ir'],
+        'A': [186],
+        'Z': [77],
+        'N': [109],
+        'TwoNeutronSeparationEnergy': [15780],
+        'TwoNeutronSeparationEnergyError': [250],
+        'TwoProtonSeparationEnergy': [9536],
+        'TwoProtonSeparationEnergyError': [20],
+        'QAlpha': [3850],
+        'QAlphaError': [100],
+        'QTwoBeta': [-7600],
+        'QTwoBetaError': [300],
+        'QEpsilon': [-2639],
+        'QEpsilonError': [20],
+        'QBetaNeutron': [-10640],
+        'QBetaNeutronError': [200],
+    })
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
     # parser = AMEReactionParserOne(pathlib.Path("."), 2003)
     # line = " 186 Ir  77   15704.74   32.47   9524.26   17.08   3849.65  103.31  -7458.10   26.70  -2639.77   16.57 -10561.10   44.19"
     # d = parser._read_line(line)

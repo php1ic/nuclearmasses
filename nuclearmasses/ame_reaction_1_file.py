@@ -9,6 +9,37 @@ class AMEReactionFileOne(Parse):
         """Setup the values that locate the variable."""
         super().__init__()
         match year:
+            case 1983:
+                self.HEADER = 30
+                self.FOOTER = 0
+                self.START_R1_A = 1
+                self.END_R1_A = 4
+                self.START_R1_Z = 8
+                self.END_R1_Z = 11
+                self.START_S2N = 14
+                self.END_S2N = 22
+                self.START_DS2N = 24
+                self.END_DS2N = 30
+                self.START_S2P = 32
+                self.END_S2P = 39
+                self.START_DS2P = 43
+                self.END_DS2P = 47
+                self.START_QA = 50
+                self.END_QA = 57
+                self.START_DQA = 60
+                self.END_DQA = 65
+                self.START_Q2B = 68
+                self.END_Q2B = 75
+                self.START_DQ2B = 78
+                self.END_DQ2B = 83
+                self.START_QEP = 86
+                self.END_QEP = 93
+                self.START_DQEP = 96
+                self.END_DQEP = 101
+                self.START_QBN = 103
+                self.END_QBN = 111
+                self.START_DQBN = 114
+                self.END_DQBN = 119
             case 2020:
                 self.HEADER = 35
                 self.FOOTER = 0
@@ -41,7 +72,11 @@ class AMEReactionFileOne(Parse):
                 self.START_DQBN = 135
                 self.END_DQBN = 144
             case _:
-                self.HEADER = 39
+                match year:
+                    case 1995 | 2003 | 2012 | 2016:
+                        self.HEADER = 39
+                    case 1993:
+                        self.HEADER = 40
                 self.FOOTER = 0
                 self.START_R1_A = 1
                 self.END_R1_A = 4
