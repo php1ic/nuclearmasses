@@ -55,26 +55,35 @@ def test_read_line():
     # assert d['QNeutronAlpha'] == 7701.54
     # assert d['QNeutronAlphaError'] == 3.34
     #
-    # parser = AMEReactionParserTwo(pathlib.Path("."), 2012)
-    # line = " 204 Tl  81    6656.09    0.29   6365.80    1.25 -12470.19   22.31  13710.68    1.14   8181.16    1.15   7701.67    3.33"
-    # d = parser._read_line(line)
-    #
-    # assert d['A'] == 204
-    # assert d['Z'] == 81
-    # assert d['N'] == 123
-    # assert d['OneNeutronSeparationEnergy'] == 6656.09
-    # assert d['OneNeutronSeparationEnergyError'] == 0.29
-    # assert d['OneProtonSeparationEnergy'] == 6365.80
-    # assert d['OneProtonSeparationEnergyError'] == 1.25
-    # assert d['QFourBeta'] == -12470.19
-    # assert d['QFourBetaError'] == 22.31
-    # assert d['QDeuteronAlpha'] == 13710.68
-    # assert d['QDeuteronAlphaError'] == 1.14
-    # assert d['QProtonAlpha'] == 8181.16
-    # assert d['QProtonAlphaError'] == 1.15
-    # assert d['QNeutronAlpha'] == 7701.67
-    # assert d['QNeutronAlphaError'] == 3.33
-    #
+    line = io.StringIO(" 204 Tl  81    6656.09    0.29   6365.80    1.25 -12470.19   22.31  13710.68    1.14   8181.16    1.15   7701.67    3.33")
+    parser = AMEReactionParserTwo(line, 2012)
+    parser.HEADER = 0
+    parser.FOOTER = 0
+    df = parser.read_file()
+
+    expected = pd.DataFrame({
+        'Symbol': ['Tl'],
+        'A': [204],
+        'Z': [81],
+        'N': [123],
+        'OneNeutronSeparationEnergy': [6656.09],
+        'OneNeutronSeparationEnergyError': [0.29],
+        'OneProtonSeparationEnergy': [6365.80],
+        'OneProtonSeparationEnergyError': [1.25],
+        'QFourBeta': [-12470.19],
+        'QFourBetaError': [22.31],
+        'QDeuteronAlpha': [13710.68],
+        'QDeuteronAlphaError': [1.14],
+        'QProtonAlpha': [8181.16],
+        'QProtonAlphaError': [1.15],
+        'QNeutronAlpha': [7701.67],
+        'QNeutronAlphaError': [3.33],
+    })
+
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
+
     line = io.StringIO(" 204 Tl  81    6656.08    0.29   6365.85    1.25 -12470.71   22.32  13709.99    1.06   8180.45    1.07   7700.97    3.31")
     parser = AMEReactionParserTwo(line, 2016)
     parser.HEADER = 0

@@ -31,23 +31,30 @@ def test_read_line():
 
     pdt.assert_frame_equal(df, expected, check_like=True)
 
+    line = io.StringIO("  15   41   26   67 Fe    x  -46068.530    217.972     8455.310    3.253 B-   9253.245  218.067  66 950543.395    234.002")
+    parser = AMEMassParser(line, 2012)
+    parser.HEADER = 0
+    parser.FOOTER = 0
+    df = parser.read_file()
 
-    # parser = AMEMassParser(pathlib.Path("."), 2012)
-    # line = "  15   41   26   67 Fe    x  -46068.530    217.972     8455.310    3.253 B-   9253.245  218.067  66 950543.395    234.002"
-    # d = parser._read_line(line)
-    #
-    # assert d['A'] == 67
-    # assert d['Z'] == 26
-    # assert d['N'] == 41
-    # assert d['AMEMassExcess'] == -46068.530
-    # assert d['AMEMassExcessError'] == 217.972
-    # assert d['BindingEnergyPerA'] == 8455.310
-    # assert d['BindingEnergyPerAError'] == 3.253
-    # assert d['BetaDecayEnergy'] == 9253.245
-    # assert d['BetaDecayEnergyError'] == 218.067
-    # assert d['AtomicMass'] == 950543.395
-    # assert d['AtomicMassError'] == 234.002
-    #
+    expected = pd.DataFrame({
+        'Symbol': ['Fe'],
+        'A': [67],
+        'Z': [26],
+        'N': [41],
+        'AMEMassExcess': [-46068.530],
+        'AMEMassExcessError': [217.972],
+        'BindingEnergyPerA': [8455.310],
+        'BindingEnergyPerAError': [3.253],
+        'BetaDecayEnergy': [9253.245],
+        'BetaDecayEnergyError': [218.067],
+        'AtomicMass': [66.950543395],
+        'AtomicMassError': [234.002/1.0e6],
+    })
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
+
     line = io.StringIO("  15   41   26   67 Fe    x  -45610.155    270.285     8448.469    4.034 B-   9711.620  270.362  66 951035.482    290.163")
     parser = AMEMassParser(line, 2016)
     parser.HEADER = 0

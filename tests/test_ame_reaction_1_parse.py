@@ -55,26 +55,34 @@ def test_read_line():
     # assert d['QBetaNeutron'] == -10561.10
     # assert d['QBetaNeutronError'] == 44.19
     #
-    # parser = AMEReactionParserOne(pathlib.Path("."), 2012)
-    # line = " 186 Ir  77   15706.55   32.47   9527.99   17.09   3848.03  103.31  -7459.92   26.70  -2641.13   16.57 -10557.95   30.67"
-    # d = parser._read_line(line)
-    #
-    # assert d['A'] == 186
-    # assert d['Z'] == 77
-    # assert d['N'] == 109
-    # assert d['TwoNeutronSeparationEnergy'] == 15706.55
-    # assert d['TwoNeutronSeparationEnergyError'] == 32.47
-    # assert d['TwoProtonSeparationEnergy'] == 9527.99
-    # assert d['TwoProtonSeparationEnergyError'] == 17.09
-    # assert d['QAlpha'] == 3848.03
-    # assert d['QAlphaError'] == 103.31
-    # assert d['QTwoBeta'] == -7459.92
-    # assert d['QTwoBetaError'] == 26.70
-    # assert d['QEpsilon'] == -2641.13
-    # assert d['QEpsilonError'] == 16.57
-    # assert d['QBetaNeutron'] == -10557.95
-    # assert d['QBetaNeutronError'] == 30.67
-    #
+    line = io.StringIO(" 186 Ir  77   15706.55   32.47   9527.99   17.09   3848.03  103.31  -7459.92   26.70  -2641.13   16.57 -10557.95   30.67")
+    parser = AMEReactionParserOne(line, 2012)
+    parser.HEADER = 0
+    parser.FOOTER = 0
+    df = parser.read_file()
+
+    expected = pd.DataFrame({
+        'Symbol': ['Ir'],
+        'A': [186],
+        'Z': [77],
+        'N': [109],
+        'TwoNeutronSeparationEnergy': [15706.55],
+        'TwoNeutronSeparationEnergyError': [32.47],
+        'TwoProtonSeparationEnergy': [9527.99],
+        'TwoProtonSeparationEnergyError': [17.09],
+        'QAlpha': [3848.03],
+        'QAlphaError': [103.31],
+        'QTwoBeta': [-7459.92],
+        'QTwoBetaError': [26.70],
+        'QEpsilon': [-2641.13],
+        'QEpsilonError': [16.57],
+        'QBetaNeutron': [-10557.95],
+        'QBetaNeutronError': [30.67],
+    })
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
+
     line = io.StringIO(" 186 Ir  77   15704.13   32.47   9530.65   17.07   3848.80  103.31  -7457.49   26.70  -2642.29   16.55 -10555.52   30.67")
     parser = AMEReactionParserOne(line, 2016)
     parser.HEADER = 0
