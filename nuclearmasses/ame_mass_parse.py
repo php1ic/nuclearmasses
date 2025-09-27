@@ -29,12 +29,13 @@ class AMEMassParser(AMEMassFile):
                 return [
                         "Z",
                         "A",
-                        "MassExcess",
-                        "MassExcessError",
+                        "AMEMassExcess",
+                        "AMEMassExcessError",
                         "BindingEnergyPerA",
                         "BindingEnergyPerAError",
                         "BetaDecayEnergy",
                         "BetaDecayEnergyError",
+                        "AtomicNumber",
                         "AtomicMass",
                         "AtomicMassError"
                         ]
@@ -48,8 +49,8 @@ class AMEMassParser(AMEMassFile):
                         "N": "Int64",
                         "Z": "Int64",
                         "A": "Int64",
-                        "MassExcess": "float64",
-                        "MassExcessError": "float64",
+                        "AMEMassExcess": "float64",
+                        "AMEMassExcessError": "float64",
                         "BindingEnergyPerA": "float64",
                         "BindingEnergyPerAError": "float64",
                         "BetaDecayEnergy": "float64",
@@ -92,9 +93,12 @@ class AMEMassParser(AMEMassFile):
             # so for this data we'll just drop any and all '#' characters
             df.replace("#", "", regex=True, inplace=True)
 
-            # We skipped the reading of the initial part of the atomic mass as it's always the same as A.
-            # Add it back on here and remove the now redundant decimal point from the other part of the number.
-            df["AtomicMass"] = df["A"].astype(str) + "." + df["AtomicMass"].str.replace(".", "", regex=False)
+            # Combine the two columns to create the atomic mass then drop the redundant column
+            df["AtomicMass"] = df["AtomicNumber"].astype("string") + "." + df["AtomicMass"].astype("string").str.replace(".", "", regex=False)
+            df = df.drop(columns=["AtomicNumber"])
+
+            # We need to rescale the error value because we combined the two columns above
+            df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
 
             return df.astype(self._data_types())
         except ValueError as e:

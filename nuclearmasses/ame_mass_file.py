@@ -27,6 +27,8 @@ class AMEMassFile(Parse):
                 self.END_BETA_DECAY_ENERGY = 93
                 self.START_DBETA_DECAY_ENERGY = 95
                 self.END_DBETA_DECAY_ENERGY = 104
+                self.START_AM = 106
+                self.END_AM = 109
                 self.START_MICRO_U = 110
                 self.END_MICRO_U = 120
                 self.START_MICRO_DU = 124
@@ -50,6 +52,8 @@ class AMEMassFile(Parse):
                 self.END_BETA_DECAY_ENERGY = 86
                 self.START_DBETA_DECAY_ENERGY = 87
                 self.END_DBETA_DECAY_ENERGY = 95
+                self.START_AM = 0
+                self.END_AM = 0
                 self.START_MICRO_U = 100
                 self.END_MICRO_U = 112
                 self.START_MICRO_DU = 113
@@ -64,6 +68,7 @@ class AMEMassFile(Parse):
                 (self.START_DBE_PER_A, self.END_DBE_PER_A),
                 (self.START_BETA_DECAY_ENERGY, self.END_BETA_DECAY_ENERGY),
                 (self.START_DBETA_DECAY_ENERGY, self.END_DBETA_DECAY_ENERGY),
+                (self.START_AM, self.END_AM),
                 (self.START_MICRO_U, self.END_MICRO_U),
                 (self.START_MICRO_DU, self.END_MICRO_DU),
                 ]
