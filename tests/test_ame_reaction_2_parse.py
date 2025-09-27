@@ -4,7 +4,37 @@ import io
 import pandas as pd
 import pandas.testing as pdt
 
+
 def test_read_line():
+    line = io.StringIO(" 204 Tl  81    7853      17      5702.8     1.7  -13480     120     12613.7     1.8    8608.4     1.8    7180      50")
+    parser = AMEReactionParserTwo(line, 1983)
+    parser.HEADER = 0
+    parser.FOOTER = 0
+    df = parser.read_file()
+
+    expected = pd.DataFrame({
+        'Symbol': ['Tl'],
+        'A': [204],
+        'Z': [81],
+        'N': [123],
+        'OneNeutronSeparationEnergy': [7853],
+        'OneNeutronSeparationEnergyError': [17],
+        'OneProtonSeparationEnergy': [5702.8],
+        'OneProtonSeparationEnergyError': [1.7],
+        'QFourBeta': [-13480],
+        'QFourBetaError': [120],
+        'QDeuteronAlpha': [12613.7],
+        'QDeuteronAlphaError': [1.8],
+        'QProtonAlpha': [8608.4],
+        'QProtonAlphaError': [1.8],
+        'QNeutronAlpha': [7180],
+        'QNeutronAlphaError': [50],
+    })
+
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
+
     # parser = AMEReactionParserTwo(pathlib.Path("."), 2003)
     # line = " 204 Tl  81    6656.10    0.29   6365.82    1.25 -12470.66   24.01  13710.69    1.15   8181.34    1.16   7701.54    3.34"
     # d = parser._read_line(line)
@@ -93,4 +123,3 @@ def test_read_line():
     expected = expected.astype(parser._data_types())
 
     pdt.assert_frame_equal(df, expected, check_like=True)
-

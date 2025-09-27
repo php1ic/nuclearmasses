@@ -8,6 +8,37 @@ class AMEReactionFileTwo(Parse):
     def __init__(self, year: int):
         super().__init__()
         match year:
+            case 1983:
+                self.HEADER = 30
+                self.FOOTER = 0
+                self.START_R2_A = 1
+                self.END_R2_A = 4
+                self.START_R2_Z = 8
+                self.END_R2_Z = 11
+                self.START_SN = 14
+                self.END_SN = 22
+                self.START_DSN = 24
+                self.END_DSN = 28
+                self.START_SP = 30
+                self.END_SP = 40
+                self.START_DSP = 42
+                self.END_DSP = 48
+                self.START_Q4B = 49
+                self.END_Q4B = 57
+                self.START_DQ4B = 60
+                self.END_DQ4B = 65
+                self.START_QDA = 68
+                self.END_QDA = 76
+                self.START_DQDA = 78
+                self.END_DQDA = 84
+                self.START_QPA = 86
+                self.END_QPA = 94
+                self.START_DQPA = 96
+                self.END_DQPA = 102
+                self.START_QNA = 103
+                self.END_QNA = 112
+                self.START_DQNA = 114
+                self.END_DQNA = 120
             case 2020:
                 self.HEADER = 37
                 self.FOOTER = 15
@@ -40,7 +71,11 @@ class AMEReactionFileTwo(Parse):
                 self.START_DQNA = 135
                 self.END_DQNA = 144
             case _:
-                self.HEADER = 39
+                match year:
+                    case 1995 | 2003 | 2012 | 2016:
+                        self.HEADER = 39
+                    case 1993:
+                        self.HEADER = 40
                 self.FOOTER = 0
                 self.START_R2_A = 1
                 self.END_R2_A = 4
