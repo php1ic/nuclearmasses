@@ -75,25 +75,33 @@ def test_read_line():
     # assert d['QBetaNeutron'] == -10557.95
     # assert d['QBetaNeutronError'] == 30.67
     #
-    # parser = AMEReactionParserOne(pathlib.Path("."), 2016)
-    # line = " 186 Ir  77   15704.13   32.47   9530.65   17.07   3848.80  103.31  -7457.49   26.70  -2642.29   16.55 -10555.52   30.67"
-    # d = parser._read_line(line)
-    #
-    # assert d['A'] == 186
-    # assert d['Z'] == 77
-    # assert d['N'] == 109
-    # assert d['TwoNeutronSeparationEnergy'] == 15704.13
-    # assert d['TwoNeutronSeparationEnergyError'] == 32.47
-    # assert d['TwoProtonSeparationEnergy'] == 9530.65
-    # assert d['TwoProtonSeparationEnergyError'] == 17.07
-    # assert d['QAlpha'] == 3848.80
-    # assert d['QAlphaError'] == 103.31
-    # assert d['QTwoBeta'] == -7457.49
-    # assert d['QTwoBetaError'] == 26.70
-    # assert d['QEpsilon'] == -2642.29
-    # assert d['QEpsilonError'] == 16.55
-    # assert d['QBetaNeutron'] == -10555.52
-    # assert d['QBetaNeutronError'] == 30.67
+    line = io.StringIO(" 186 Ir  77   15704.13   32.47   9530.65   17.07   3848.80  103.31  -7457.49   26.70  -2642.29   16.55 -10555.52   30.67")
+    parser = AMEReactionParserOne(line, 2016)
+    parser.HEADER = 0
+    parser.FOOTER = 0
+    df = parser.read_file()
+
+    expected = pd.DataFrame({
+        'Symbol': ['Ir'],
+        'A': [186],
+        'Z': [77],
+        'N': [109],
+        'TwoNeutronSeparationEnergy': [15704.13],
+        'TwoNeutronSeparationEnergyError': [32.47],
+        'TwoProtonSeparationEnergy': [9530.65],
+        'TwoProtonSeparationEnergyError': [17.07],
+        'QAlpha': [3848.80],
+        'QAlphaError': [103.31],
+        'QTwoBeta': [-7457.49],
+        'QTwoBetaError': [26.70],
+        'QEpsilon': [-2642.29],
+        'QEpsilonError': [16.55],
+        'QBetaNeutron': [-10555.52],
+        'QBetaNeutronError': [30.67],
+    })
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
 
     line = io.StringIO(" 186 Ir  77   15704.1312   32.4655   9530.4731   17.0698   3848.8777  103.3133  -7457.4943   26.6968  -2642.2739   16.5459 -10555.5245   30.6658")
     parser = AMEReactionParserOne(line, 2020)
