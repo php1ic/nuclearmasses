@@ -8,6 +8,31 @@ class AMEMassFile(Parse):
     def __init__(self, year: int):
         super().__init__()
         match year:
+            case 1983:
+                self.HEADER = 35
+                self.FOOTER = 0
+                self.START_Z = 11
+                self.END_Z = 14
+                self.START_A = 16
+                self.END_A = 19
+                self.START_ME = 29
+                self.END_ME = 39
+                self.START_DME = 41
+                self.END_DME = 48
+                self.START_BE_PER_A = 49
+                self.END_BE_PER_A = 59
+                self.START_DBE_PER_A = 61
+                self.END_DBE_PER_A = 68
+                self.START_BETA_DECAY_ENERGY = 76
+                self.END_BETA_DECAY_ENERGY = 85
+                self.START_DBETA_DECAY_ENERGY = 87
+                self.END_DBETA_DECAY_ENERGY = 94
+                self.START_AM = 97
+                self.END_AM = 99
+                self.START_MICRO_U = 100
+                self.END_MICRO_U = 110
+                self.START_MICRO_DU = 113
+                self.END_MICRO_DU = 120
             case 2020:
                 self.HEADER = 36
                 self.FOOTER = 0
@@ -34,7 +59,11 @@ class AMEMassFile(Parse):
                 self.START_MICRO_DU = 124
                 self.END_MICRO_DU = 135
             case _:
-                self.HEADER = 39
+                match year:
+                    case 1995 | 2003 | 2012 | 2016:
+                        self.HEADER = 39
+                    case 1993:
+                        self.HEADER = 40
                 self.FOOTER = 0
                 self.START_Z = 11
                 self.END_Z = 14
@@ -52,12 +81,12 @@ class AMEMassFile(Parse):
                 self.END_BETA_DECAY_ENERGY = 86
                 self.START_DBETA_DECAY_ENERGY = 87
                 self.END_DBETA_DECAY_ENERGY = 95
-                self.START_AM = 0
-                self.END_AM = 0
+                self.START_AM = 96
+                self.END_AM = 99
                 self.START_MICRO_U = 100
                 self.END_MICRO_U = 112
                 self.START_MICRO_DU = 113
-                self.END_MICRO_DU = 125
+                self.END_MICRO_DU = 120
 
         self.column_limits = [
                 (self.START_Z, self.END_Z),

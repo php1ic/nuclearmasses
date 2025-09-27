@@ -6,6 +6,31 @@ import pandas.testing as pdt
 
 
 def test_read_line():
+    # 67Fe was randomly selected to test the AME mass parsing. According to AME it didn't exist in 1983 so will use 67Ni
+    line = io.StringIO("0 11   39   28   67 Ni +n2p  -63742.471   19.056 582618.683   19.066    B-   3560.871   20.646   66 931570.167   20.457  -.0")
+    parser = AMEMassParser(line, 1983)
+    parser.HEADER = 0
+    parser.FOOTER = 0
+    df = parser.read_file()
+
+    expected = pd.DataFrame({
+        'Symbol': ['Ni'],
+        'A': [67],
+        'Z': [28],
+        'N': [39],
+        'AMEMassExcess': [-63742.471],
+        'AMEMassExcessError': [19.056],
+        'BindingEnergyPerA': [582618.683/67],
+        'BindingEnergyPerAError': [19.066/67],
+        'BetaDecayEnergy': [3560.871],
+        'BetaDecayEnergyError': [20.646],
+        'AtomicMass': [66.931579167],
+        'AtomicMassError': [20.457/1.0e6],
+    })
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
+
     line = io.StringIO("  15   41   26   67 Fe    x  -45708.416       3.819      8449.9359     0.0570  B-   9613.3678     7.4900   66 950930.000       4.100")
     parser = AMEMassParser(line, 2020)
     parser.HEADER = 0
