@@ -111,4 +111,3 @@ class AMEReactionParserOne(AMEReactionFileOne):
             return df.astype(self._data_types())
         except ValueError as e:
             print(f"Parsing error: {e}")
-
