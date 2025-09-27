@@ -105,6 +105,8 @@ class AMEMassParser(AMEMassFile):
                 # For each row in the dataframe, if the previous row has equal A and Z, drop the current row
                 df = df[~((df['A'] == df['A'].shift()) & (df['Z'] == df['Z'].shift()))]
                 # Total binding energy is recorded in this years file so convert to per A to match the other years
+
+            if self.year == 1983 or self.year == 1995:
                 df["BindingEnergyPerA"] = df["BindingEnergyPerA"].astype(float) / df['A'].astype(float)
                 df["BindingEnergyPerAError"] = df["BindingEnergyPerAError"].astype(float) / df['A'].astype(float)
 
