@@ -31,6 +31,29 @@ def test_read_line():
 
     pdt.assert_frame_equal(df, expected, check_like=True)
 
+    line = io.StringIO("  15   41   26   67 Fe    x  -45692.348    415.570     8449.695    6.203 B-   9368.702  523.438  66 950947.244    446.132")
+    parser = AMEMassParser(line, 2003)
+    parser.HEADER = 0
+    parser.FOOTER = 0
+    df = parser.read_file()
+
+    expected = pd.DataFrame({
+        'Symbol': ['Fe'],
+        'A': [67],
+        'Z': [26],
+        'N': [41],
+        'AMEMassExcess': [-45692.348],
+        'AMEMassExcessError': [415.570],
+        'BindingEnergyPerA': [8449.695],
+        'BindingEnergyPerAError': [6.203],
+        'BetaDecayEnergy': [9368.702],
+        'BetaDecayEnergyError': [523.438],
+        'AtomicMass': [66.950947244],
+        'AtomicMassError': [446.132/1.0e6],
+    })
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
     line = io.StringIO("  15   41   26   67 Fe    x  -46068.530    217.972     8455.310    3.253 B-   9253.245  218.067  66 950543.395    234.002")
     parser = AMEMassParser(line, 2012)
     parser.HEADER = 0
