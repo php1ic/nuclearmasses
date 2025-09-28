@@ -5,7 +5,7 @@ import pandas as pd
 import pandas.testing as pdt
 
 
-def test_read_line():
+def test_1983_rct1():
     # We are cheating a little here because this line does not have the A value in the file
     # To test properly either choose a different isotope or read from the first instance with A so it gets populated
     line = io.StringIO(" 186 Ir  77   15780     250      9536      20      3850     100     -7600#    300#    -2639      20    -10640#    200#")
@@ -36,6 +36,8 @@ def test_read_line():
 
     pdt.assert_frame_equal(df, expected, check_like=True)
 
+
+def test_1993_rct1():
     line = io.StringIO(" 186 Ir  77   15618.44  270.74   9522.98   20.49   3852.98  103.94  -7419.61  145.57  -2635.85   20.03 -10622#    230#")
     parser = AMEReactionParserOne(line, 1993)
     parser.HEADER = 0
@@ -64,6 +66,8 @@ def test_read_line():
 
     pdt.assert_frame_equal(df, expected, check_like=True)
 
+
+def test_1995_rct1():
     line = io.StringIO(" 186 Ir  77   15618.41  270.74   9522.89   20.49   3853.04  103.94  -7495.33  145.56  -2635.83   20.03 -10682.00  207.60")
     parser = AMEReactionParserOne(line, 1995)
     parser.HEADER = 0
@@ -93,6 +97,7 @@ def test_read_line():
     pdt.assert_frame_equal(df, expected, check_like=True)
 
 
+def test_2003_rct1():
     line = io.StringIO(" 186 Ir  77   15704.74   32.47   9524.26   17.08   3849.65  103.31  -7458.10   26.70  -2639.77   16.57 -10561.10   44.19")
     parser = AMEReactionParserOne(line, 2003)
     parser.HEADER = 0
@@ -121,6 +126,8 @@ def test_read_line():
 
     pdt.assert_frame_equal(df, expected, check_like=True)
 
+
+def test_2012_rct1():
     line = io.StringIO(" 186 Ir  77   15706.55   32.47   9527.99   17.09   3848.03  103.31  -7459.92   26.70  -2641.13   16.57 -10557.95   30.67")
     parser = AMEReactionParserOne(line, 2012)
     parser.HEADER = 0
@@ -149,6 +156,8 @@ def test_read_line():
 
     pdt.assert_frame_equal(df, expected, check_like=True)
 
+
+def test_2016_rct1():
     line = io.StringIO(" 186 Ir  77   15704.13   32.47   9530.65   17.07   3848.80  103.31  -7457.49   26.70  -2642.29   16.55 -10555.52   30.67")
     parser = AMEReactionParserOne(line, 2016)
     parser.HEADER = 0
@@ -177,6 +186,8 @@ def test_read_line():
 
     pdt.assert_frame_equal(df, expected, check_like=True)
 
+
+def test_2020_rct1():
     line = io.StringIO(" 186 Ir  77   15704.1312   32.4655   9530.4731   17.0698   3848.8777  103.3133  -7457.4943   26.6968  -2642.2739   16.5459 -10555.5245   30.6658")
     parser = AMEReactionParserOne(line, 2020)
     parser.HEADER = 0
