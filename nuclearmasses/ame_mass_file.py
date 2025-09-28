@@ -109,11 +109,7 @@ class AMEMassFile(Parse):
                 self.START_MICRO_DU = 124
                 self.END_MICRO_DU = 135
             case _:
-                match year:
-                    case 2003 | 2012 | 2016:
-                        self.HEADER = 39
-                    case 1993:
-                        self.HEADER = 40
+                self.HEADER = 39
                 self.FOOTER = 0
                 self.START_Z = 11
                 self.END_Z = 14
