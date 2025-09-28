@@ -36,6 +36,34 @@ def test_read_line():
 
     pdt.assert_frame_equal(df, expected, check_like=True)
 
+    line = io.StringIO(" 186 Ir  77   15618.44  270.74   9522.98   20.49   3852.98  103.94  -7419.61  145.57  -2635.85   20.03 -10622#    230#")
+    parser = AMEReactionParserOne(line, 1993)
+    parser.HEADER = 0
+    parser.FOOTER = 0
+    df = parser.read_file()
+
+    expected = pd.DataFrame({
+        'Symbol': ['Ir'],
+        'A': [186],
+        'Z': [77],
+        'N': [109],
+        'TwoNeutronSeparationEnergy': [15618.44],
+        'TwoNeutronSeparationEnergyError': [270.74],
+        'TwoProtonSeparationEnergy': [9522.89],
+        'TwoProtonSeparationEnergyError': [20.49],
+        'QAlpha': [3852.98],
+        'QAlphaError': [103.94],
+        'QTwoBeta': [-7419.61],
+        'QTwoBetaError': [145.57],
+        'QEpsilon': [-2635.85],
+        'QEpsilonError': [20.03],
+        'QBetaNeutron': [-10622],
+        'QBetaNeutronError': [230],
+    })
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
+
     line = io.StringIO(" 186 Ir  77   15618.41  270.74   9522.89   20.49   3853.04  103.94  -7495.33  145.56  -2635.83   20.03 -10682.00  207.60")
     parser = AMEReactionParserOne(line, 1995)
     parser.HEADER = 0
