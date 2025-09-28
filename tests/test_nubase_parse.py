@@ -1,105 +1,134 @@
-import nuclearmasses.nubase_parse as nbp
+from nuclearmasses.nubase_parse import NUBASEParser
 
-import pathlib
-
-
-def test_read_halflife_value():
-    parser = nbp.NUBASEParser(pathlib.Path("."), 2003)
-
-    line_01 = "232 0950   232Am   43400#     300#                             1.31   m 0.04                 91           B+=?;A=2#;B+SF=0.069 10"
-    assert parser._read_halflife_value(line_01) == 1.31
-
-    line_02 = "052 0290   52Cu    -2630#     260#                                             3+#           00           p ?"
-    assert not parser._read_halflife_value(line_02)
+import io
+import pandas as pd
+import pandas.testing as pdt
 
 
-def test_read_halflife_error():
-    parser = nbp.NUBASEParser(pathlib.Path("."), 2003)
+def test_1995_nubase():
+    line = io.StringIO("168 0670   168Ho  -60085       29                              2.99   m 0.07   3+            94           B-=100")
+    parser = NUBASEParser(line, 1995)
+    df = parser.read_file()
 
-    line_01 = "113 0500   113Sn  -88333        4                            115.09   d 0.03   1/2+          00           B+=100"
-    assert parser._read_halflife_error(line_01) == 0.03
+    expected = pd.DataFrame({
+        'Experimental': [True],
+        'Symbol': ['Ho'],
+        'A': [168],
+        'Z': [67],
+        'N': [101],
+        'NUBASEMassExcess': [-60085],
+        'NUBASEMassExcessError': [29],
+        'HalfLifeValue': [2.99],
+        'HalfLifeUnit': ['m'],
+        'HalfLifeError': [0.07],
+        'Spin': ['3+'],
+        'DecayModes': ['B-=100'],
+        })
 
-    line_02 = "025 0150   25P     18870#     200#                           <30     ns        1/2+#         00 93Po.Ai   p ?"
-    assert not parser._read_halflife_error(line_02)
+    expected = expected.astype(parser._data_types())
 
-
-def test_no_decay_mode():
-    parser = nbp.NUBASEParser(pathlib.Path("."), 2012)
-
-    no_decay = "044 0212   44Scn  -37669.9      1.8     146.224   0.022       50.4   us 0.7    0-            99"
-    assert parser._read_decay_string(no_decay) == "UNKNOWN"
-
-
-def test_readable_line():
-    parser = nbp.NUBASEParser(pathlib.Path("."), 2003)
-
-    bad_line01 = "003 0030   3Li     28670#    2000#                      RN   p-unst                          98           p ?"
-    bad_line02 = "130 0556   130Csx -86873       17        27      15         R=.2~~~.1          fsmix"
-    bad_line03 = "267 1081   267Hsm                      non-exist        EU   200     ms                         95Ho.Atdi A=?;IT ?"
-
-    good_line = "072 0360   72Kr   -53941        8                             17.16   s 0.18   0+            95 03Pi03t   B+=100"
-
-    assert not parser._readable_line(bad_line01)
-    assert not parser._readable_line(bad_line02)
-    assert not parser._readable_line(bad_line03)
-
-    assert parser._readable_line(good_line)
+    pdt.assert_frame_equal(df, expected, check_like=True)
 
 
-def test_read_line():
-    parser = nbp.NUBASEParser(pathlib.Path("."), 2003)
+def test_2003_nubase():
+    line = io.StringIO("168 0670   168Ho  -60070       30                              2.99   m 0.07   3+            94           B-=100")
+    parser = NUBASEParser(line, 2003)
+    df = parser.read_file()
 
-    iso_line = "183 0791   183Aum -30114       10        73.3     0.4         >1     us        (1/2)+        99           IT=100"
-    assert parser._read_line(iso_line) == dict()
+    expected = pd.DataFrame({
+        'Experimental': [True],
+        'Symbol': ['Ho'],
+        'A': [168],
+        'Z': [67],
+        'N': [101],
+        'NUBASEMassExcess': [-60070],
+        'NUBASEMassExcessError': [30],
+        'HalfLifeValue': [2.99],
+        'HalfLifeUnit': ['m'],
+        'HalfLifeError': [0.07],
+        'Spin': ['3+'],
+        'DecayModes': ['B-=100'],
+        })
 
-    gs_line = "057 0290   57Cu   -47310       16                            196.3   ms 0.7    3/2-          98           B+=100"
-    d = parser._read_line(gs_line)
+    expected = expected.astype(parser._data_types())
 
-    assert d['A'] == 57
-    assert d['Z'] == 29
-    assert d['N'] == 28
-    assert d['Experimental'] is True
-    assert d['NUBASEMassExcess'] == -47310.0
-    assert d['NUBASEMassExcessError'] == 16.0
-    assert d['HalfLifeValue'] == 196.3
-    assert d['HalfLifeUnit'] == "ms"
-    assert d['HalfLifeError'] == 0.7
-    assert d['LevelSpin'] == "3/2-"
-    assert d['DiscoveryYear'] == 1900
-    assert d['Decay'] == "B+"
+    pdt.assert_frame_equal(df, expected, check_like=True)
 
-    theoretical_gs_line = "110 0530   110I   -60320#     310#                           650     ms 20     1+#           00           B+=83 4;A=17 4;B+p=11 3;B+A=1.1 3"
-    d = parser._read_line(theoretical_gs_line)
 
-    assert d['A'] == 110
-    assert d['Z'] == 53
-    assert d['N'] == 57
-    assert d['Experimental'] is False
-    assert d['NUBASEMassExcess'] == -60320
-    assert d['NUBASEMassExcessError'] == 310
-    assert d['HalfLifeValue'] == 650
-    assert d['HalfLifeUnit'] == "ms"
-    assert d['HalfLifeError'] == 20
-    assert d['LevelSpin'] == "1+"
-    assert d['DiscoveryYear'] == 1900
-    assert d['Decay'] == "B+"
+def test_2012_nubase():
+    line = io.StringIO("168 0670   168Ho  -60060       30                              2.99   m 0.07   3+            10          1960 B-=100")
+    parser = NUBASEParser(line, 2012)
+    df = parser.read_file()
 
-    # 2020 table has a new format
-    parser = nbp.NUBASEParser(pathlib.Path("."), 2020)
+    expected = pd.DataFrame({
+        'Experimental': [True],
+        'Symbol': ['Ho'],
+        'A': [168],
+        'Z': [67],
+        'N': [101],
+        'NUBASEMassExcess': [-60060],
+        'NUBASEMassExcessError': [30],
+        'HalfLifeValue': [2.99],
+        'HalfLifeUnit': ['m'],
+        'HalfLifeError': [0.07],
+        'Spin': ['3+'],
+        'DiscoveryYear': [1960],
+        'DecayModes': ['B-=100'],
+        })
 
-    # Use the same isotope as previously tested
-    gs_line = "057 0290   57Cu   -47309.0        0.5                                 196.4   ms 0.7    3/2-*         98          1976 B+=100"
-    d = parser._read_line(gs_line)
+    expected = expected.astype(parser._data_types())
 
-    assert d['A'] == 57
-    assert d['Z'] == 29
-    assert d['N'] == 28
-    assert d['Experimental'] is True
-    assert d['NUBASEMassExcess'] == -47309.0
-    assert d['NUBASEMassExcessError'] == 0.5
-    assert d['HalfLifeValue'] == 196.4
-    assert d['HalfLifeUnit'] == "ms"
-    assert d['HalfLifeError'] == 0.7
-    assert d['LevelSpin'] == "3/2-"
-    assert d['DiscoveryYear'] == 1976
-    assert d['Decay'] == "B+"
+    pdt.assert_frame_equal(df, expected, check_like=True)
+
+
+def test_2016_nubase():
+    line = io.StringIO("168 0670   168Ho  -60060       30                              2.99   m 0.07   3+            10          1960 B-=100")
+    parser = NUBASEParser(line, 2016)
+    df = parser.read_file()
+
+    expected = pd.DataFrame({
+        'Experimental': [True],
+        'Symbol': ['Ho'],
+        'A': [168],
+        'Z': [67],
+        'N': [101],
+        'NUBASEMassExcess': [-60060],
+        'NUBASEMassExcessError': [30],
+        'HalfLifeValue': [2.99],
+        'HalfLifeUnit': ['m'],
+        'HalfLifeError': [0.07],
+        'Spin': ['3+'],
+        'DiscoveryYear': [1960],
+        'DecayModes': ['B-=100'],
+        })
+
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
+
+
+def test_2020_nubase():
+    line = io.StringIO("168 0670   168Ho  -60060         30                                     2.99   m 0.07   3+            10          1960 B-=100")
+    parser = NUBASEParser(line, 2020)
+    parser.HEADER = 0
+    df = parser.read_file()
+
+    expected = pd.DataFrame({
+        'Experimental': [True],
+        'Symbol': ['Ho'],
+        'A': [168],
+        'Z': [67],
+        'N': [101],
+        'NUBASEMassExcess': [-60060],
+        'NUBASEMassExcessError': [30],
+        'HalfLifeValue': [2.99],
+        'HalfLifeUnit': ['m'],
+        'HalfLifeError': [0.07],
+        'Spin': ['3+'],
+        'DiscoveryYear': [1960],
+        'DecayModes': ['B-=100'],
+        })
+
+    expected = expected.astype(parser._data_types())
+
+    pdt.assert_frame_equal(df, expected, check_like=True)
