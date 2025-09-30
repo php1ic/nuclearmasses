@@ -14,6 +14,7 @@ def test_1983_mass():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [1983],
         'Symbol': ['Ni'],
         'A': [67],
         'Z': [28],
@@ -40,6 +41,7 @@ def test_1993_mass():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [1993],
         'Symbol': ['Fe'],
         'A': [67],
         'Z': [26],
@@ -67,6 +69,7 @@ def test_1995_mass():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [1995],
         'Symbol': ['Fe'],
         'A': [67],
         'Z': [26],
@@ -93,6 +96,7 @@ def test_2003_mass():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2003],
         'Symbol': ['Fe'],
         'A': [67],
         'Z': [26],
@@ -119,6 +123,7 @@ def test_2012_mass():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2012],
         'Symbol': ['Fe'],
         'A': [67],
         'Z': [26],
@@ -145,6 +150,7 @@ def test_2016_mass():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2016],
         'Symbol': ['Fe'],
         'A': [67],
         'Z': [26],
@@ -171,6 +177,7 @@ def test_2020_mass():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2020],
         'Symbol': ['Fe'],
         'A': [67],
         'Z': [26],

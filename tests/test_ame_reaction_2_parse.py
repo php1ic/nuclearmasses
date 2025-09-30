@@ -13,6 +13,7 @@ def test_1983_rct2():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [1983],
         'Symbol': ['Tl'],
         'A': [204],
         'Z': [81],
@@ -44,6 +45,7 @@ def test_1993_rct2():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [1993],
         'Symbol': ['Tl'],
         'A': [204],
         'Z': [81],
@@ -75,6 +77,7 @@ def test_1995_rct2():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [1995],
         'Symbol': ['Tl'],
         'A': [204],
         'Z': [81],
@@ -106,6 +109,7 @@ def test_2003_rct2():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2003],
         'Symbol': ['Tl'],
         'A': [204],
         'Z': [81],
@@ -137,6 +141,7 @@ def test_2012_rct2():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2012],
         'Symbol': ['Tl'],
         'A': [204],
         'Z': [81],
@@ -168,6 +173,7 @@ def test_2016_rct2():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2016],
         'Symbol': ['Tl'],
         'A': [204],
         'Z': [81],
@@ -199,6 +205,7 @@ def test_2020_rct2():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2020],
         'Symbol': ['Tl'],
         'A': [204],
         'Z': [81],

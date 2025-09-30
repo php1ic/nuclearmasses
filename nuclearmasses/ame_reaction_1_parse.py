@@ -46,6 +46,7 @@ class AMEReactionParserOne(AMEReactionFileOne):
         match self.year:
             case _:
                 return {
+                        "TableYear": "Int64",
                         "Symbol": "string",
                         "A": "Int64",
                         "Z": "Int64",
@@ -112,6 +113,7 @@ class AMEReactionParserOne(AMEReactionFileOne):
                 # The A value is not in the column if it doesn't change so we need to fill down
                 df['A'] = df['A'].ffill()
 
+            df["TableYear"] = self.year
             df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
             df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
 

@@ -46,6 +46,7 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
         match self.year:
             case _:
                 return {
+                        "TableYear": "Int64",
                         "Symbol": "string",
                         "A": "Int64",
                         "Z": "Int64",
@@ -113,6 +114,7 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
                 df['A'] = df['A'].ffill()
 
             # Repeated column heading also means we have to cast to create new columns
+            df["TableYear"] = self.year
             df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
             df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
 

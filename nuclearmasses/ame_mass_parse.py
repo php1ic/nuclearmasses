@@ -1,4 +1,3 @@
-"""Extract the data from the AME mass file."""
 import logging
 import pathlib
 
@@ -45,6 +44,7 @@ class AMEMassParser(AMEMassFile):
         match self.year:
             case _:
                 return {
+                        "TableYear": "Int64",
                         "Symbol": "string",
                         "N": "Int64",
                         "Z": "Int64",
@@ -110,6 +110,7 @@ class AMEMassParser(AMEMassFile):
                 df["BindingEnergyPerA"] = df["BindingEnergyPerA"].astype(float) / df['A'].astype(float)
                 df["BindingEnergyPerAError"] = df["BindingEnergyPerAError"].astype(float) / df['A'].astype(float)
 
+            df["TableYear"] = self.year
             df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
             df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
 
