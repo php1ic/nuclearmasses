@@ -1,8 +1,7 @@
-"""Storage for the variable line positions."""
-from nuclearmasses.parse import Parse
+from nuclearmasses.parse import ElementConverter
 
 
-class NUBASEFile(Parse):
+class NUBASEFile(ElementConverter):
     """Easy access to where variables are in the NUBASE file.
 
     The NUBASE data file is formatted by location in the line, values exist

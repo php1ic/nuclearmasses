@@ -1,8 +1,7 @@
-"""Storage for the variable line positions."""
-from nuclearmasses.parse import Parse
+from nuclearmasses.parse import ElementConverter
 
 
-class AMEReactionFileOne(Parse):
+class AMEReactionFileOne(ElementConverter):
     """Easy access to where the variables are in the first AME reaction file."""
 
     def __init__(self, year: int):

@@ -1,20 +1,14 @@
-"""Base class with common parsing functionality."""
-import typing
+class ElementConverter:
+    """A utility class for converting between symbol and Z value
 
+    This class provides bidirectional lookup functionality via two dictionaries:
+    one mapping Z to symbol and the other symbol to Z.
 
-class Parse:
-    """Common functions for parsing data.
-
-    We read multiple files so put the functions used when parsing
-    all of them into this module that we can inherit from.
+    TODO: Create accessor function that do some argument validation
     """
 
     def __init__(self):
-        """Construct the symbol -> Z and Z -> symbol dictionaries.
-
-        The _read functions could be taken out of the class, but then they wouldn't be inherited by the file parsers,
-        so lets leave them as members for the moment.
-        """
+        """Construct the symbol -> Z and Z -> symbol dictionaries."""
         self.z_to_symbol: dict[int, str] = {
             0: "n", 1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F",
             10: "Ne", 11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P", 16: "S", 17: "Cl", 18: "Ar", 19: "K",
@@ -32,18 +26,3 @@ class Parse:
 
         # Switch the keys and values of the z_to_symbol dictionary so a user can access the Z value using the symbol
         self.symbol_to_z: dict[str, int] = {val: key for key, val in self.z_to_symbol.items()}
-
-    def _read_as_int(self, line: str, start: int, end: int, default: typing.Optional[int] = None) -> typing.Optional[int]:
-        """Slice the string and return as an int, or None if the slice is empty."""
-        data = line[start:end].strip()
-        return int(data) if data else default
-
-    def _read_as_float(self, line: str, start: int, end: int, default: typing.Optional[float] = None) -> typing.Optional[float]:
-        """Slice the string and return as a float, or None if the slice is empty or just a '*' character."""
-        data = line[start:end].strip()
-        return float(data) if data and data != "*" else default
-
-    def _read_substring(self, line: str, start: int, end: int, default: typing.Optional[str] = None) -> typing.Optional[str]:
-        """Slice the string or return None if the slice is empty."""
-        data = line[start:end].strip()
-        return data if data else default

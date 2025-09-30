@@ -1,8 +1,7 @@
-"""Storage for variable line positions."""
-from nuclearmasses.parse import Parse
+from nuclearmasses.parse import ElementConverter
 
 
-class AMEMassFile(Parse):
+class AMEMassFile(ElementConverter):
     """Easy access to where the variables are in the AME mass file."""
 
     def __init__(self, year: int):
