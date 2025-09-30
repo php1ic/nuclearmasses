@@ -1,4 +1,4 @@
-from nuclearmasses.parse import ElementConverter
+from nuclearmasses.element_converter import ElementConverter
 
 
 class NUBASEFile(ElementConverter):
