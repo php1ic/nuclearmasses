@@ -144,6 +144,7 @@ class NUBASEParser(NUBASEFile):
             df['Experimental'] = ~df["NUBASEMassExcess"].astype("string").str.contains('#', na=False)
             df.replace("#", "", regex=True, inplace=True)
 
+            df["TableYear"] = self.year
             df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
             df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
             # For the moment, we will ignore anything this is not the ground state

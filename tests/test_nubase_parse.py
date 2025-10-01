@@ -11,6 +11,7 @@ def test_1995_nubase():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [1995],
         'Experimental': [True],
         'Symbol': ['Ho'],
         'A': [168],
@@ -36,6 +37,7 @@ def test_2003_nubase():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2003],
         'Experimental': [True],
         'Symbol': ['Ho'],
         'A': [168],
@@ -61,6 +63,7 @@ def test_2012_nubase():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2012],
         'Experimental': [True],
         'Symbol': ['Ho'],
         'A': [168],
@@ -87,6 +90,7 @@ def test_2016_nubase():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2016],
         'Experimental': [True],
         'Symbol': ['Ho'],
         'A': [168],
@@ -114,6 +118,7 @@ def test_2020_nubase():
     df = parser.read_file()
 
     expected = pd.DataFrame({
+        'TableYear': [2020],
         'Experimental': [True],
         'Symbol': ['Ho'],
         'A': [168],
