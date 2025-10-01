@@ -4,6 +4,8 @@ from nuclearmasses.mass_table import MassTable
 def test_get_nubase_datafile():
     mt = MassTable()
 
+    year = 1995
+    assert mt._get_nubase_datafile(year) == mt.data_path / str(year) / "nubtab97.asc"
     year = 2003
     assert mt._get_nubase_datafile(year) == mt.data_path / str(year) / "nubtab03.asc"
     year = 2012
@@ -17,12 +19,26 @@ def test_get_nubase_datafile():
 def test_get_ame_datafiles():
     mt = MassTable()
 
-    year = 2003
+    year = 1983
     data_path = mt.data_path / str(year)
-    mass, reaction01, reaction02 = mt._get_ame_datafiles(2003)
-    assert mass == data_path / "mass.mas03"
-    assert reaction01 == data_path / "rct1.mas03"
-    assert reaction02 == data_path / "rct2.mas03"
+    mass, reaction01, reaction02 = mt._get_ame_datafiles(1983)
+    assert mass == data_path / "mass.mas83"
+    assert reaction01 == data_path / "rct1.mas83"
+    assert reaction02 == data_path / "rct2.mas83"
+
+    year = 1993
+    data_path = mt.data_path / str(year)
+    mass, reaction01, reaction02 = mt._get_ame_datafiles(1993)
+    assert mass == data_path / "mass_exp.mas93"
+    assert reaction01 == data_path / "rct1_exp.mas93"
+    assert reaction02 == data_path / "rct2_exp.mas93"
+
+    year = 1995
+    data_path = mt.data_path / str(year)
+    mass, reaction01, reaction02 = mt._get_ame_datafiles(1995)
+    assert mass == data_path / "mass_exp.mas95"
+    assert reaction01 == data_path / "rct1_exp.mas95"
+    assert reaction02 == data_path / "rct2_exp.mas95"
 
     year = 2012
     data_path = mt.data_path / str(year)
@@ -44,13 +60,3 @@ def test_get_ame_datafiles():
     assert mass == data_path / "mass.mas20"
     assert reaction01 == data_path / "rct1.mas20"
     assert reaction02 == data_path / "rct2.mas20"
-
-
-def test_validate_year():
-    mt = MassTable()
-
-    assert mt._validate_year(2003) == 2003
-    assert mt._validate_year(2012) == 2012
-    assert mt._validate_year(2016) == 2016
-    assert mt._validate_year(2020) == 2020
-    assert mt._validate_year(2000) == mt.existing_years[-1]

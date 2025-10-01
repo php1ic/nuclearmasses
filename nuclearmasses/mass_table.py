@@ -1,8 +1,6 @@
-"""Functionality to parse all data file into a single object."""
 import importlib.resources
 import logging
 import pathlib
-import typing
 
 import pandas as pd
 
@@ -13,7 +11,7 @@ from nuclearmasses.nubase_parse import NUBASEParser
 
 
 class MassTable:
-    """Storage class for all of the mass data.
+    """Class for all of the mass data.
 
     Internally there are separate dataframes for the NUBASE and AME data as well as a combined one for all data
     """
@@ -21,69 +19,75 @@ class MassTable:
     def __init__(self):
         """Do all of the work at construction."""
         self.data_path = importlib.resources.files("nuclearmasses.data")
-        print(self.data_path)
-        self.existing_years = [2003, 2012, 2016, 2020]
-        self.nubase = pd.concat([self._parse_nubase_data(y) for y in self.existing_years], ignore_index=True)
-        self.ame = pd.concat([self._parse_ame_data(y) for y in self.existing_years], ignore_index=True)
+        self.nubase_years = [1995, 2003, 2012, 2016, 2020]
+        self.nubase = pd.concat([self._parse_nubase_data(y) for y in self.nubase_years], ignore_index=True)
+        self.ame_years = [1983, 1993, 1995, 2003, 2012, 2016, 2020]
+        self.ame = pd.concat([self._parse_ame_data(y) for y in self.ame_years], ignore_index=True)
         self.full_data = self._combine_all_data()
         self._do_indexing()
 
     def _get_nubase_datafile(self, year: int) -> pathlib.Path:
-        """Use the given year to locate the nubase mass table file and return the absolute path."""
+        """Use the given year to locate the NUBASE mass table file and return the absolute path."""
         nubase_mass = self.data_path / pathlib.Path(str(year))
         nubase_mass = nubase_mass.resolve()
 
-        if year == 2003:
-            nubase_mass = nubase_mass / "nubtab03.asc"
-        elif year == 2012:
-            nubase_mass = nubase_mass / "nubtab12.asc"
-        elif year == 2016:
-            nubase_mass = nubase_mass / "nubase2016.txt"
-        else:  # year == 2020:
-            nubase_mass = nubase_mass / "nubase_1.mas20"
+        match year:
+            case 1995:
+                nubase_mass = nubase_mass / "nubtab97.asc"
+            case 2003:
+                nubase_mass = nubase_mass / "nubtab03.asc"
+            case 2012:
+                nubase_mass = nubase_mass / "nubtab12.asc"
+            case 2016:
+                nubase_mass = nubase_mass / "nubase2016.txt"
+            case 2020:
+                nubase_mass = nubase_mass / "nubase_1.mas20"
 
         return nubase_mass
 
-    def _get_ame_datafiles(self, year: int) -> typing.Tuple[pathlib.Path, pathlib.Path, pathlib.Path]:
-        """Use the given year to locate the 3 AME data file and return the absolute path."""
+    def _get_ame_datafiles(self, year: int) -> tuple[pathlib.Path, pathlib.Path, pathlib.Path]:
+        """Use the given year to locate the 3 AME data file and return the absolute paths."""
         data_dir = self.data_path / pathlib.Path(str(year))
         data_dir = data_dir.resolve()
 
-        if year == 2003:
-            ame_mass = data_dir / "mass.mas03"
-            ame_reaction_1 = data_dir / "rct1.mas03"
-            ame_reaction_2 = data_dir / "rct2.mas03"
-        elif year == 2012:
-            ame_mass = data_dir / "mass.mas12"
-            ame_reaction_1 = data_dir / "rct1.mas12"
-            ame_reaction_2 = data_dir / "rct2.mas12"
-        elif year == 2016:
-            ame_mass = data_dir / "mass16.txt"
-            ame_reaction_1 = data_dir / "rct1-16.txt"
-            ame_reaction_2 = data_dir / "rct2-16.txt"
-        else:  # year == 2020:
-            ame_mass = data_dir / "mass.mas20"
-            ame_reaction_1 = data_dir / "rct1.mas20"
-            ame_reaction_2 = data_dir / "rct2.mas20"
+        match year:
+            case 1983:
+                ame_mass = data_dir / "mass.mas83"
+                ame_reaction_1 = data_dir / "rct1.mas83"
+                ame_reaction_2 = data_dir / "rct2.mas83"
+            case 1993:
+                ame_mass = data_dir / "mass_exp.mas93"
+                ame_reaction_1 = data_dir / "rct1_exp.mas93"
+                ame_reaction_2 = data_dir / "rct2_exp.mas93"
+            case 1995:
+                ame_mass = data_dir / "mass_exp.mas95"
+                ame_reaction_1 = data_dir / "rct1_exp.mas95"
+                ame_reaction_2 = data_dir / "rct2_exp.mas95"
+            case 2003:
+                ame_mass = data_dir / "mass.mas03"
+                ame_reaction_1 = data_dir / "rct1.mas03"
+                ame_reaction_2 = data_dir / "rct2.mas03"
+            case 2012:
+                ame_mass = data_dir / "mass.mas12"
+                ame_reaction_1 = data_dir / "rct1.mas12"
+                ame_reaction_2 = data_dir / "rct2.mas12"
+            case 2016:
+                ame_mass = data_dir / "mass16.txt"
+                ame_reaction_1 = data_dir / "rct1-16.txt"
+                ame_reaction_2 = data_dir / "rct2-16.txt"
+            case 2020:
+                ame_mass = data_dir / "mass.mas20"
+                ame_reaction_1 = data_dir / "rct1.mas20"
+                ame_reaction_2 = data_dir / "rct2.mas20"
 
         return ame_mass, ame_reaction_1, ame_reaction_2
 
-    def _validate_year(self, year: int) -> int:
-        """Point the appropriate variables at the required data files for the table year."""
-        if year not in self.existing_years:
-            logging.warning(f"{year} not a valid table year, using {self.existing_years[-1]}")
-            year = self.existing_years[-1]
-
-        return year
-
     def _parse_nubase_data(self, year: int) -> pd.DataFrame:
-        """Get the nubase for the given year as a pandas.DataFrame."""
-        year = self._validate_year(year)
+        """Get the NUBASE for the given year as a pandas.DataFrame."""
         return NUBASEParser(self._get_nubase_datafile(year), year).read_file()
 
     def _parse_ame_data(self, year: int) -> pd.DataFrame:
         """Combine all the AME files from the given year into a pandas.DataFrame."""
-        year = self._validate_year(year)
         ame_mass, ame_reaction_1, ame_reaction_2 = self._get_ame_datafiles(year)
 
         ame_mass_df = AMEMassParser(ame_mass, year).read_file()
@@ -96,7 +100,7 @@ class MassTable:
     def _combine_all_data(self) -> pd.DataFrame:
         """Combine all NUBASE and AME data into a single pandas DataFrame."""
         common_columns = ['A', 'Z', 'N', 'TableYear', 'Symbol']
-        df = self.nubase.merge(self.ame, on=common_columns)
+        df = pd.merge(self.ame, self.nubase, on=common_columns, how='outer')
 
         df["NUBASERelativeError"] = abs(
             df["NUBASEMassExcessError"] / df["NUBASEMassExcess"]

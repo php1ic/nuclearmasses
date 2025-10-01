@@ -20,45 +20,107 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
         super().__init__(self.year)
         logging.info(f"Reading {self.filename} from {self.year}")
 
-    def _read_line(self, line: str) -> dict:
-        """Read a line from the file."""
-        # Don't use a '#' as an experimental marker in this file
-        # but still need to remove it
-        if line.find("#") != -1:
-            line = line.replace("#", " ")
+    def _column_names(self) -> list[str]:
+        """Set the column name depending on the year"""
+        match self.year:
+            case _:
+                return [
+                        "A",
+                        "Z",
+                        "OneNeutronSeparationEnergy",
+                        "OneNeutronSeparationEnergyError",
+                        "OneProtonSeparationEnergy",
+                        "OneProtonSeparationEnergyError",
+                        "QFourBeta",
+                        "QFourBetaError",
+                        "QDeuteronAlpha",
+                        "QDeuteronAlphaError",
+                        "QProtonAlpha",
+                        "QProtonAlphaError",
+                        "QNeutronAlpha",
+                        "QNeutronAlphaError",
+                        ]
 
-        data = {
-            "TableYear": self.year,
-            "A": self._read_as_int(line, self.START_R2_A, self.END_R2_A),
-            "Z": self._read_as_int(line, self.START_R2_Z, self.END_R2_Z),
-            "OneNeutronSeparationEnergy": self._read_as_float(line, self.START_SN, self.END_SN),
-            "OneNeutronSeparationEnergyError": self._read_as_float(line, self.START_DSN, self.END_DSN),
-            "OneProtonSeparationEnergy": self._read_as_float(line, self.START_SP, self.END_SP),
-            "OneProtonSeparationEnergyError": self._read_as_float(line, self.START_DSP, self.END_DSP),
-            "QFourBeta": self._read_as_float(line, self.START_Q4B, self.END_Q4B),
-            "QFourBetaError": self._read_as_float(line, self.START_DQ4B, self.END_DQ4B),
-            "QDeuteronAlpha": self._read_as_float(line, self.START_QDA, self.END_QDA),
-            "QDeuteronAlphaError": self._read_as_float(line, self.START_DQDA, self.END_DQDA),
-            "QProtonAlpha": self._read_as_float(line, self.START_QPA, self.END_QPA),
-            "QProtonAlphaError": self._read_as_float(line, self.START_DQPA, self.END_DQPA),
-            "QNeutronAlpha": self._read_as_float(line, self.START_QNA, self.END_QNA),
-            "QNeutronAlphaError": self._read_as_float(line, self.START_DQNA, self.END_DQNA),
-        }
+    def _data_types(self) -> dict:
+        """Set the data type depending on the year"""
+        match self.year:
+            case _:
+                return {
+                        "TableYear": "Int64",
+                        "Symbol": "string",
+                        "A": "Int64",
+                        "Z": "Int64",
+                        "N": "Int64",
+                        "OneNeutronSeparationEnergy": "float64",
+                        "OneNeutronSeparationEnergyError": "float64",
+                        "OneProtonSeparationEnergy": "float64",
+                        "OneProtonSeparationEnergyError": "float64",
+                        "QFourBeta": "float64",
+                        "QFourBetaError": "float64",
+                        "QDeuteronAlpha": "float64",
+                        "QDeuteronAlphaError": "float64",
+                        "QProtonAlpha": "float64",
+                        "QProtonAlphaError": "float64",
+                        "QNeutronAlpha": "float64",
+                        "QNeutronAlphaError": "float64",
+                        }
 
-        data["N"] = data["A"] - data["Z"]
-        data["Symbol"] = self.z_to_symbol[data["Z"]]
-
-        return data
+    def _na_values(self) -> dict:
+        """Set the columns that have placeholder values"""
+        match self.year:
+            case _:
+                return {
+                        "A": [''],
+                        "OneNeutronSeparationEnergy": ['', '*'],
+                        "OneNeutronSeparationEnergyError": ['', '*'],
+                        "OneProtonSeparationEnergy": ['', '*'],
+                        "OneProtonSeparationEnergyError": ['', '*'],
+                        "QFourBeta": ['', '*'],
+                        "QFourBetaError": ['', '*'],
+                        "QDeuteronAlpha": ['', '*'],
+                        "QDeuteronAlphaError": ['', '*'],
+                        "QProtonAlpha": ['', '*'],
+                        "QProtonAlphaError": ['', '*'],
+                        "QNeutronAlpha": ['', '*'],
+                        "QNeutronAlphaError": ['', '*'],
+                        }
 
     def read_file(self) -> pd.DataFrame:
-        """Read the file."""
-        with open(self.filename, "r") as f:
-            lines = [line.rstrip() for line in f]
+        """Read the file using it's known format
 
-        # Remove the header lines and the footer for the 2020 table
-        lines = lines[self.HEADER: self.FOOTER]
+        The AMEReactionFileTwo and other functions in this class have hopefully sanitized the
+        column names, data types and locations of the date so we can not make the generic
+        call to parse the file.
+        """
+        try:
+            df = pd.read_fwf(
+                    self.filename,
+                    colspecs=self.column_limits,
+                    names=self._column_names(),
+                    na_values=self._na_values(),
+                    keep_default_na=False,
+                    on_bad_lines='warn',
+                    skiprows=self.HEADER,
+                    skipfooter=self.FOOTER
+                    )
+            # We use the NUBASE data to define whether or not an isotope is experimentally measured,
+            # so for this data we'll just drop any and all '#' characters
+            df.replace("#", "", regex=True, inplace=True)
 
-        # The 2020 rct2 file has additional lines feeds not present in any other file
-        the_lines = [line for line in lines if line[:1] != "1"]
+            if self.year == 1983:
+                # The column headers and units are repeated in the 1983 table
+                df = df[(df['A'] != 'A') & (df['Z'] != '')]
+                # The A value is not in the column if it doesn't change so we need to fill down
+                df['A'] = df['A'].ffill()
+            elif self.year == 2020:
+                # The column headers and units are repeated in the 2020 table
+                df = df[(df['A'] != 'A') & (df['Z'] != 'Z')]
 
-        return pd.DataFrame([self._read_line(line) for line in the_lines])
+            # Repeated column heading also means we have to cast to create new columns
+            df["TableYear"] = self.year
+            df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
+            df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
+
+            return df.astype(self._data_types())
+        except ValueError as e:
+            print(f"Parsing error: {e}")
