@@ -145,5 +145,4 @@ class NUBASEFile(ElementConverter):
                 ]
 
         if year > 2003:
-            print("In here")
             self.column_limits.insert(-1, (self.START_YEAR, self.END_YEAR))
