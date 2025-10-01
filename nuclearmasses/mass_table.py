@@ -19,7 +19,6 @@ class MassTable:
     def __init__(self):
         """Do all of the work at construction."""
         self.data_path = importlib.resources.files("nuclearmasses.data")
-        # print(self.data_path)
         self.nubase_years = [1995, 2003, 2012, 2016, 2020]
         self.nubase = pd.concat([self._parse_nubase_data(y) for y in self.nubase_years], ignore_index=True)
         self.ame_years = [1983, 1993, 1995, 2003, 2012, 2016, 2020]
