@@ -112,6 +112,9 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
                 df = df[(df['A'] != 'A') & (df['Z'] != '')]
                 # The A value is not in the column if it doesn't change so we need to fill down
                 df['A'] = df['A'].ffill()
+            elif self.year == 2020:
+                # The column headers and units are repeated in the 2020 table
+                df = df[(df['A'] != 'A') & (df['Z'] != 'Z')]
 
             # Repeated column heading also means we have to cast to create new columns
             df["TableYear"] = self.year
