@@ -142,6 +142,7 @@ class NUBASEParser(NUBASEFile):
                     )
             # We use the NUBASE data to define whether or not an isotope is experimentally measured,
             df['Experimental'] = ~df["NUBASEMassExcess"].astype("string").str.contains('#', na=False)
+            # Once we have used the '#' to determine if it's experimental or not, we can remove all instances of it
             df.replace("#", "", regex=True, inplace=True)
 
             df["TableYear"] = self.year
@@ -149,14 +150,14 @@ class NUBASEParser(NUBASEFile):
             df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
             # For the moment, we will ignore anything this is not the ground state
             df = df[df["State"] == 0]
-            # As 'State' is now necessarily 0 and the Isomer columns are empty. Drop them.
+            # As 'State' is now necessarily 0 and the Isomer columns are empty, drop them.
             df = df.drop(columns=['State', 'IsomerEnergy', 'IsomerEnergyError'])
 
             # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
             df.loc[df['HalfLifeValue'] == 'stbl', ['HalfLifeValue', 'HalfLifeUnit', 'HalfLifeError']] = [99.99, 'Zy', 0.0]
 
             df['HalfLifeValue'] = df['HalfLifeValue'].astype("string").str.replace(r'[<>?~]','', regex=True)
-            # We'll be lazy here an remove any characters in this column. Future us will parse this properly
+            # We'll be lazy here and remove any characters in this column. Future us will parse this properly
             df['HalfLifeError'] = df['HalfLifeError'].astype("string").str.replace(r'[<>?~a-z]','', regex=True)
 
             return df.astype(self._data_types())

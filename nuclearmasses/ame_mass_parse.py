@@ -78,7 +78,7 @@ class AMEMassParser(AMEMassFile):
         """Read the file using it's known format
 
         The AMEMassFile and other functions in this class have hopefully sanitized the
-        column names, data types and locations of the date so we can not make the generic
+        column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
         try:
@@ -104,7 +104,6 @@ class AMEMassParser(AMEMassFile):
                 # Isomeric states are sometimes included in this version of the file
                 # For each row in the dataframe, if the previous row has equal A and Z, drop the current row
                 df = df[~((df['A'] == df['A'].shift()) & (df['Z'] == df['Z'].shift()))]
-                # Total binding energy is recorded in this years file so convert to per A to match the other years
 
             if self.year == 1983 or self.year == 1993 or self.year == 1995:
                 df["BindingEnergyPerA"] = df["BindingEnergyPerA"].astype(float) / df['A'].astype(float)
