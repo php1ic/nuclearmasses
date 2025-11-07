@@ -116,7 +116,7 @@ TableYear
 If you have ideas for additional functionality or find bugs please create an [issue](https://github.com/php1ic/nuclearmasses/issues) or better yet a [pull request](https://github.com/php1ic/nuclearmasses/pulls).
 
 ## Known issues
-- [#5] The half life from the NUBASE data is stored as the individual elements, a column with the value in seconds would be useful
+- #5 The half life from the NUBASE data is stored as the individual elements, a column with the value in seconds would be useful
 ```python
 >>> df[(df['A'] == 14) & (df['Symbol'] == 'C')][['HalfLifeValue', 'HalfLifeUnit', 'HalfLifeError']]
            HalfLifeValue HalfLifeUnit  HalfLifeError
@@ -129,8 +129,8 @@ TableYear
 2016                5.70           ky           0.03
 2020                5.70           ky           0.03
 ```
-- [#6] The decay mode field from the NUBASE data is stored 'as-is' from the file.
+- #6 The decay mode field from the NUBASE data is stored 'as-is' from the file.
 It looks like it can be split on the ';' character for isotopes where there is more than one mode.
 A dictionary of {decay mode: fraction} may be the best way to store all of this information.
-- [#7] Information from anything other than the ground state of an isotope is ignored when parsing the NUABSE file.
+- #7 Information from anything other than the ground state of an isotope is ignored when parsing the NUABSE file.
 The selection of what is and what is not included appears random to me which is why I simply ignored for the moment.
