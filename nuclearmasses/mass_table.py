@@ -93,18 +93,16 @@ class MassTable:
         ame_mass_df = AMEMassParser(ame_mass, year).read_file()
 
         # Merge all 3 of the AME files/data frames into one
-        common_columns = ['A', 'Z', 'N', 'TableYear', 'Symbol']
+        common_columns = ["A", "Z", "N", "TableYear", "Symbol"]
         temp_df = ame_mass_df.merge(AMEReactionParserOne(ame_reaction_1, year).read_file(), on=common_columns)
         return temp_df.merge(AMEReactionParserTwo(ame_reaction_2, year).read_file(), on=common_columns)
 
     def _combine_all_data(self) -> pd.DataFrame:
         """Combine all NUBASE and AME data into a single pandas DataFrame."""
-        common_columns = ['A', 'Z', 'N', 'TableYear', 'Symbol']
-        df = pd.merge(self.ame, self.nubase, on=common_columns, how='outer')
+        common_columns = ["A", "Z", "N", "TableYear", "Symbol"]
+        df = pd.merge(self.ame, self.nubase, on=common_columns, how="outer")
 
-        df["NUBASERelativeError"] = abs(
-            df["NUBASEMassExcessError"] / df["NUBASEMassExcess"]
-        )
+        df["NUBASERelativeError"] = abs(df["NUBASEMassExcessError"] / df["NUBASEMassExcess"])
         df["AMERelativeError"] = abs(df["AMEMassExcessError"] / df["AMEMassExcess"])
 
         # 12C has a 0.0 +/ 0.0 mass excess by definition so calculating relative error -> NaN
@@ -113,7 +111,7 @@ class MassTable:
         df.loc[(df.Symbol == "C") & (df.A == 12), "AMERelativeError"] = 0.0
 
         # 198Au has a typo in it's decay mode in the 2012 table. It is recorded as '-'
-        df.loc[(df.A == 198) & (df.Z == 79) & (df.TableYear == 2012), 'Decay'] = "B-"
+        df.loc[(df.A == 198) & (df.Z == 79) & (df.TableYear == 2012), "Decay"] = "B-"
 
         return df
 

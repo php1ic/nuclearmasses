@@ -107,18 +107,18 @@ class AMEReactionFileOne(ElementConverter):
                 self.END_DQBN = 125
 
         self.column_limits = [
-                    (self.START_R1_A, self.END_R1_A),
-                    (self.START_R1_Z, self.END_R1_Z),
-                    (self.START_S2N, self.END_S2N),
-                    (self.START_DS2N, self.END_DS2N),
-                    (self.START_S2P, self.END_S2P),
-                    (self.START_DS2P, self.END_DS2P),
-                    (self.START_QA, self.END_QA),
-                    (self.START_DQA, self.END_DQA),
-                    (self.START_Q2B, self.END_Q2B),
-                    (self.START_DQ2B, self.END_DQ2B),
-                    (self.START_QEP, self.END_QEP),
-                    (self.START_DQEP, self.END_DQEP),
-                    (self.START_QBN, self.END_QBN),
-                    (self.START_DQBN, self.END_DQBN),
-                    ]
+            (self.START_R1_A, self.END_R1_A),
+            (self.START_R1_Z, self.END_R1_Z),
+            (self.START_S2N, self.END_S2N),
+            (self.START_DS2N, self.END_DS2N),
+            (self.START_S2P, self.END_S2P),
+            (self.START_DS2P, self.END_DS2P),
+            (self.START_QA, self.END_QA),
+            (self.START_DQA, self.END_DQA),
+            (self.START_Q2B, self.END_Q2B),
+            (self.START_DQ2B, self.END_DQ2B),
+            (self.START_QEP, self.END_QEP),
+            (self.START_DQEP, self.END_DQEP),
+            (self.START_QBN, self.END_QBN),
+            (self.START_DQBN, self.END_DQBN),
+        ]

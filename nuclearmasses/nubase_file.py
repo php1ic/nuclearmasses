@@ -130,19 +130,19 @@ class NUBASEFile(ElementConverter):
                 self.END_DECAYSTRING = None
 
         self.column_limits = [
-                (self.START_A, self.END_A),
-                (self.START_Z, self.END_Z),
-                (self.START_STATE, self.END_STATE),
-                (self.START_ME, self.END_ME),
-                (self.START_DME, self.END_DME),
-                (self.START_ISOMER, self.END_ISOMER),
-                (self.START_DISOMER, self.END_DISOMER),
-                (self.START_HALFLIFEVALUE, self.END_HALFLIFEVALUE),
-                (self.START_HALFLIFEUNIT, self.END_HALFLIFEUNIT),
-                (self.START_HALFLIFEERROR, self.END_HALFLIFEERROR),
-                (self.START_SPIN, self.END_SPIN),
-                (self.START_DECAYSTRING, self.END_DECAYSTRING),
-                ]
+            (self.START_A, self.END_A),
+            (self.START_Z, self.END_Z),
+            (self.START_STATE, self.END_STATE),
+            (self.START_ME, self.END_ME),
+            (self.START_DME, self.END_DME),
+            (self.START_ISOMER, self.END_ISOMER),
+            (self.START_DISOMER, self.END_DISOMER),
+            (self.START_HALFLIFEVALUE, self.END_HALFLIFEVALUE),
+            (self.START_HALFLIFEUNIT, self.END_HALFLIFEUNIT),
+            (self.START_HALFLIFEERROR, self.END_HALFLIFEERROR),
+            (self.START_SPIN, self.END_SPIN),
+            (self.START_DECAYSTRING, self.END_DECAYSTRING),
+        ]
 
         if year > 2003:
             self.column_limits.insert(-1, (self.START_YEAR, self.END_YEAR))

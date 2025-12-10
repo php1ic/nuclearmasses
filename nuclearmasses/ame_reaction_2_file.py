@@ -106,18 +106,18 @@ class AMEReactionFileTwo(ElementConverter):
                 self.END_DQNA = 125
 
         self.column_limits = [
-                (self.START_R2_A, self.END_R2_A),
-                (self.START_R2_Z, self.END_R2_Z),
-                (self.START_SN, self.END_SN),
-                (self.START_DSN, self.END_DSN),
-                (self.START_SP, self.END_SP),
-                (self.START_DSP, self.END_DSP),
-                (self.START_Q4B, self.END_Q4B),
-                (self.START_DQ4B, self.END_DQ4B),
-                (self.START_QDA, self.END_QDA),
-                (self.START_DQDA, self.END_DQDA),
-                (self.START_QPA, self.END_QPA),
-                (self.START_DQPA, self.END_DQPA),
-                (self.START_QNA, self.END_QNA),
-                (self.START_DQNA, self.END_DQNA),
-                ]
+            (self.START_R2_A, self.END_R2_A),
+            (self.START_R2_Z, self.END_R2_Z),
+            (self.START_SN, self.END_SN),
+            (self.START_DSN, self.END_DSN),
+            (self.START_SP, self.END_SP),
+            (self.START_DSP, self.END_DSP),
+            (self.START_Q4B, self.END_Q4B),
+            (self.START_DQ4B, self.END_DQ4B),
+            (self.START_QDA, self.END_QDA),
+            (self.START_DQDA, self.END_DQDA),
+            (self.START_QPA, self.END_QPA),
+            (self.START_DQPA, self.END_DQPA),
+            (self.START_QNA, self.END_QNA),
+            (self.START_DQNA, self.END_DQNA),
+        ]
