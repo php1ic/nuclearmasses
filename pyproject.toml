@@ -70,3 +70,12 @@ nuclearmasses = [
 omit = [
  "tests/*"
 ]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+# Nothing different from defaults
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
