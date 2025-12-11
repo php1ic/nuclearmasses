@@ -71,6 +71,10 @@ omit = [
  "tests/*"
 ]
 
+[tool.isort]
+known_first_party = ["nuclearmasses"]
+
+
 [tool.ruff]
 line-length = 120
 

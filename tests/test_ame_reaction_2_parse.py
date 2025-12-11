@@ -1,8 +1,9 @@
-from nuclearmasses.ame_reaction_2_parse import AMEReactionParserTwo
-
 import io
+
 import pandas as pd
 import pandas.testing as pdt
+
+from nuclearmasses.ame_reaction_2_parse import AMEReactionParserTwo
 
 
 def test_1983_rct2():
