@@ -1,5 +1,4 @@
 import importlib.resources
-import logging
 import pathlib
 
 import pandas as pd
