@@ -7,7 +7,7 @@ class ElementConverter:
     TODO: Create accessor function that do some argument validation
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Construct the symbol -> Z and Z -> symbol dictionaries."""
         # fmt: off
         # Fromatter wants to put each item on it's own line, I don't

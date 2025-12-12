@@ -114,16 +114,17 @@ class AMEMassParser(AMEMassFile):
             df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
 
             # Combine the two columns to create the atomic mass then drop the redundant column
+            # Pandas is happy to use '+' for any type, but mypy doesn't like it, hence the use of str.cat()
             df["AtomicMass"] = (
-                df["AtomicNumber"].astype("string")
-                + "."
-                + df["AtomicMass"].astype("string").str.replace(".", "", regex=False)
+                df["AtomicNumber"]
+                .astype("string")
+                .str.cat(df["AtomicMass"].astype("string").str.replace(".", "", regex=False), sep=".")
             )
             df = df.drop(columns=["AtomicNumber"])
 
             # We need to rescale the error value because we combined the two columns above
             df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
-
-            return df.astype(self._data_types())
         except ValueError as e:
             print(f"Parsing error: {e}")
+
+        return df.astype(self._data_types())

@@ -2,6 +2,7 @@
 
 import logging
 import pathlib
+import typing
 
 import pandas as pd
 
@@ -133,7 +134,7 @@ class NUBASEParser(NUBASEFile):
         try:
             df = pd.read_fwf(
                 self.filename,
-                colspecs=self.column_limits,
+                colspecs=typing.cast(typing.Sequence[tuple[int, int]], self.column_limits),  # appease mypy
                 names=self._column_names(),
                 na_values=self._na_values(),
                 keep_default_na=False,
@@ -155,16 +156,13 @@ class NUBASEParser(NUBASEFile):
             df = df.drop(columns=["State", "IsomerEnergy", "IsomerEnergyError"])
 
             # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
-            df.loc[df["HalfLifeValue"] == "stbl", ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = [
-                99.99,
-                "Zy",
-                0.0,
-            ]
+            mask = df["HalfLifeValue"] == "stbl"
+            df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (99.99, "Zy", 0.0)
 
             df["HalfLifeValue"] = df["HalfLifeValue"].astype("string").str.replace(r"[<>?~]", "", regex=True)
             # We'll be lazy here and remove any characters in this column. Future us will parse this properly
             df["HalfLifeError"] = df["HalfLifeError"].astype("string").str.replace(r"[<>?~a-z]", "", regex=True)
-
-            return df.astype(self._data_types())
         except ValueError as e:
             print(f"Parsing error: {e}")
+
+        return df.astype(self._data_types())

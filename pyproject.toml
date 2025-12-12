@@ -44,6 +44,8 @@ keywords = [
 [project.optional-dependencies]
 dev = [
   "coverage",
+  "mypy",
+  "pandas-stubs",
 ]
 
 [project.urls]
