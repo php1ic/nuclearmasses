@@ -47,7 +47,7 @@ Once installed or cloned, the data is available as a single dataframe indexed on
 >>> from nuclearmasses.mass_table import MassTable
 >>> df = MassTable().full_data
 ```
-You can then interrogate, or extract, what ever information you want.
+You can then interrogate, or extract, whatever information you want.
 For example, how has the mass excess and it's accuracy changed overtime for 190Re according to the AME
 ```python
 >>> df[(df['A'] == 190) & (df['Symbol'] == 'Re')][['AMEMassExcess', 'AMEMassExcessError']]
@@ -61,7 +61,7 @@ TableYear
 2016          -35635.830              70.852
 2020          -35583.015               4.870
 ```
-Or how do the mass excess of gold vary across the isotropic chain according to NUBASE in the most recent table for both experimentally measured and theoretical values
+Or how does the mass excess of gold vary across the isotopic chain according to NUBASE in the most recent table for both experimentally measured and theoretical values
 ```python
 >>> df.query("TableYear == 2020 and Symbol == 'Au'")[['A', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'Experimental']]
              A  NUBASEMassExcess  NUBASEMassExcessError  Experimental
@@ -115,7 +115,15 @@ TableYear
 
 If you have ideas for additional functionality or find bugs please create an [issue](https://github.com/php1ic/nuclearmasses/issues) or better yet a [pull request](https://github.com/php1ic/nuclearmasses/pulls).
 
+We use a combination of [isort](https://pycqa.github.io/isort/), [ruff](https://docs.astral.sh/ruff/) and [mypy](https://www.mypy-lang.org/) to keep things tidy and hopefully catch errors and bugs before they happen.
+The command below returns no errors or issues so should be run after any code changes.
+We might add a CI pipeline in the future, but for the moment, it's a manual process.
+```bash
+isort . && ruff format && ruff check && mypy nuclearmasses
+```
+
 ## Known issues
+
 - [#5](https://github.com/php1ic/nuclearmasses/issues/5) The half life from the NUBASE data is stored as the individual elements, a column with the value in seconds would be useful
 ```python
 >>> df[(df['A'] == 14) & (df['Symbol'] == 'C')][['HalfLifeValue', 'HalfLifeUnit', 'HalfLifeError']]
