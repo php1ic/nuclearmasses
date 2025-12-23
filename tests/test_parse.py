@@ -15,4 +15,3 @@ def test_symbol_to_Z():
     assert converter.symbol_to_z["Al"] == 13
     assert converter.symbol_to_z["Fe"] == 26
     assert converter.symbol_to_z["Po"] == 84
-

@@ -7,8 +7,10 @@ class ElementConverter:
     TODO: Create accessor function that do some argument validation
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Construct the symbol -> Z and Z -> symbol dictionaries."""
+        # fmt: off
+        # Fromatter wants to put each item on it's own line, I don't
         self.z_to_symbol: dict[int, str] = {
             0: "n", 1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F",
             10: "Ne", 11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P", 16: "S", 17: "Cl", 18: "Ar", 19: "K",
@@ -20,9 +22,10 @@ class ElementConverter:
             70: "Yb", 71: "Lu", 72: "Hf", 73: "Ta", 74: "W", 75: "Re", 76: "Os", 77: "Ir", 78: "Pt", 79: "Au",
             80: "Hg", 81: "Tl", 82: "Pb", 83: "Bi", 84: "Po", 85: "At", 86: "Rn", 87: "Fr", 88: "Ra", 89: "Ac",
             90: "Th", 91: "Pa", 92: "U", 93: "Np", 94: "Pu", 95: "Am", 96: "Cm", 97: "Bk", 98: "Cf", 99: "Es",
-            100: "Fm", 101: "Md", 102: "No", 103: "Lr", 104: "Rf", 105: "Db", 106: "Sg", 107: "Bh", 108: "Hs", 109: "Mt",
+            100: "Fm", 101: "Md", 102: "No", 103: "Lr", 104: "Rf", 105: "Db", 106: "Sg", 107: "Bh", 108: "Hs", 109: "Mt", # noqa: E501
             110: "Ds", 111: "Rg", 112: "Cn", 113: "Ed", 114: "Fl", 115: "Ef", 116: "Lv", 117: "Ts", 118: "Og"
         }
+        # fmt: on
 
         # Switch the keys and values of the z_to_symbol dictionary so a user can access the Z value using the symbol
         self.symbol_to_z: dict[str, int] = {val: key for key, val in self.z_to_symbol.items()}

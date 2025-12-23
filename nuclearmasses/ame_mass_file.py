@@ -134,15 +134,15 @@ class AMEMassFile(ElementConverter):
                 self.END_MICRO_DU = 120
 
         self.column_limits = [
-                (self.START_Z, self.END_Z),
-                (self.START_A, self.END_A),
-                (self.START_ME, self.END_ME),
-                (self.START_DME, self.END_DME),
-                (self.START_BE_PER_A, self.END_BE_PER_A),
-                (self.START_DBE_PER_A, self.END_DBE_PER_A),
-                (self.START_BETA_DECAY_ENERGY, self.END_BETA_DECAY_ENERGY),
-                (self.START_DBETA_DECAY_ENERGY, self.END_DBETA_DECAY_ENERGY),
-                (self.START_AM, self.END_AM),
-                (self.START_MICRO_U, self.END_MICRO_U),
-                (self.START_MICRO_DU, self.END_MICRO_DU),
-                ]
+            (self.START_Z, self.END_Z),
+            (self.START_A, self.END_A),
+            (self.START_ME, self.END_ME),
+            (self.START_DME, self.END_DME),
+            (self.START_BE_PER_A, self.END_BE_PER_A),
+            (self.START_DBE_PER_A, self.END_DBE_PER_A),
+            (self.START_BETA_DECAY_ENERGY, self.END_BETA_DECAY_ENERGY),
+            (self.START_DBETA_DECAY_ENERGY, self.END_DBETA_DECAY_ENERGY),
+            (self.START_AM, self.END_AM),
+            (self.START_MICRO_U, self.END_MICRO_U),
+            (self.START_MICRO_DU, self.END_MICRO_DU),
+        ]

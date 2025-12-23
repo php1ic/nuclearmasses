@@ -1,4 +1,5 @@
 """Extract the date from the second reaction file."""
+
 import logging
 import pathlib
 
@@ -25,65 +26,65 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
         match self.year:
             case _:
                 return [
-                        "A",
-                        "Z",
-                        "OneNeutronSeparationEnergy",
-                        "OneNeutronSeparationEnergyError",
-                        "OneProtonSeparationEnergy",
-                        "OneProtonSeparationEnergyError",
-                        "QFourBeta",
-                        "QFourBetaError",
-                        "QDeuteronAlpha",
-                        "QDeuteronAlphaError",
-                        "QProtonAlpha",
-                        "QProtonAlphaError",
-                        "QNeutronAlpha",
-                        "QNeutronAlphaError",
-                        ]
+                    "A",
+                    "Z",
+                    "OneNeutronSeparationEnergy",
+                    "OneNeutronSeparationEnergyError",
+                    "OneProtonSeparationEnergy",
+                    "OneProtonSeparationEnergyError",
+                    "QFourBeta",
+                    "QFourBetaError",
+                    "QDeuteronAlpha",
+                    "QDeuteronAlphaError",
+                    "QProtonAlpha",
+                    "QProtonAlphaError",
+                    "QNeutronAlpha",
+                    "QNeutronAlphaError",
+                ]
 
     def _data_types(self) -> dict:
         """Set the data type depending on the year"""
         match self.year:
             case _:
                 return {
-                        "TableYear": "Int64",
-                        "Symbol": "string",
-                        "A": "Int64",
-                        "Z": "Int64",
-                        "N": "Int64",
-                        "OneNeutronSeparationEnergy": "float64",
-                        "OneNeutronSeparationEnergyError": "float64",
-                        "OneProtonSeparationEnergy": "float64",
-                        "OneProtonSeparationEnergyError": "float64",
-                        "QFourBeta": "float64",
-                        "QFourBetaError": "float64",
-                        "QDeuteronAlpha": "float64",
-                        "QDeuteronAlphaError": "float64",
-                        "QProtonAlpha": "float64",
-                        "QProtonAlphaError": "float64",
-                        "QNeutronAlpha": "float64",
-                        "QNeutronAlphaError": "float64",
-                        }
+                    "TableYear": "Int64",
+                    "Symbol": "string",
+                    "A": "Int64",
+                    "Z": "Int64",
+                    "N": "Int64",
+                    "OneNeutronSeparationEnergy": "float64",
+                    "OneNeutronSeparationEnergyError": "float64",
+                    "OneProtonSeparationEnergy": "float64",
+                    "OneProtonSeparationEnergyError": "float64",
+                    "QFourBeta": "float64",
+                    "QFourBetaError": "float64",
+                    "QDeuteronAlpha": "float64",
+                    "QDeuteronAlphaError": "float64",
+                    "QProtonAlpha": "float64",
+                    "QProtonAlphaError": "float64",
+                    "QNeutronAlpha": "float64",
+                    "QNeutronAlphaError": "float64",
+                }
 
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
         match self.year:
             case _:
                 return {
-                        "A": [''],
-                        "OneNeutronSeparationEnergy": ['', '*'],
-                        "OneNeutronSeparationEnergyError": ['', '*'],
-                        "OneProtonSeparationEnergy": ['', '*'],
-                        "OneProtonSeparationEnergyError": ['', '*'],
-                        "QFourBeta": ['', '*'],
-                        "QFourBetaError": ['', '*'],
-                        "QDeuteronAlpha": ['', '*'],
-                        "QDeuteronAlphaError": ['', '*'],
-                        "QProtonAlpha": ['', '*'],
-                        "QProtonAlphaError": ['', '*'],
-                        "QNeutronAlpha": ['', '*'],
-                        "QNeutronAlphaError": ['', '*'],
-                        }
+                    "A": [""],
+                    "OneNeutronSeparationEnergy": ["", "*"],
+                    "OneNeutronSeparationEnergyError": ["", "*"],
+                    "OneProtonSeparationEnergy": ["", "*"],
+                    "OneProtonSeparationEnergyError": ["", "*"],
+                    "QFourBeta": ["", "*"],
+                    "QFourBetaError": ["", "*"],
+                    "QDeuteronAlpha": ["", "*"],
+                    "QDeuteronAlphaError": ["", "*"],
+                    "QProtonAlpha": ["", "*"],
+                    "QProtonAlphaError": ["", "*"],
+                    "QNeutronAlpha": ["", "*"],
+                    "QNeutronAlphaError": ["", "*"],
+                }
 
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
@@ -94,33 +95,33 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
         """
         try:
             df = pd.read_fwf(
-                    self.filename,
-                    colspecs=self.column_limits,
-                    names=self._column_names(),
-                    na_values=self._na_values(),
-                    keep_default_na=False,
-                    on_bad_lines='warn',
-                    skiprows=self.HEADER,
-                    skipfooter=self.FOOTER
-                    )
+                self.filename,
+                colspecs=self.column_limits,
+                names=self._column_names(),
+                na_values=self._na_values(),
+                keep_default_na=False,
+                on_bad_lines="warn",
+                skiprows=self.HEADER,
+                skipfooter=self.FOOTER,
+            )
             # We use the NUBASE data to define whether or not an isotope is experimentally measured,
             # so for this data we'll just drop any and all '#' characters
             df.replace("#", "", regex=True, inplace=True)
 
             if self.year == 1983:
                 # The column headers and units are repeated in the 1983 table
-                df = df[(df['A'] != 'A') & (df['Z'] != '')]
+                df = df[(df["A"] != "A") & (df["Z"] != "")]
                 # The A value is not in the column if it doesn't change so we need to fill down
-                df['A'] = df['A'].ffill()
+                df["A"] = df["A"].ffill()
             elif self.year == 2020:
                 # The column headers and units are repeated in the 2020 table
-                df = df[(df['A'] != 'A') & (df['Z'] != 'Z')]
+                df = df[(df["A"] != "A") & (df["Z"] != "Z")]
 
             # Repeated column heading also means we have to cast to create new columns
             df["TableYear"] = self.year
             df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
             df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
-
-            return df.astype(self._data_types())
         except ValueError as e:
             print(f"Parsing error: {e}")
+
+        return df.astype(self._data_types())
