@@ -30,6 +30,7 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
+  "astropy",
   "pandas",
   "pytest",
 ]

@@ -1,3 +1,8 @@
+import astropy  # type: ignore[import-untyped]
+import numpy as np
+import pandas as pd
+
+
 class ElementConverter:
     """A utility class for converting between symbol and Z value
 
@@ -29,3 +34,11 @@ class ElementConverter:
 
         # Switch the keys and values of the z_to_symbol dictionary so a user can access the Z value using the symbol
         self.symbol_to_z: dict[str, int] = {val: key for key, val in self.z_to_symbol.items()}
+
+    def unit_to_seconds(self, unit_str: str) -> float:
+        if pd.isna(unit_str):
+            return np.nan
+        try:
+            return float(astropy.units.Unit(unit_str).to(astropy.units.s))
+        except Exception:
+            return np.nan
