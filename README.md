@@ -124,21 +124,8 @@ isort . && ruff format && ruff check && mypy nuclearmasses
 
 ## Known issues
 
-- [#5](https://github.com/php1ic/nuclearmasses/issues/5) The half life from the NUBASE data is stored as the individual elements, a column with the value in seconds would be useful
-```python
->>> df[(df['A'] == 14) & (df['Symbol'] == 'C')][['HalfLifeValue', 'HalfLifeUnit', 'HalfLifeError']]
-           HalfLifeValue HalfLifeUnit  HalfLifeError
-TableYear
-1983                 NaN         <NA>            NaN
-1993                 NaN         <NA>            NaN
-1995                5.73           ky           0.04
-2003                5.70           ky           0.03
-2012                5.70           ky           0.03
-2016                5.70           ky           0.03
-2020                5.70           ky           0.03
-```
 - [#6](https://github.com/php1ic/nuclearmasses/issues/6) The decay mode field from the NUBASE data is stored 'as-is' from the file.
 It looks like it can be split on the ';' character for isotopes where there is more than one mode.
 A dictionary of {decay mode: fraction} may be the best way to store all of this information.
-- [#7](https://github.com/php1ic/nuclearmasses/issues/7) Information from anything other than the ground state of an isotope is ignored when parsing the NUABSE file.
+- [#7](https://github.com/php1ic/nuclearmasses/issues/7) Information from anything other than the ground state of an isotope is ignored when parsing the NUBASE file.
 The selection of what is and what is not included appears random to me which is why I simply ignored for the moment.

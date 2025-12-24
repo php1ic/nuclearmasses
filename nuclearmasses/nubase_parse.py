@@ -17,9 +17,13 @@ class NUBASEParser(NUBASEFile):
 
     def __init__(self, filename: pathlib.Path, year: int):
         """Set the file to read and the table year."""
-        self.filename = filename
-        self.year = year
-        super().__init__(self.year)
+        super().__init__(year)
+        self.filename: pathlib.Path = filename
+        self.year: int = year
+        self.unit_replacements: dict[str, str] = {
+            r"y$": "yr",
+            r"^m$": "min",
+        }
         logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
@@ -75,6 +79,8 @@ class NUBASEParser(NUBASEFile):
                     "HalfLifeValue": "float64",
                     "HalfLifeUnit": "string",
                     "HalfLifeError": "float64",
+                    "HalfLifeSeconds": "float64",
+                    "HalfLifeErrorSeconds": "float64",
                     "Spin": "string",
                     "DecayModes": "string",
                 }
@@ -93,6 +99,8 @@ class NUBASEParser(NUBASEFile):
                     "HalfLifeValue": "float64",
                     "HalfLifeUnit": "string",
                     "HalfLifeError": "float64",
+                    "HalfLifeSeconds": "float64",
+                    "HalfLifeErrorSeconds": "float64",
                     "Spin": "string",
                     "DiscoveryYear": "Int64",
                     "DecayModes": "string",
@@ -157,11 +165,25 @@ class NUBASEParser(NUBASEFile):
 
             # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
             mask = df["HalfLifeValue"] == "stbl"
-            df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (99.99, "Zy", 0.0)
+            df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (99.99, "Zyr", 0.0)
 
             df["HalfLifeValue"] = df["HalfLifeValue"].astype("string").str.replace(r"[<>?~]", "", regex=True)
             # We'll be lazy here and remove any characters in this column. Future us will parse this properly
             df["HalfLifeError"] = df["HalfLifeError"].astype("string").str.replace(r"[<>?~a-z]", "", regex=True)
+
+            # Use the 3 half-life columns to create 2 new columns with units of seconds
+            df["HalfLifeUnit"] = df["HalfLifeUnit"].astype("string")
+            for pattern, replacement in self.unit_replacements.items():
+                df["HalfLifeUnit"] = df["HalfLifeUnit"].str.replace(pattern, replacement, regex=True)
+
+            # Ensure numeric values
+            for col in ["HalfLifeValue", "HalfLifeError"]:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+            # Pre-compute unit -> second conversions
+            unit_map = df["HalfLifeUnit"].map(self.unit_to_seconds)
+
+            df["HalfLifeSeconds"] = df["HalfLifeValue"] * unit_map
+            df["HalfLifeErrorSeconds"] = df["HalfLifeError"] * unit_map
         except ValueError as e:
             print(f"Parsing error: {e}")
 
