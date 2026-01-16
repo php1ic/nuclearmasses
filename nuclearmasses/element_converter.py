@@ -9,13 +9,13 @@ class ElementConverter:
     This class provides bidirectional lookup functionality via two dictionaries:
     one mapping Z to symbol and the other symbol to Z.
 
-    TODO: Create accessor function that do some argument validation
+    TODO: Create accessors function that do some argument validation
     """
 
     def __init__(self) -> None:
         """Construct the symbol -> Z and Z -> symbol dictionaries."""
         # fmt: off
-        # Fromatter wants to put each item on it's own line, I don't
+        # Formatter wants to put each item on it's own line, I don't
         self.z_to_symbol: dict[int, str] = {
             0: "n", 1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F",
             10: "Ne", 11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P", 16: "S", 17: "Cl", 18: "Ar", 19: "K",
@@ -36,9 +36,31 @@ class ElementConverter:
         self.symbol_to_z: dict[str, int] = {val: key for key, val in self.z_to_symbol.items()}
 
     def unit_to_seconds(self, unit_str: str) -> float:
+        """Convert a time unit to a scale factor in seconds.
+
+        Returns np.nan for non-valid time units.
+
+        e.g. "s" -> 1.0, "min" -> 60.0, "keV" -> np.nan
+
+        """
         if pd.isna(unit_str):
             return np.nan
-        try:
-            return float(astropy.units.Unit(unit_str).to(astropy.units.s))
-        except Exception:
+
+        # Remove white space and make lower case to be consistent
+        # String conversion may be redundant, but let's be complete
+        cleaned_unit = str(unit_str).strip().lower()
+        if not cleaned_unit:
             return np.nan
+
+        # Use 'silent' so failure is written into the variable, not thrown as an exception
+        unit = astropy.units.Unit(cleaned_unit, parse_strict="silent")
+        # Check for failures as mentioned above
+        if isinstance(unit, astropy.units.UnrecognizedUnit):
+            return np.nan
+
+        # We now know the unit is physically valid, but not that it's time related, e.g. minutes rather than km
+        # Astropy allows us to check that
+        if unit.physical_type != "time":
+            return np.nan
+
+        return float(unit.to(astropy.units.s))
