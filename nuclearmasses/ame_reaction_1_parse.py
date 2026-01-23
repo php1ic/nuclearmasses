@@ -1,5 +1,3 @@
-"""Extract the data from the first reaction file."""
-
 import logging
 import pathlib
 

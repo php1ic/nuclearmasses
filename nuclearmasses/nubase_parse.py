@@ -1,5 +1,3 @@
-"""Extract the data from the nubase file."""
-
 import logging
 import pathlib
 import typing
