@@ -162,6 +162,11 @@ class NUBASEParser(NUBASEFile):
             df = df.drop(columns=["State", "IsomerEnergy", "IsomerEnergyError"])
 
             # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
+            # pandas v3 became much stricter with type conversions so convert to object (from string) so
+            # we can assign a float without breaking other parts of the code
+            df["HalfLifeValue"] = df["HalfLifeValue"].astype("object")
+            df["HalfLifeError"] = df["HalfLifeError"].astype("object")
+
             mask = df["HalfLifeValue"] == "stbl"
             df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (99.99, "Zyr", 0.0)
 
