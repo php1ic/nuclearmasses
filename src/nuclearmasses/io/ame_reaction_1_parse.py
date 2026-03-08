@@ -3,11 +3,11 @@ import pathlib
 
 import pandas as pd
 
-from nuclearmasses.ame_reaction_2_file import AMEReactionFileTwo
+from nuclearmasses.io.ame_reaction_1_file import AMEReactionFileOne
 
 
-class AMEReactionParserTwo(AMEReactionFileTwo):
-    """Parse the second AME reaction file.
+class AMEReactionParserOne(AMEReactionFileOne):
+    """Parse the first AME reaction file.
 
     The format is known but I don't think python can easily parse it.
     """
@@ -26,18 +26,18 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
                 return [
                     "A",
                     "Z",
-                    "OneNeutronSeparationEnergy",
-                    "OneNeutronSeparationEnergyError",
-                    "OneProtonSeparationEnergy",
-                    "OneProtonSeparationEnergyError",
-                    "QFourBeta",
-                    "QFourBetaError",
-                    "QDeuteronAlpha",
-                    "QDeuteronAlphaError",
-                    "QProtonAlpha",
-                    "QProtonAlphaError",
-                    "QNeutronAlpha",
-                    "QNeutronAlphaError",
+                    "TwoNeutronSeparationEnergy",
+                    "TwoNeutronSeparationEnergyError",
+                    "TwoProtonSeparationEnergy",
+                    "TwoProtonSeparationEnergyError",
+                    "QAlpha",
+                    "QAlphaError",
+                    "QTwoBeta",
+                    "QTwoBetaError",
+                    "QEpsilon",
+                    "QEpsilonError",
+                    "QBetaNeutron",
+                    "QBetaNeutronError",
                 ]
 
     def _data_types(self) -> dict:
@@ -50,18 +50,18 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
                     "A": "Int64",
                     "Z": "Int64",
                     "N": "Int64",
-                    "OneNeutronSeparationEnergy": "float64",
-                    "OneNeutronSeparationEnergyError": "float64",
-                    "OneProtonSeparationEnergy": "float64",
-                    "OneProtonSeparationEnergyError": "float64",
-                    "QFourBeta": "float64",
-                    "QFourBetaError": "float64",
-                    "QDeuteronAlpha": "float64",
-                    "QDeuteronAlphaError": "float64",
-                    "QProtonAlpha": "float64",
-                    "QProtonAlphaError": "float64",
-                    "QNeutronAlpha": "float64",
-                    "QNeutronAlphaError": "float64",
+                    "TwoNeutronSeparationEnergy": "float64",
+                    "TwoNeutronSeparationEnergyError": "float64",
+                    "TwoProtonSeparationEnergy": "float64",
+                    "TwoProtonSeparationEnergyError": "float64",
+                    "QAlpha": "float64",
+                    "QAlphaError": "float64",
+                    "QTwoBeta": "float64",
+                    "QTwoBetaError": "float64",
+                    "QEpsilon": "float64",
+                    "QEpsilonError": "float64",
+                    "QBetaNeutron": "float64",
+                    "QBetaNeutronError": "float64",
                 }
 
     def _na_values(self) -> dict:
@@ -70,24 +70,24 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
             case _:
                 return {
                     "A": [""],
-                    "OneNeutronSeparationEnergy": ["", "*"],
-                    "OneNeutronSeparationEnergyError": ["", "*"],
-                    "OneProtonSeparationEnergy": ["", "*"],
-                    "OneProtonSeparationEnergyError": ["", "*"],
-                    "QFourBeta": ["", "*"],
-                    "QFourBetaError": ["", "*"],
-                    "QDeuteronAlpha": ["", "*"],
-                    "QDeuteronAlphaError": ["", "*"],
-                    "QProtonAlpha": ["", "*"],
-                    "QProtonAlphaError": ["", "*"],
-                    "QNeutronAlpha": ["", "*"],
-                    "QNeutronAlphaError": ["", "*"],
+                    "TwoNeutronSeparationEnergy": ["", "*"],
+                    "TwoNeutronSeparationEnergyError": ["", "*"],
+                    "TwoProtonSeparationEnergy": ["", "*"],
+                    "TwoProtonSeparationEnergyError": ["", "*"],
+                    "QAlpha": ["", "*"],
+                    "QAlphaError": ["", "*"],
+                    "QTwoBeta": ["", "*"],
+                    "QTwoBetaError": ["", "*"],
+                    "QEpsilon": ["", "*"],
+                    "QEpsilonError": ["", "*"],
+                    "QBetaNeutron": ["", "*"],
+                    "QBetaNeutronError": ["", "*"],
                 }
 
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
 
-        The AMEReactionFileTwo and other functions in this class have hopefully sanitized the
+        The AMEReactionFileOne and other functions in this class have hopefully sanitized the
         column names, data types and locations of the date so we can not make the generic
         call to parse the file.
         """
@@ -111,11 +111,7 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
                 df = df[(df["A"] != "A") & (df["Z"] != "")]
                 # The A value is not in the column if it doesn't change so we need to fill down
                 df["A"] = df["A"].ffill()
-            elif self.year == 2020:
-                # The column headers and units are repeated in the 2020 table
-                df = df[(df["A"] != "A") & (df["Z"] != "Z")]
 
-            # Repeated column heading also means we have to cast to create new columns
             df["TableYear"] = self.year
             df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
             df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
