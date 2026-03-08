@@ -3,7 +3,7 @@ import io
 import pandas as pd
 import pandas.testing as pdt
 
-from nuclearmasses.ame_mass_parse import AMEMassParser
+from nuclearmasses.io.ame_mass_parse import AMEMassParser
 
 
 def test_1983_mass():
