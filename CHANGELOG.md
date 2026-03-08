@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.4] - 2026-??-??
+- BREAKING: Change project structure to aid scalability and maintainability [#10](https://github.com/php1ic/nuclearmasses/issues/10)
+  * The user **must** import via a submodule, e.g. `io` or `utils` in this version. Only the top level mass table is not within a submodule.
+
 ## [0.0.3] - 2026-02-21
 - Change file parsing to make use of the read_fwf() in pandas [#2](https://github.com/php1ic/nuclearmasses/pull/2)
 - Add various static code checker configs (isort, ruff, mypy) and make necessary changes [#8](https://github.com/php1ic/nuclearmasses/pull/8)
