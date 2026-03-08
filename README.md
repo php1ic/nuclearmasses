@@ -1,5 +1,8 @@
 # Nuclear Masses
 
+[![PyPI](https://img.shields.io/pypi/v/nuclearmasses)](https://pypi.org/project/nuclearmasses/)
+[![Python Version](https://img.shields.io/pypi/pyversions/nuclearmasses)](https://pypi.org/project/nuclearmasses/)
+
 [![Unit Tests](https://github.com/php1ic/nuclearmasses/actions/workflows/tests.yml/badge.svg)](https://github.com/php1ic/nuclearmasses/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/gh/php1ic/nuclearmasses/graph/badge.svg?token=RNEI9PI6X8)](https://codecov.io/gh/php1ic/nuclearmasses)
 
