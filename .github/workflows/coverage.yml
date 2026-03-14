@@ -1,6 +1,12 @@
 name: Code Coverage
 
-on: [push, pull_request]
+on:
+  pull_request:
+    path-ignore:
+      - '**.md'
+  push:
+    path-ignore:
+      - '**.md'
 
 jobs:
   build:
