@@ -38,12 +38,17 @@ The package is available on the Python Package Index so can be installed via pip
 pip install nuclearmasses
 ```
 
-Or you can clone the latest version from github
+Or you can clone the latest version from github.
+All work is done on a feature branch so cloning and using `main` should be the same as using the latest installed version from pip.
 ```bash
 git clone https://github.com/php1ic/nuclearmasses
 ```
 
 ## Usage
+
+> [!IMPORTANT]
+> While every effort is made to maintain a stable API, this module is relatively new so users should not be surprised if there are changes between versions.
+> If a breaking change has been introduced, it will always be highlighted in the [CHANGELOG](CHANGELOG.md).
 
 Once installed or cloned, the data is available as a single dataframe indexed on the mass table year
 ```python
