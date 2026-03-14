@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.4] - 2026-??-??
+## [0.0.4] - 2026-03-14
 - BREAKING: Change project structure to aid scalability and maintainability [#10](https://github.com/php1ic/nuclearmasses/issues/10)
   * The user **must** import via a submodule, e.g. `io` or `utils` in this version. Only the top level mass table is not within a submodule.
 
