@@ -122,7 +122,7 @@ We use a combination of [isort](https://pycqa.github.io/isort/), [ruff](https://
 The command below returns no errors or issues so should be run after any code changes.
 We might add a CI pipeline in the future, but for the moment, it's a manual process.
 ```bash
-isort . && ruff format && ruff check && mypy nuclearmasses
+isort . && ruff format && ruff check && mypy src
 ```
 
 ## Known issues

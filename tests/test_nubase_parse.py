@@ -3,7 +3,7 @@ import io
 import pandas as pd
 import pandas.testing as pdt
 
-from nuclearmasses.nubase_parse import NUBASEParser
+from nuclearmasses.io.nubase_parse import NUBASEParser
 
 
 def test_1995_nubase():

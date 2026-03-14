@@ -58,19 +58,14 @@ GitHub = "https://github.com/php1ic/nuclearmasses"
 
 [tool.setuptools]
 license-files = ["LICENSE"]
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 include = ["nuclearmasses"]
 
 [tool.setuptools.package-data]
 nuclearmasses = [
- "data/1983/*.*", 
- "data/1993/*.*", 
- "data/1995/*.*", 
- "data/2003/*.*", 
- "data/2012/*.*", 
- "data/2016/*.*", 
- "data/2020/*.*", 
+ "data/**/*"
 ]
 
 [tool.coverage.report]

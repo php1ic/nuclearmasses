@@ -3,10 +3,10 @@ import pathlib
 
 import pandas as pd
 
-from nuclearmasses.ame_mass_parse import AMEMassParser
-from nuclearmasses.ame_reaction_1_parse import AMEReactionParserOne
-from nuclearmasses.ame_reaction_2_parse import AMEReactionParserTwo
-from nuclearmasses.nubase_parse import NUBASEParser
+from nuclearmasses.io.ame_mass_parse import AMEMassParser
+from nuclearmasses.io.ame_reaction_1_parse import AMEReactionParserOne
+from nuclearmasses.io.ame_reaction_2_parse import AMEReactionParserTwo
+from nuclearmasses.io.nubase_parse import NUBASEParser
 
 
 class MassTable:

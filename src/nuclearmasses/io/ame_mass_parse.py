@@ -3,7 +3,7 @@ import pathlib
 
 import pandas as pd
 
-from nuclearmasses.ame_mass_file import AMEMassFile
+from nuclearmasses.io.ame_mass_file import AMEMassFile
 
 
 class AMEMassParser(AMEMassFile):

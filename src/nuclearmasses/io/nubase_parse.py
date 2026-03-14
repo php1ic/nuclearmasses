@@ -4,7 +4,7 @@ import typing
 
 import pandas as pd
 
-from nuclearmasses.nubase_file import NUBASEFile
+from nuclearmasses.io.nubase_file import NUBASEFile
 
 
 class NUBASEParser(NUBASEFile):

@@ -1,4 +1,4 @@
-from nuclearmasses.element_converter import ElementConverter
+from nuclearmasses.utils.element_converter import ElementConverter
 
 
 def test_Z_to_symbol():
