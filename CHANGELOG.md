@@ -1,8 +1,11 @@
 # Changelog
 
-## [0.0.4] - 2026-03-14
+## [0.0.5] - 2026-??-??
+- Fix bug that was creating a new column to update a single value, rather than updating value in existing column [a420c33](https://github.com/php1ic/nuclearmasses/commit/a420c332d1ff76ed32156c2f4d6e86c9e4e2375f)
+
+## [0.0.4] - BREAKING CHANGES - 2026-03-14
 - BREAKING: Change project structure to aid scalability and maintainability [#10](https://github.com/php1ic/nuclearmasses/issues/10)
-  * The user **must** import via a submodule, e.g. `io` or `utils` in this version. Only the top level mass table is not within a submodule.
+  * Accessing the top level mass table has not changed, but the user **must** import via a submodule, e.g. `io` or `utils` to use the underlying functions.
 
 ## [0.0.3] - 2026-02-21
 - Change file parsing to make use of the read_fwf() in pandas [#2](https://github.com/php1ic/nuclearmasses/pull/2)
