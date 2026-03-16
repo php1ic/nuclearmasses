@@ -20,6 +20,10 @@ All data should, however, be accurate.
 The data files released by the papers linked below are used to create the mass tables read by this code.
 There was no AME data published in 1997, but the 1995 AME matches the 1997 NUBASE according to section 4, "The tables" on P31 of [these proceedings](https://www.google.co.uk/books/edition/Atomic_Physics_at_Accelerators_Mass_Spec/3AbsCAAAQBAJ?hl=en).
 As a result the 1997 NUBASE data is referred to as being from 1995 for simplicity when merging data.
+
+There are published papers for [1971](https://doi.org/10.1007/978-1-4684-7876-1_30) and [1977](https://doi.org/10.1016/0092-640X(77)90004-3), but I can't find the associated data files.
+If you are reading this and know of someone with a copy, or have any information, please let me know via this issue [#13](https://github.com/php1ic/nuclearmasses/issues/13)
+
 - [AME1983](https://doi.org/10.1016/0375-9474(85)90283-0)
 - [AME1993](https://doi.org/10.1016/0375-9474(93)90024-R)
 - [AME1995](https://doi.org/10.1016/0375-9474(95)00445-9) + [NUBASE1997](https://doi.org/10.1016/S0375-9474(97)00482-X)
