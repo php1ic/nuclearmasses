@@ -184,31 +184,28 @@ class NUBASEParser(NUBASEFile):
         column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
-        try:
-            df = pd.read_fwf(
-                self.filename,
-                colspecs=typing.cast(typing.Sequence[tuple[int, int]], self.column_limits),  # appease mypy
-                names=self._column_names(),
-                na_values=self._na_values(),
-                keep_default_na=False,
-                on_bad_lines="warn",
-                skiprows=self.HEADER,
-                skipfooter=self.FOOTER,
-            )
+        df = pd.read_fwf(
+            self.filename,
+            colspecs=typing.cast(typing.Sequence[tuple[int, int]], self.column_limits),  # appease mypy
+            names=self._column_names(),
+            na_values=self._na_values(),
+            keep_default_na=False,
+            on_bad_lines="warn",
+            skiprows=self.HEADER,
+            skipfooter=self.FOOTER,
+        )
 
-            df = self.parse_state(df)
+        df = self.parse_state(df)
 
-            # We use the NUBASE data to define whether or not an isotope is experimentally measured,
-            df["Experimental"] = ~df["NUBASEMassExcess"].astype("string").str.contains("#", na=False)
-            # Once we have used the '#' to determine if it's experimental or not, we can remove all instances of it
-            df.replace("#", "", regex=True, inplace=True)
+        # We use the NUBASE data to define whether or not an isotope is experimentally measured,
+        df["Experimental"] = ~df["NUBASEMassExcess"].astype("string").str.contains("#", na=False)
+        # Once we have used the '#' to determine if it's experimental or not, we can remove all instances of it
+        df.replace("#", "", regex=True, inplace=True)
 
-            df = self.parse_half_life(df)
+        df = self.parse_half_life(df)
 
-            df["TableYear"] = self.year
-            df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-            df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
-        except ValueError as e:
-            print(f"Parsing error: {e}")
+        df["TableYear"] = self.year
+        df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
 
         return df.astype(self._data_types())

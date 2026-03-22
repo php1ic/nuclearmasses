@@ -91,35 +91,32 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
         column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
-        try:
-            df = pd.read_fwf(
-                self.filename,
-                colspecs=self.column_limits,
-                names=self._column_names(),
-                na_values=self._na_values(),
-                keep_default_na=False,
-                on_bad_lines="warn",
-                skiprows=self.HEADER,
-                skipfooter=self.FOOTER,
-            )
-            # We use the NUBASE data to define whether or not an isotope is experimentally measured,
-            # so for this data we'll just drop any and all '#' characters
-            df.replace("#", "", regex=True, inplace=True)
+        df = pd.read_fwf(
+            self.filename,
+            colspecs=self.column_limits,
+            names=self._column_names(),
+            na_values=self._na_values(),
+            keep_default_na=False,
+            on_bad_lines="warn",
+            skiprows=self.HEADER,
+            skipfooter=self.FOOTER,
+        )
+        # We use the NUBASE data to define whether or not an isotope is experimentally measured,
+        # so for this data we'll just drop any and all '#' characters
+        df.replace("#", "", regex=True, inplace=True)
 
-            if self.year == 1983:
-                # The column headers and units are repeated in the 1983 table
-                df = df[(df["A"] != "A") & (df["Z"] != "")]
-                # The A value is not in the column if it doesn't change so we need to fill down
-                df["A"] = df["A"].ffill()
-            elif self.year == 2020:
-                # The column headers and units are repeated in the 2020 table
-                df = df[(df["A"] != "A") & (df["Z"] != "Z")]
+        if self.year == 1983:
+            # The column headers and units are repeated in the 1983 table
+            df = df[(df["A"] != "A") & (df["Z"] != "")]
+            # The A value is not in the column if it doesn't change so we need to fill down
+            df["A"] = df["A"].ffill()
+        elif self.year == 2020:
+            # The column headers and units are repeated in the 2020 table
+            df = df[(df["A"] != "A") & (df["Z"] != "Z")]
 
-            # Repeated column heading also means we have to cast to create new columns
-            df["TableYear"] = self.year
-            df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-            df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
-        except ValueError as e:
-            print(f"Parsing error: {e}")
+        # Repeated column heading also means we have to cast to create new columns
+        df["TableYear"] = self.year
+        df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
 
         return df.astype(self._data_types())

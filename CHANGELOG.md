@@ -3,6 +3,7 @@
 ## [0.0.5] - 2026-??-??
 - Fix bug that was creating a new column to update a single value, rather than updating value in existing column [a420c33](https://github.com/php1ic/nuclearmasses/commit/a420c332d1ff76ed32156c2f4d6e86c9e4e2375f)
 - Refactor NUBASE parsing [#15](https://github.com/php1ic/nuclearmasses/issues/15)
+- Remove use of try/catch block when parsing the file [#16](https://github.com/php1ic/nuclearmasses/issues/16)
 
 ## [0.0.4] - BREAKING CHANGES - 2026-03-14
 - BREAKING: Change project structure to aid scalability and maintainability [#10](https://github.com/php1ic/nuclearmasses/issues/10)

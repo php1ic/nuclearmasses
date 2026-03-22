@@ -81,50 +81,47 @@ class AMEMassParser(AMEMassFile):
         column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
-        try:
-            df = pd.read_fwf(
-                self.filename,
-                colspecs=self.column_limits,
-                names=self._column_names(),
-                na_values=self._na_values(),
-                keep_default_na=False,
-                on_bad_lines="warn",
-                skiprows=self.HEADER,
-                skipfooter=self.FOOTER,
-            )
-            # We use the NUBASE data to define whether or not an isotope is experimentally measured,
-            # so for this data we'll just drop any and all '#' characters
-            df.replace("#", "", regex=True, inplace=True)
+        df = pd.read_fwf(
+            self.filename,
+            colspecs=self.column_limits,
+            names=self._column_names(),
+            na_values=self._na_values(),
+            keep_default_na=False,
+            on_bad_lines="warn",
+            skiprows=self.HEADER,
+            skipfooter=self.FOOTER,
+        )
+        # We use the NUBASE data to define whether or not an isotope is experimentally measured,
+        # so for this data we'll just drop any and all '#' characters
+        df.replace("#", "", regex=True, inplace=True)
 
-            if self.year == 1983:
-                # The column headers and units are repeated in the 1983 table
-                df = df[(df["A"] != "A") & (~df["AMEMassExcess"].astype("string").str.contains("keV", na=False))]
-                # The A value is not in the column if it doesn't change so we need to fill down
-                df["A"] = df["A"].ffill()
-                # Isomeric states are sometimes included in this version of the file
-                # For each row in the dataframe, if the previous row has equal A and Z, drop the current row
-                df = df[~((df["A"] == df["A"].shift()) & (df["Z"] == df["Z"].shift()))]
+        if self.year == 1983:
+            # The column headers and units are repeated in the 1983 table
+            df = df[(df["A"] != "A") & (~df["AMEMassExcess"].astype("string").str.contains("keV", na=False))]
+            # The A value is not in the column if it doesn't change so we need to fill down
+            df["A"] = df["A"].ffill()
+            # Isomeric states are sometimes included in this version of the file
+            # For each row in the dataframe, if the previous row has equal A and Z, drop the current row
+            df = df[~((df["A"] == df["A"].shift()) & (df["Z"] == df["Z"].shift()))]
 
-            if self.year == 1983 or self.year == 1993 or self.year == 1995:
-                df["BindingEnergyPerA"] = df["BindingEnergyPerA"].astype(float) / df["A"].astype(float)
-                df["BindingEnergyPerAError"] = df["BindingEnergyPerAError"].astype(float) / df["A"].astype(float)
+        if self.year == 1983 or self.year == 1993 or self.year == 1995:
+            df["BindingEnergyPerA"] = df["BindingEnergyPerA"].astype(float) / df["A"].astype(float)
+            df["BindingEnergyPerAError"] = df["BindingEnergyPerAError"].astype(float) / df["A"].astype(float)
 
-            df["TableYear"] = self.year
-            df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-            df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
+        # Combine the two columns to create the atomic mass then drop the redundant column
+        # Pandas is happy to use '+' for any type, but mypy doesn't like it, hence the use of str.cat()
+        df["AtomicMass"] = (
+            df["AtomicNumber"]
+            .astype("string")
+            .str.cat(df["AtomicMass"].astype("string").str.replace(".", "", regex=False), sep=".")
+        )
+        df = df.drop(columns=["AtomicNumber"])
 
-            # Combine the two columns to create the atomic mass then drop the redundant column
-            # Pandas is happy to use '+' for any type, but mypy doesn't like it, hence the use of str.cat()
-            df["AtomicMass"] = (
-                df["AtomicNumber"]
-                .astype("string")
-                .str.cat(df["AtomicMass"].astype("string").str.replace(".", "", regex=False), sep=".")
-            )
-            df = df.drop(columns=["AtomicNumber"])
+        # We need to rescale the error value because we combined the two columns above
+        df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
 
-            # We need to rescale the error value because we combined the two columns above
-            df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
-        except ValueError as e:
-            print(f"Parsing error: {e}")
+        df["TableYear"] = self.year
+        df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
 
         return df.astype(self._data_types())
