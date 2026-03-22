@@ -170,7 +170,7 @@ class NUBASEParser(NUBASEFile):
 
         Currently we are only interested in ground states, but in the future we will care about isomers.
         """
-        # For the moment, we will ignore anything this is not the ground state
+        # Ignore anything this is not the ground state
         raw_df = raw_df[raw_df["State"] == 0]
         # As 'State' is now necessarily 0 and the Isomer columns are empty, drop them.
         raw_df = raw_df.drop(columns=["State", "IsomerEnergy", "IsomerEnergyError"])
@@ -180,8 +180,8 @@ class NUBASEParser(NUBASEFile):
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
 
-        The AMEMassFile and other functions in this class have hopefully sanitized the
-        column names, data types and locations of the date so we can not make the generic
+        The NUBASEFile and other functions in this class have hopefully sanitized the
+        column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
         try:
