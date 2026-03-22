@@ -130,11 +130,58 @@ class NUBASEParser(NUBASEFile):
                     "DecayModes": [""],
                 }
 
+    def parse_half_life(self, raw_df) -> pd.DataFrame:
+        """Create half-life columns with SI units
+
+        The half-life is stored as a human readable value, e.g. 2ms, 4Gyr, 5mins, this is fine to read but not to do
+        any type of sorting or algorithm. Convert to the SI unit of seconds, but don't overwrite original columns.
+        """
+        # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
+        # pandas v3 became much stricter with type conversions so convert to object (from string) so
+        # we can assign a float without breaking other parts of the code
+        raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("object")
+        raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("object")
+
+        mask = raw_df["HalfLifeValue"] == "stbl"
+        raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (99.99, "Zyr", 0.0)
+
+        raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("string").str.replace(r"[<>?~]", "", regex=True)
+        # We'll be lazy here and remove any characters in this column. Future us will parse this properly
+        raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("string").str.replace(r"[<>?~a-z]", "", regex=True)
+
+        # Use the 3 half-life columns to create 2 new columns with units of seconds
+        raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].astype("string")
+        for pattern, replacement in self.unit_replacements.items():
+            raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].str.replace(pattern, replacement, regex=True)
+
+        # Ensure numeric values
+        for col in ["HalfLifeValue", "HalfLifeError"]:
+            raw_df[col] = pd.to_numeric(raw_df[col], errors="coerce")
+        # Pre-compute unit -> second conversions
+        unit_map = raw_df["HalfLifeUnit"].map(self.unit_to_seconds)
+
+        raw_df["HalfLifeSeconds"] = raw_df["HalfLifeValue"] * unit_map
+        raw_df["HalfLifeErrorSeconds"] = raw_df["HalfLifeError"] * unit_map
+
+        return raw_df
+
+    def parse_state(self, raw_df) -> pd.DataFrame:
+        """Interpret the state of the isotope
+
+        Currently we are only interested in ground states, but in the future we will care about isomers.
+        """
+        # Ignore anything this is not the ground state
+        raw_df = raw_df[raw_df["State"] == 0]
+        # As 'State' is now necessarily 0 and the Isomer columns are empty, drop them.
+        raw_df = raw_df.drop(columns=["State", "IsomerEnergy", "IsomerEnergyError"])
+
+        return raw_df
+
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
 
-        The AMEMassFile and other functions in this class have hopefully sanitized the
-        column names, data types and locations of the date so we can not make the generic
+        The NUBASEFile and other functions in this class have hopefully sanitized the
+        column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
         try:
@@ -148,45 +195,19 @@ class NUBASEParser(NUBASEFile):
                 skiprows=self.HEADER,
                 skipfooter=self.FOOTER,
             )
+
+            df = self.parse_state(df)
+
             # We use the NUBASE data to define whether or not an isotope is experimentally measured,
             df["Experimental"] = ~df["NUBASEMassExcess"].astype("string").str.contains("#", na=False)
             # Once we have used the '#' to determine if it's experimental or not, we can remove all instances of it
             df.replace("#", "", regex=True, inplace=True)
 
+            df = self.parse_half_life(df)
+
             df["TableYear"] = self.year
             df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
             df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
-            # For the moment, we will ignore anything this is not the ground state
-            df = df[df["State"] == 0]
-            # As 'State' is now necessarily 0 and the Isomer columns are empty, drop them.
-            df = df.drop(columns=["State", "IsomerEnergy", "IsomerEnergyError"])
-
-            # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
-            # pandas v3 became much stricter with type conversions so convert to object (from string) so
-            # we can assign a float without breaking other parts of the code
-            df["HalfLifeValue"] = df["HalfLifeValue"].astype("object")
-            df["HalfLifeError"] = df["HalfLifeError"].astype("object")
-
-            mask = df["HalfLifeValue"] == "stbl"
-            df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (99.99, "Zyr", 0.0)
-
-            df["HalfLifeValue"] = df["HalfLifeValue"].astype("string").str.replace(r"[<>?~]", "", regex=True)
-            # We'll be lazy here and remove any characters in this column. Future us will parse this properly
-            df["HalfLifeError"] = df["HalfLifeError"].astype("string").str.replace(r"[<>?~a-z]", "", regex=True)
-
-            # Use the 3 half-life columns to create 2 new columns with units of seconds
-            df["HalfLifeUnit"] = df["HalfLifeUnit"].astype("string")
-            for pattern, replacement in self.unit_replacements.items():
-                df["HalfLifeUnit"] = df["HalfLifeUnit"].str.replace(pattern, replacement, regex=True)
-
-            # Ensure numeric values
-            for col in ["HalfLifeValue", "HalfLifeError"]:
-                df[col] = pd.to_numeric(df[col], errors="coerce")
-            # Pre-compute unit -> second conversions
-            unit_map = df["HalfLifeUnit"].map(self.unit_to_seconds)
-
-            df["HalfLifeSeconds"] = df["HalfLifeValue"] * unit_map
-            df["HalfLifeErrorSeconds"] = df["HalfLifeError"] * unit_map
         except ValueError as e:
             print(f"Parsing error: {e}")
 

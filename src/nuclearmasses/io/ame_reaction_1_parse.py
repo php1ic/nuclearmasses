@@ -88,7 +88,7 @@ class AMEReactionParserOne(AMEReactionFileOne):
         """Read the file using it's known format
 
         The AMEReactionFileOne and other functions in this class have hopefully sanitized the
-        column names, data types and locations of the date so we can not make the generic
+        column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
         try:
