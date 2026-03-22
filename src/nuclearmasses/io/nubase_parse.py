@@ -165,6 +165,18 @@ class NUBASEParser(NUBASEFile):
 
         return raw_df
 
+    def parse_state(self, raw_df) -> pd.DataFrame:
+        """Interpret the state of the isotope
+
+        Currently we are only interested in ground states, but in the future we will care about isomers.
+        """
+        # For the moment, we will ignore anything this is not the ground state
+        raw_df = raw_df[raw_df["State"] == 0]
+        # As 'State' is now necessarily 0 and the Isomer columns are empty, drop them.
+        raw_df = raw_df.drop(columns=["State", "IsomerEnergy", "IsomerEnergyError"])
+
+        return raw_df
+
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
 
@@ -183,20 +195,19 @@ class NUBASEParser(NUBASEFile):
                 skiprows=self.HEADER,
                 skipfooter=self.FOOTER,
             )
+
+            df = self.parse_state(df)
+
             # We use the NUBASE data to define whether or not an isotope is experimentally measured,
             df["Experimental"] = ~df["NUBASEMassExcess"].astype("string").str.contains("#", na=False)
             # Once we have used the '#' to determine if it's experimental or not, we can remove all instances of it
             df.replace("#", "", regex=True, inplace=True)
 
+            df = self.parse_half_life(df)
+
             df["TableYear"] = self.year
             df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
             df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
-            # For the moment, we will ignore anything this is not the ground state
-            df = df[df["State"] == 0]
-            # As 'State' is now necessarily 0 and the Isomer columns are empty, drop them.
-            df = df.drop(columns=["State", "IsomerEnergy", "IsomerEnergyError"])
-
-            df = self.parse_half_life(df)
         except ValueError as e:
             print(f"Parsing error: {e}")
 
