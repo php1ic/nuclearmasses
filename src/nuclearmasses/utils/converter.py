@@ -56,6 +56,8 @@ class Converter:
         Element symbols always have a capital first letter and lower case second, if it exists. We store all symbols
         like this so want any user input to be of this format. In typesetting, this is known as title case so we can
         leverage that conversion function.
+
+        No checking is done on the validity of the symbol.
         """
         return symbol.strip().title()
 
@@ -64,15 +66,17 @@ class Converter:
 
         Returns np.nan for non-valid time units.
 
-        e.g. "s" -> 1.0, "min" -> 60.0, "keV" -> np.nan
-
+        e.g.
+        "s" -> 1.0,
+        "min" -> 60.0,
+        "keV" -> np.nan
+        2 -> np.nan
         """
-        if pd.isna(unit_str):
+        if pd.isna(unit_str) or type(unit_str) is not str:
             return np.nan
 
         # Remove white space and make lower case to be consistent
-        # String conversion may be redundant, but let's be complete
-        cleaned_unit = str(unit_str).strip().lower()
+        cleaned_unit = unit_str.strip().lower()
         if not cleaned_unit:
             return np.nan
 
