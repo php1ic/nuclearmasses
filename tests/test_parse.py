@@ -1,17 +1,17 @@
-from nuclearmasses.utils.element_converter import ElementConverter
+from nuclearmasses.utils.converter import Converter
 
 
-def test_Z_to_symbol():
-    converter = ElementConverter()
+def test_z_to_symbol():
+    converter = Converter()
 
-    assert converter.z_to_symbol[0] == "n"
-    assert converter.z_to_symbol[6] == "C"
-    assert converter.z_to_symbol[104] == "Rf"
+    assert converter.get_symbol(0) == "n"
+    assert converter.get_symbol(6) == "C"
+    assert converter.get_symbol(104) == "Rf"
 
 
-def test_symbol_to_Z():
-    converter = ElementConverter()
+def test_symbol_to_z():
+    converter = Converter()
 
-    assert converter.symbol_to_z["Al"] == 13
-    assert converter.symbol_to_z["Fe"] == 26
-    assert converter.symbol_to_z["Po"] == 84
+    assert converter.get_z("Al") == 13
+    assert converter.get_z("Fe") == 26
+    assert converter.get_z("Po") == 84

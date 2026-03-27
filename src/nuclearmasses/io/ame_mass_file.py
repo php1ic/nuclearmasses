@@ -1,8 +1,8 @@
-from nuclearmasses.utils.element_converter import ElementConverter
+from nuclearmasses.utils.converter import Converter
 
 
-class AMEMassFile(ElementConverter):
-    """Easy access to where the variables are in the AME mass file."""
+class AMEMassFile(Converter):
+    """Easy access to the variables in the AME mass file."""
 
     def __init__(self, year: int):
         super().__init__()

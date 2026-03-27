@@ -3,13 +3,11 @@ import numpy as np
 import pandas as pd
 
 
-class ElementConverter:
+class Converter:
     """A utility class for converting between symbol and Z value
 
-    This class provides bidirectional lookup functionality via two dictionaries:
-    one mapping Z to symbol and the other symbol to Z.
-
-    TODO: Create accessors function that do some argument validation
+    This class provides bidirectional lookup functionality via two dictionaries one mapping Z to symbol,
+    and the other symbol to Z.
     """
 
     def __init__(self) -> None:
@@ -34,6 +32,22 @@ class ElementConverter:
 
         # Switch the keys and values of the z_to_symbol dictionary so a user can access the Z value using the symbol
         self.symbol_to_z: dict[str, int] = {val: key for key, val in self.z_to_symbol.items()}
+
+    def get_symbol(self, z: int) -> str | None:
+        """Get the symbol representing <z>
+
+        This is a nicely named, very thin wrapper around the inbuilt dictionary.
+        I'm sure I was going to do something else in this function beyond basic accessing, but don't recall.
+        Leave as is and hopefully I'll remember
+        """
+        return self.z_to_symbol.get(z, None)
+
+    def get_z(self, symbol: str) -> int | None:
+        """Get the z (proton number) representing <symbol>
+
+        This is a nicely named, very thin wrapper around the inbuilt dictionary.
+        """
+        return self.symbol_to_z.get(symbol, None)
 
     @staticmethod
     def normalise_symbol(symbol: str) -> str:
