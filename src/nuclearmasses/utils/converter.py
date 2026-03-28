@@ -3,13 +3,11 @@ import numpy as np
 import pandas as pd
 
 
-class ElementConverter:
+class Converter:
     """A utility class for converting between symbol and Z value
 
-    This class provides bidirectional lookup functionality via two dictionaries:
-    one mapping Z to symbol and the other symbol to Z.
-
-    TODO: Create accessors function that do some argument validation
+    This class provides bidirectional lookup functionality via two dictionaries one mapping Z to symbol,
+    and the other symbol to Z.
     """
 
     def __init__(self) -> None:
@@ -35,20 +33,50 @@ class ElementConverter:
         # Switch the keys and values of the z_to_symbol dictionary so a user can access the Z value using the symbol
         self.symbol_to_z: dict[str, int] = {val: key for key, val in self.z_to_symbol.items()}
 
+    def get_symbol(self, z: int) -> str | None:
+        """Get the symbol representing <z>
+
+        This is a nicely named, very thin wrapper around the inbuilt dictionary.
+        I'm sure I was going to do something else in this function beyond basic accessing, but don't recall.
+        Leave as is and hopefully I'll remember
+        """
+        return self.z_to_symbol.get(z, None)
+
+    def get_z(self, symbol: str) -> int | None:
+        """Get the z (proton number) representing <symbol>
+
+        This is a nicely named, very thin wrapper around the inbuilt dictionary.
+        """
+        return self.symbol_to_z.get(symbol, None)
+
+    @staticmethod
+    def normalise_symbol(symbol: str) -> str:
+        """Validate format of <symbol> to allow simpler conversions
+
+        Element symbols always have a capital first letter and lower case second, if it exists. We store all symbols
+        like this so want any user input to be of this format. In typesetting, this is known as title case so we can
+        leverage that conversion function.
+
+        No checking is done on the validity of the symbol.
+        """
+        return symbol.strip().title()
+
     def unit_to_seconds(self, unit_str: str) -> float:
         """Convert a time unit to a scale factor in seconds.
 
         Returns np.nan for non-valid time units.
 
-        e.g. "s" -> 1.0, "min" -> 60.0, "keV" -> np.nan
-
+        e.g.
+        "s" -> 1.0,
+        "min" -> 60.0,
+        "keV" -> np.nan
+        2 -> np.nan
         """
-        if pd.isna(unit_str):
+        if pd.isna(unit_str) or type(unit_str) is not str:
             return np.nan
 
         # Remove white space and make lower case to be consistent
-        # String conversion may be redundant, but let's be complete
-        cleaned_unit = str(unit_str).strip().lower()
+        cleaned_unit = unit_str.strip().lower()
         if not cleaned_unit:
             return np.nan
 

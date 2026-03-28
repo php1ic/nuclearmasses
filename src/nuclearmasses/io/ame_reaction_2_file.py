@@ -1,8 +1,8 @@
-from nuclearmasses.utils.element_converter import ElementConverter
+from nuclearmasses.utils.converter import Converter
 
 
-class AMEReactionFileTwo(ElementConverter):
-    """Easy access to where the variables are in the second AME reaction file."""
+class AMEReactionFileTwo(Converter):
+    """Easy access to the variables in the second AME reaction file."""
 
     def __init__(self, year: int):
         super().__init__()

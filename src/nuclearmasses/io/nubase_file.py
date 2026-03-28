@@ -1,8 +1,8 @@
-from nuclearmasses.utils.element_converter import ElementConverter
+from nuclearmasses.utils.converter import Converter
 
 
-class NUBASEFile(ElementConverter):
-    """Easy access to where variables are in the NUBASE file.
+class NUBASEFile(Converter):
+    """Easy access to the variables in the NUBASE file.
 
     The NUBASE data file is formatted by location in the line, values exist
     between 2 specific columns in the line. Store the start and end locations
