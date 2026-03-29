@@ -10,8 +10,10 @@ class Converter:
     and the other symbol to Z.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs) -> None:
         """Construct the symbol -> Z and Z -> symbol dictionaries."""
+        # We are using multiple inheritance, so need this for MRO
+        super().__init__(**kwargs)
         # fmt: off
         # Formatter wants to put each item on it's own line, I don't
         self.z_to_symbol: dict[int, str] = {

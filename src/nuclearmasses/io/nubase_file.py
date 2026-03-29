@@ -1,7 +1,4 @@
-from nuclearmasses.utils.converter import Converter
-
-
-class NUBASEFile(Converter):
+class NUBASEFile:
     """Easy access to the variables in the NUBASE file.
 
     The NUBASE data file is formatted by location in the line, values exist
@@ -10,9 +7,9 @@ class NUBASEFile(Converter):
     magic numbers.
     """
 
-    def __init__(self, year: int):
+    def __init__(self, year: int, **kwargs):
         """Setup the values that locate the variable."""
-        super().__init__()
+        super().__init__(**kwargs)
         match year:
             case 1995:
                 self.HEADER = 0

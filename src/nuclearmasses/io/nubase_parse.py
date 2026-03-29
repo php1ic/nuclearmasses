@@ -5,9 +5,10 @@ import typing
 import pandas as pd
 
 from nuclearmasses.io.nubase_file import NUBASEFile
+from nuclearmasses.utils.converter import Converter
 
 
-class NUBASEParser(NUBASEFile):
+class NUBASEParser(NUBASEFile, Converter):
     """Parse the NUBASE data file.
 
     A collection of functions to parse the weird format of the NUBASE file.
@@ -15,7 +16,7 @@ class NUBASEParser(NUBASEFile):
 
     def __init__(self, filename: pathlib.Path, year: int):
         """Set the file to read and the table year."""
-        super().__init__(year)
+        super().__init__(year=year)
         self.filename: pathlib.Path = filename
         self.year: int = year
         self.unit_replacements: dict[str, str] = {
