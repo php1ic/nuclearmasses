@@ -1,11 +1,8 @@
-from nuclearmasses.utils.converter import Converter
-
-
-class AMEMassFile(Converter):
+class AMEMassFile:
     """Easy access to the variables in the AME mass file."""
 
-    def __init__(self, year: int):
-        super().__init__()
+    def __init__(self, year: int, **kwargs):
+        super().__init__(**kwargs)
         match year:
             case 1983:
                 self.HEADER = 35

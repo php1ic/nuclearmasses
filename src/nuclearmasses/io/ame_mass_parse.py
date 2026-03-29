@@ -4,9 +4,10 @@ import pathlib
 import pandas as pd
 
 from nuclearmasses.io.ame_mass_file import AMEMassFile
+from nuclearmasses.utils.converter import Converter
 
 
-class AMEMassParser(AMEMassFile):
+class AMEMassParser(AMEMassFile, Converter):
     """Parse the AME mass file.
 
     The format is known but the provided string does not match all lines.
@@ -16,9 +17,9 @@ class AMEMassParser(AMEMassFile):
 
     def __init__(self, filename: pathlib.Path, year: int):
         """Set the file to read and table year"""
+        super().__init__(year=year)
         self.filename: pathlib.Path = filename
         self.year: int = year
-        super().__init__(self.year)
         logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
