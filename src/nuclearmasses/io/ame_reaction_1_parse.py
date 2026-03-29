@@ -22,68 +22,62 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
-        match self.year:
-            case _:
-                return [
-                    "A",
-                    "Z",
-                    "TwoNeutronSeparationEnergy",
-                    "TwoNeutronSeparationEnergyError",
-                    "TwoProtonSeparationEnergy",
-                    "TwoProtonSeparationEnergyError",
-                    "QAlpha",
-                    "QAlphaError",
-                    "QTwoBeta",
-                    "QTwoBetaError",
-                    "QEpsilon",
-                    "QEpsilonError",
-                    "QBetaNeutron",
-                    "QBetaNeutronError",
-                ]
+        return [
+            "A",
+            "Z",
+            "TwoNeutronSeparationEnergy",
+            "TwoNeutronSeparationEnergyError",
+            "TwoProtonSeparationEnergy",
+            "TwoProtonSeparationEnergyError",
+            "QAlpha",
+            "QAlphaError",
+            "QTwoBeta",
+            "QTwoBetaError",
+            "QEpsilon",
+            "QEpsilonError",
+            "QBetaNeutron",
+            "QBetaNeutronError",
+        ]
 
     def _data_types(self) -> dict:
         """Set the data type depending on the year"""
-        match self.year:
-            case _:
-                return {
-                    "TableYear": "Int64",
-                    "Symbol": "string",
-                    "A": "Int64",
-                    "Z": "Int64",
-                    "N": "Int64",
-                    "TwoNeutronSeparationEnergy": "float64",
-                    "TwoNeutronSeparationEnergyError": "float64",
-                    "TwoProtonSeparationEnergy": "float64",
-                    "TwoProtonSeparationEnergyError": "float64",
-                    "QAlpha": "float64",
-                    "QAlphaError": "float64",
-                    "QTwoBeta": "float64",
-                    "QTwoBetaError": "float64",
-                    "QEpsilon": "float64",
-                    "QEpsilonError": "float64",
-                    "QBetaNeutron": "float64",
-                    "QBetaNeutronError": "float64",
-                }
+        return {
+            "TableYear": "Int64",
+            "Symbol": "string",
+            "A": "Int64",
+            "Z": "Int64",
+            "N": "Int64",
+            "TwoNeutronSeparationEnergy": "float64",
+            "TwoNeutronSeparationEnergyError": "float64",
+            "TwoProtonSeparationEnergy": "float64",
+            "TwoProtonSeparationEnergyError": "float64",
+            "QAlpha": "float64",
+            "QAlphaError": "float64",
+            "QTwoBeta": "float64",
+            "QTwoBetaError": "float64",
+            "QEpsilon": "float64",
+            "QEpsilonError": "float64",
+            "QBetaNeutron": "float64",
+            "QBetaNeutronError": "float64",
+        }
 
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
-        match self.year:
-            case _:
-                return {
-                    "A": [""],
-                    "TwoNeutronSeparationEnergy": ["", "*"],
-                    "TwoNeutronSeparationEnergyError": ["", "*"],
-                    "TwoProtonSeparationEnergy": ["", "*"],
-                    "TwoProtonSeparationEnergyError": ["", "*"],
-                    "QAlpha": ["", "*"],
-                    "QAlphaError": ["", "*"],
-                    "QTwoBeta": ["", "*"],
-                    "QTwoBetaError": ["", "*"],
-                    "QEpsilon": ["", "*"],
-                    "QEpsilonError": ["", "*"],
-                    "QBetaNeutron": ["", "*"],
-                    "QBetaNeutronError": ["", "*"],
-                }
+        return {
+            "A": [""],
+            "TwoNeutronSeparationEnergy": ["", "*"],
+            "TwoNeutronSeparationEnergyError": ["", "*"],
+            "TwoProtonSeparationEnergy": ["", "*"],
+            "TwoProtonSeparationEnergyError": ["", "*"],
+            "QAlpha": ["", "*"],
+            "QAlphaError": ["", "*"],
+            "QTwoBeta": ["", "*"],
+            "QTwoBetaError": ["", "*"],
+            "QEpsilon": ["", "*"],
+            "QEpsilonError": ["", "*"],
+            "QBetaNeutron": ["", "*"],
+            "QBetaNeutronError": ["", "*"],
+        }
 
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
