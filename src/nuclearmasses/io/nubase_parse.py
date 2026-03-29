@@ -27,92 +27,67 @@ class NUBASEParser(NUBASEFile, Converter):
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
-        match self.year:
-            case 1995 | 2003:
-                return [
-                    "A",
-                    "Z",
-                    "State",
-                    "NUBASEMassExcess",
-                    "NUBASEMassExcessError",
-                    "IsomerEnergy",
-                    "IsomerEnergyError",
-                    "HalfLifeValue",
-                    "HalfLifeUnit",
-                    "HalfLifeError",
-                    "Spin",
-                    "DecayModes",
-                ]
-            case _:
-                return [
-                    "A",
-                    "Z",
-                    "State",
-                    "NUBASEMassExcess",
-                    "NUBASEMassExcessError",
-                    "IsomerEnergy",
-                    "IsomerEnergyError",
-                    "HalfLifeValue",
-                    "HalfLifeUnit",
-                    "HalfLifeError",
-                    "Spin",
-                    "DiscoveryYear",
-                    "DecayModes",
-                ]
+        col_names = [
+            "A",
+            "Z",
+            "State",
+            "NUBASEMassExcess",
+            "NUBASEMassExcessError",
+            "IsomerEnergy",
+            "IsomerEnergyError",
+            "HalfLifeValue",
+            "HalfLifeUnit",
+            "HalfLifeError",
+            "Spin",
+            "DiscoveryYear",
+            "DecayModes",
+        ]
+
+        # The discovery year was added after 2003, and I assume it will be there in the future, so we will set up
+        # as if it is always present and delete for the first two tables.
+        if self.year == 1995 or self.year == 2003:
+            col_names.remove("DiscoveryYear")
+
+        return col_names
 
     def _data_types(self) -> dict:
         """Set the data type depending on the year"""
-        match self.year:
-            case 1995 | 2003:
-                return {
-                    "Symbol": "string",
-                    "A": "Int64",
-                    "Z": "Int64",
-                    "N": "Int64",
-                    "Experimental": "boolean",
-                    # "State": "Int64",
-                    "NUBASEMassExcess": "float64",
-                    "NUBASEMassExcessError": "float64",
-                    # "IsomerEnergy": "float64",
-                    # "IsomerEnergyError": "float64",
-                    "HalfLifeValue": "float64",
-                    "HalfLifeUnit": "string",
-                    "HalfLifeError": "float64",
-                    "HalfLifeSeconds": "float64",
-                    "HalfLifeErrorSeconds": "float64",
-                    "Spin": "string",
-                    "DecayModes": "string",
-                }
-            case _:
-                return {
-                    "Symbol": "string",
-                    "A": "Int64",
-                    "Z": "Int64",
-                    "N": "Int64",
-                    "Experimental": "boolean",
-                    # "State": "Int64",
-                    "NUBASEMassExcess": "float64",
-                    "NUBASEMassExcessError": "float64",
-                    # "IsomerEnergy": "float64",
-                    # "IsomerEnergyError": "float64",
-                    "HalfLifeValue": "float64",
-                    "HalfLifeUnit": "string",
-                    "HalfLifeError": "float64",
-                    "HalfLifeSeconds": "float64",
-                    "HalfLifeErrorSeconds": "float64",
-                    "Spin": "string",
-                    "DiscoveryYear": "Int64",
-                    "DecayModes": "string",
-                }
+        data_types = {
+            "Symbol": "string",
+            "A": "Int64",
+            "Z": "Int64",
+            "N": "Int64",
+            "Experimental": "boolean",
+            # "State": "Int64",
+            "NUBASEMassExcess": "float64",
+            "NUBASEMassExcessError": "float64",
+            # "IsomerEnergy": "float64",
+            # "IsomerEnergyError": "float64",
+            "HalfLifeValue": "float64",
+            "HalfLifeUnit": "string",
+            "HalfLifeError": "float64",
+            "HalfLifeSeconds": "float64",
+            "HalfLifeErrorSeconds": "float64",
+            "Spin": "string",
+            "DiscoveryYear": "Int64",
+            "DecayModes": "string",
+        }
+
+        # The discovery year was added after 2003, and I assume it will be there in the future, so we will set up
+        # as if it is always present and delete for the first two tables.
+        if self.year == 1995 or self.year == 2003:
+            data_types.pop("DiscoveryYear")
+
+        return data_types
 
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
         match self.year:
             case 1995:
                 return {
+                    "State": [""],
                     "NUBASEMassExcess": [""],
                     "NUBASEMassExcessError": [""],
-                    "State": [""],
                     "HalfLifeValue": [""],
                     "HalfLifeUnit": [""],
                     "HalfLifeError": [""],
