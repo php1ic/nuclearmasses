@@ -6,7 +6,8 @@ import pandas as pd
 from nuclearmasses.io.ame_mass_parse import AMEMassParser
 from nuclearmasses.io.ame_reaction_1_parse import AMEReactionParserOne
 from nuclearmasses.io.ame_reaction_2_parse import AMEReactionParserTwo
-from nuclearmasses.io.nubase_parse import NUBASEParser
+
+from nuclearmasses.io.nubase import NUBASE
 
 
 class MassTable:
@@ -18,31 +19,11 @@ class MassTable:
     def __init__(self):
         """Do all of the work at construction."""
         self.data_path = importlib.resources.files("nuclearmasses.data")
-        self.nubase_years = [1995, 2003, 2012, 2016, 2020]
-        self.nubase = pd.concat([self._parse_nubase_data(y) for y in self.nubase_years], ignore_index=True)
+        self.nubase = NUBASE(self.data_path).nubase_df
         self.ame_years = [1983, 1993, 1995, 2003, 2012, 2016, 2020]
         self.ame = pd.concat([self._parse_ame_data(y) for y in self.ame_years], ignore_index=True)
         self.full_data = self._combine_all_data()
         self._do_indexing()
-
-    def _get_nubase_datafile(self, year: int) -> pathlib.Path:
-        """Use the given year to locate the NUBASE mass table file and return the absolute path."""
-        nubase_mass = self.data_path / pathlib.Path(str(year))
-        nubase_mass = nubase_mass.resolve()
-
-        match year:
-            case 1995:
-                nubase_mass = nubase_mass / "nubtab97.asc"
-            case 2003:
-                nubase_mass = nubase_mass / "nubtab03.asc"
-            case 2012:
-                nubase_mass = nubase_mass / "nubtab12.asc"
-            case 2016:
-                nubase_mass = nubase_mass / "nubase2016.txt"
-            case 2020:
-                nubase_mass = nubase_mass / "nubase_1.mas20"
-
-        return nubase_mass
 
     def _get_ame_datafiles(self, year: int) -> tuple[pathlib.Path, pathlib.Path, pathlib.Path]:
         """Use the given year to locate the 3 AME data file and return the absolute paths."""
@@ -80,10 +61,6 @@ class MassTable:
                 ame_reaction_2 = data_dir / "rct2.mas20"
 
         return ame_mass, ame_reaction_1, ame_reaction_2
-
-    def _parse_nubase_data(self, year: int) -> pd.DataFrame:
-        """Get the NUBASE for the given year as a pandas.DataFrame."""
-        return NUBASEParser(self._get_nubase_datafile(year), year).read_file()
 
     def _parse_ame_data(self, year: int) -> pd.DataFrame:
         """Combine all the AME files from the given year into a pandas.DataFrame."""
