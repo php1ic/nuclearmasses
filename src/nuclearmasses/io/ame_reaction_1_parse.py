@@ -4,9 +4,10 @@ import pathlib
 import pandas as pd
 
 from nuclearmasses.io.ame_reaction_1_file import AMEReactionFileOne
+from nuclearmasses.utils.converter import Converter
 
 
-class AMEReactionParserOne(AMEReactionFileOne):
+class AMEReactionParserOne(AMEReactionFileOne, Converter):
     """Parse the first AME reaction file.
 
     The format is known but I don't think python can easily parse it.
@@ -14,9 +15,9 @@ class AMEReactionParserOne(AMEReactionFileOne):
 
     def __init__(self, filename: pathlib.Path, year: int):
         """Set the file to read and table year."""
+        super().__init__(year=year)
         self.filename = filename
         self.year = year
-        super().__init__(self.year)
         logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
