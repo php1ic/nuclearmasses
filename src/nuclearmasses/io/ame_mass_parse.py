@@ -24,56 +24,50 @@ class AMEMassParser(AMEMassFile, Converter):
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
-        match self.year:
-            case _:
-                return [
-                    "Z",
-                    "A",
-                    "AMEMassExcess",
-                    "AMEMassExcessError",
-                    "BindingEnergyPerA",
-                    "BindingEnergyPerAError",
-                    "BetaDecayEnergy",
-                    "BetaDecayEnergyError",
-                    "AtomicNumber",
-                    "AtomicMass",
-                    "AtomicMassError",
-                ]
+        return [
+            "Z",
+            "A",
+            "AMEMassExcess",
+            "AMEMassExcessError",
+            "BindingEnergyPerA",
+            "BindingEnergyPerAError",
+            "BetaDecayEnergy",
+            "BetaDecayEnergyError",
+            "AtomicNumber",
+            "AtomicMass",
+            "AtomicMassError",
+        ]
 
     def _data_types(self) -> dict:
         """Set the data type depending on the year"""
-        match self.year:
-            case _:
-                return {
-                    "TableYear": "Int64",
-                    "Symbol": "string",
-                    "N": "Int64",
-                    "Z": "Int64",
-                    "A": "Int64",
-                    "AMEMassExcess": "float64",
-                    "AMEMassExcessError": "float64",
-                    "BindingEnergyPerA": "float64",
-                    "BindingEnergyPerAError": "float64",
-                    "BetaDecayEnergy": "float64",
-                    "BetaDecayEnergyError": "float64",
-                    "AtomicMass": "float64",
-                    "AtomicMassError": "float64",
-                }
+        return {
+            "TableYear": "Int64",
+            "Symbol": "string",
+            "N": "Int64",
+            "Z": "Int64",
+            "A": "Int64",
+            "AMEMassExcess": "float64",
+            "AMEMassExcessError": "float64",
+            "BindingEnergyPerA": "float64",
+            "BindingEnergyPerAError": "float64",
+            "BetaDecayEnergy": "float64",
+            "BetaDecayEnergyError": "float64",
+            "AtomicMass": "float64",
+            "AtomicMassError": "float64",
+        }
 
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
-        match self.year:
-            case 1983:
-                return {
-                    "A": [""],
-                    "BetaDecayEnergy": ["", "*"],
-                    "BetaDecayEnergyError": ["", "*"],
-                }
-            case _:
-                return {
-                    "BetaDecayEnergy": ["", "*"],
-                    "BetaDecayEnergyError": ["", "*"],
-                }
+        na_vals = {
+            "A": [""],
+            "BetaDecayEnergy": ["", "*"],
+            "BetaDecayEnergyError": ["", "*"],
+        }
+
+        if self.year != 1983:
+            na_vals.pop("A")
+
+        return na_vals
 
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
@@ -123,6 +117,6 @@ class AMEMassParser(AMEMassFile, Converter):
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
 
         return df.astype(self._data_types())
