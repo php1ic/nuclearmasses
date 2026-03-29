@@ -106,8 +106,9 @@ class MassTable:
 
         # 12C has a 0.0 +/ 0.0 mass excess by definition so calculating relative error -> NaN
         # Set the value to 0.0 as that's what it is
-        df.loc[(df.Symbol == "C") & (df.A == 12), "NUBASERelativeError"] = 0.0
-        df.loc[(df.Symbol == "C") & (df.A == 12), "AMERelativeError"] = 0.0
+        mask = (df.Symbol == "C") & (df.A == 12)
+        df.loc[mask, "NUBASERelativeError"] = 0.0
+        df.loc[mask, "AMERelativeError"] = 0.0
 
         # 198Au has a typo in it's decay mode in the 2012 table. It is recorded as '-'
         df.loc[(df.A == 198) & (df.Z == 79) & (df.TableYear == 2012), "DecayModes"] = "B-"
