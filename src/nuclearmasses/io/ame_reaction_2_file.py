@@ -1,11 +1,8 @@
-from nuclearmasses.utils.converter import Converter
-
-
-class AMEReactionFileTwo(Converter):
+class AMEReactionFileTwo:
     """Easy access to the variables in the second AME reaction file."""
 
-    def __init__(self, year: int):
-        super().__init__()
+    def __init__(self, year: int, **kwargs):
+        super().__init__(**kwargs)
         match year:
             case 1983:
                 self.HEADER = 30
