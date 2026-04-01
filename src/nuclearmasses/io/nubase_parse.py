@@ -1,11 +1,10 @@
 import logging
-import pathlib
 import typing
 
 import pandas as pd
 
 from nuclearmasses.io.nubase_file import NUBASEFile
-from nuclearmasses.utils.converter import Converter
+from nuclearmasses.utils.converter import Converter, DataInput
 
 
 class NUBASEParser(NUBASEFile, Converter):
@@ -14,10 +13,10 @@ class NUBASEParser(NUBASEFile, Converter):
     A collection of functions to parse the weird format of the NUBASE file.
     """
 
-    def __init__(self, filename: pathlib.Path, year: int):
+    def __init__(self, filename: DataInput, year: int):
         """Set the file to read and the table year."""
         super().__init__(year=year)
-        self.filename: pathlib.Path = filename
+        self.filename: DataInput = filename
         self.year: int = year
         self.unit_replacements: dict[str, str] = {
             r"y$": "yr",
@@ -113,8 +112,6 @@ class NUBASEParser(NUBASEFile, Converter):
         any type of sorting or algorithm. Convert to the SI unit of seconds, but don't overwrite original columns.
         """
         # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
-        # pandas v3 became much stricter with type conversions so convert to object (from string) so
-        # we can assign a float without breaking other parts of the code
         raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("object")
         raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("object")
 
@@ -127,6 +124,7 @@ class NUBASEParser(NUBASEFile, Converter):
 
         # Use the 3 half-life columns to create 2 new columns with units of seconds
         raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].astype("string")
+        # Bookkeeping: Tidy up know unusual units, i.e. y for years and m for minutes
         for pattern, replacement in self.unit_replacements.items():
             raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].str.replace(pattern, replacement, regex=True)
 
@@ -153,6 +151,18 @@ class NUBASEParser(NUBASEFile, Converter):
 
         return raw_df
 
+    def calculate_relative_error(self, raw_df) -> pd.DataFrame:
+        """Calculate the relative error of the mass excess
+
+        12C has a 0.0 +/- 0.0 mass excess definition by definition so ensure that is still true.
+        """
+        raw_df["NUBASERelativeError"] = abs(
+            raw_df["NUBASEMassExcessError"].astype(float) / raw_df["NUBASEMassExcess"].astype(float)
+        )
+        raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), "NUBASERelativeError"] = 0.0
+
+        return raw_df
+
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
 
@@ -160,7 +170,7 @@ class NUBASEParser(NUBASEFile, Converter):
         column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
-        df = pd.read_fwf(
+        df = Converter.read_fwf(
             self.filename,
             colspecs=typing.cast(typing.Sequence[tuple[int, int]], self.column_limits),  # appease mypy
             names=self._column_names(),
@@ -179,6 +189,11 @@ class NUBASEParser(NUBASEFile, Converter):
         df.replace("#", "", regex=True, inplace=True)
 
         df = self.parse_half_life(df)
+        df = self.calculate_relative_error(df)
+
+        if self.year == 2012:
+            # 198Au has a typo in it's decay mode in the 2012 table. It is recorded as '-'
+            df.loc[(df.A == 198) & (df.Z == 79), "DecayModes"] = "B-"
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])

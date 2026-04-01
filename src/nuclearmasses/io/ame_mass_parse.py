@@ -1,10 +1,9 @@
 import logging
-import pathlib
 
 import pandas as pd
 
 from nuclearmasses.io.ame_mass_file import AMEMassFile
-from nuclearmasses.utils.converter import Converter
+from nuclearmasses.utils.converter import Converter, DataInput
 
 
 class AMEMassParser(AMEMassFile, Converter):
@@ -15,10 +14,10 @@ class AMEMassParser(AMEMassFile, Converter):
     read the columns are interested in.
     """
 
-    def __init__(self, filename: pathlib.Path, year: int):
+    def __init__(self, filename: DataInput, year: int):
         """Set the file to read and table year"""
         super().__init__(year=year)
-        self.filename: pathlib.Path = filename
+        self.filename: DataInput = filename
         self.year: int = year
         logging.info(f"Reading {self.filename} from {self.year}")
 
@@ -69,6 +68,18 @@ class AMEMassParser(AMEMassFile, Converter):
 
         return na_vals
 
+    def calculate_relative_error(self, raw_df) -> pd.DataFrame:
+        """Calculate the relative error of the mass excess
+
+        12C has a 0.0 +/- 0.0 mass excess definition by definition so ensure that is still true.
+        """
+        raw_df["AMERelativeError"] = abs(
+            raw_df["AMEMassExcessError"].astype(float) / raw_df["AMEMassExcess"].astype(float)
+        )
+        raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), "AMERelativeError"] = 0.0
+
+        return raw_df
+
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
 
@@ -76,7 +87,7 @@ class AMEMassParser(AMEMassFile, Converter):
         column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
-        df = pd.read_fwf(
+        df = Converter.read_fwf(
             self.filename,
             colspecs=self.column_limits,
             names=self._column_names(),
@@ -114,6 +125,7 @@ class AMEMassParser(AMEMassFile, Converter):
 
         # We need to rescale the error value because we combined the two columns above
         df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
+        df = self.calculate_relative_error(df)
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])

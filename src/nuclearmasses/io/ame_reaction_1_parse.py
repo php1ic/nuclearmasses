@@ -1,10 +1,9 @@
 import logging
-import pathlib
 
 import pandas as pd
 
 from nuclearmasses.io.ame_reaction_1_file import AMEReactionFileOne
-from nuclearmasses.utils.converter import Converter
+from nuclearmasses.utils.converter import Converter, DataInput
 
 
 class AMEReactionParserOne(AMEReactionFileOne, Converter):
@@ -13,10 +12,10 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
     The format is known but I don't think python can easily parse it.
     """
 
-    def __init__(self, filename: pathlib.Path, year: int):
+    def __init__(self, filename: DataInput, year: int):
         """Set the file to read and table year."""
         super().__init__(year=year)
-        self.filename = filename
+        self.filename: DataInput = filename
         self.year = year
         logging.info(f"Reading {self.filename} from {self.year}")
 
@@ -86,7 +85,7 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
         column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
-        df = pd.read_fwf(
+        df = Converter.read_fwf(
             self.filename,
             colspecs=self.column_limits,
             names=self._column_names(),
