@@ -82,7 +82,7 @@ line-length = 120
 # Nothing different from defaults
 
 [tool.ruff.lint.isort]
-known-first-party = ["nuclearmasses"]
+known-first-party = ["src"]
 from-first = false
 order-by-type = true
 force-sort-within-sections = true
