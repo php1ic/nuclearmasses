@@ -10,6 +10,13 @@ def empty_frame():
     return MassTable(df=pd.DataFrame())
 
 
+def test_initial_complete_parse():
+    data = MassTable().df
+    expected_shape = (21421, 50)
+
+    assert expected_shape == data.shape
+
+
 def test_getter_creation():
     cols = ["Mass", "Error", "Param", "RandomLongerString"]
     test_frame = pd.DataFrame.from_dict(data=dict.fromkeys(cols, [0]))
@@ -56,11 +63,67 @@ def test_auto_populated_filter():
     assert f_df._filters == [(cols[0], "==", val)]
 
 
+def test_getter_on_index():
+    cols = ["Mass", "Error", "Param", "RandomLongerString"]
+    test_frame = pd.DataFrame.from_dict(data=dict.fromkeys(cols, [0]))
+
+    m_df = MassTable(df=test_frame)
+    m_df.set_index("Param")
+    m_df = m_df.get_Param(0).df
+
+    expected = pd.DataFrame(
+        {
+            "Mass": [0],
+            "Error": [0],
+            "Param": [0],
+            "RandomLongerString": [0],
+        }
+    )
+
+    pdt.assert_frame_equal(m_df, expected, check_like=True)
+
+
 def test_access_property():
     cols = ["Mass", "Error", "Param", "RandomLongerString"]
     test_frame = pd.DataFrame.from_dict(data=dict.fromkeys(cols, [0]))
 
     m_df = MassTable(df=test_frame).df
+
+    expected = pd.DataFrame(
+        {
+            "Mass": [0],
+            "Error": [0],
+            "Param": [0],
+            "RandomLongerString": [0],
+        }
+    )
+
+    pdt.assert_frame_equal(m_df, expected, check_like=True)
+
+
+def test_generic_getter():
+    cols = ["Mass", "Error", "Param", "RandomLongerString"]
+    test_frame = pd.DataFrame.from_dict(data=dict.fromkeys(cols, [0]))
+
+    m_df = MassTable(df=test_frame).get("Error", 0).df
+
+    expected = pd.DataFrame(
+        {
+            "Mass": [0],
+            "Error": [0],
+            "Param": [0],
+            "RandomLongerString": [0],
+        }
+    )
+
+    pdt.assert_frame_equal(m_df, expected, check_like=True)
+
+
+def test_generic_filter():
+    cols = ["Mass", "Error", "Param", "RandomLongerString"]
+    test_frame = pd.DataFrame.from_dict(data=dict.fromkeys(cols, [0]))
+
+    m_df = MassTable(df=test_frame).filter("Param == 0").df
 
     expected = pd.DataFrame(
         {
