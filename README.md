@@ -127,11 +127,11 @@ TableYear
 
 If you have ideas for additional functionality or find bugs please create an [issue](https://github.com/php1ic/nuclearmasses/issues) or better yet a [pull request](https://github.com/php1ic/nuclearmasses/pulls).
 
-We use a combination of [isort](https://pycqa.github.io/isort/), [ruff](https://docs.astral.sh/ruff/) and [mypy](https://www.mypy-lang.org/) to keep things tidy and hopefully catch errors and bugs before they happen.
+We use a combination of [ruff](https://docs.astral.sh/ruff/) and [mypy](https://www.mypy-lang.org/) to keep things tidy and hopefully catch errors and bugs before they happen.
 The command below returns no errors or issues so should be run after any code changes.
 We might add a CI pipeline in the future, but for the moment, it's a manual process.
 ```bash
-isort . && ruff format && ruff check && mypy src
+ruff format && ruff check && mypy src
 ```
 
 ## Known issues
