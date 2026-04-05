@@ -75,9 +75,6 @@ omit = [
  "tests/*"
 ]
 
-[tool.isort]
-known_first_party = ["nuclearmasses"]
-
 [tool.ruff]
 line-length = 120
 
@@ -85,7 +82,9 @@ line-length = 120
 # Nothing different from defaults
 
 [tool.ruff.lint.isort]
-known-first-party = ["nuclearmasses"]
+known-first-party = ["src"]
+from-first = false
+order-by-type = true
 force-sort-within-sections = true
 
 [tool.ruff.lint]

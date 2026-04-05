@@ -54,84 +54,82 @@ git clone https://github.com/php1ic/nuclearmasses
 > While every effort is made to maintain a stable API, this module is relatively new so users should not be surprised if there are changes between versions.
 > If a breaking change has been introduced, it will always be highlighted in the [CHANGELOG](CHANGELOG.md).
 
-Once installed or cloned, the data is available as a single dataframe indexed on the mass table year
+The combination of AME and NUBASE values from all years is available as a single dataframe
 ```python
 >>> from nuclearmasses.mass_table import MassTable
->>> df = MassTable().full_data
+>>> df = MassTable().data
 ```
 You can then interrogate, or extract, whatever information you want.
 For example, how has the mass excess and it's accuracy changed overtime for 190Re according to the AME
 ```python
 >>> df[(df['A'] == 190) & (df['Symbol'] == 'Re')][['AMEMassExcess', 'AMEMassExcessError']]
-           AMEMassExcess  AMEMassExcessError
-TableYear
-1983          -35536.605             200.029
-1993          -35557.789             145.549
-1995          -35568.032             212.151
-2003          -35566.326             149.248
-2012          -35634.992              70.542
-2016          -35635.830              70.852
-2020          -35583.015               4.870
+       AMEMassExcess  AMEMassExcessError
+16054     -35536.605             200.029
+16055     -35557.789             145.549
+16056     -35568.032             212.151
+16057     -35566.326             149.248
+16058     -35634.992              70.542
+16059     -35635.830              70.852
+16060     -35583.015               4.870
 ```
 Or how does the mass excess of gold vary across the isotopic chain according to NUBASE in the most recent table for both experimentally measured and theoretical values
 ```python
 >>> df.query("TableYear == 2020 and Symbol == 'Au'")[['A', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'Experimental']]
-             A  NUBASEMassExcess  NUBASEMassExcessError  Experimental
-TableYear
-2020       168            2530.0                  400.0         False
-2020       169           -1790.0                  300.0         False
-2020       170           -3700.0                  200.0         False
-2020       171           -7562.0                   21.0          True
-2020       172           -9320.0                   60.0          True
-2020       173          -12832.0                   23.0          True
-2020       174          -14060.0                  100.0         False
-2020       175          -17400.0                   40.0          True
-2020       176          -18520.0                   30.0          True
-2020       177          -21546.0                   10.0          True
-2020       178          -22303.0                   10.0          True
-2020       179          -24989.0                   12.0          True
-2020       180          -25626.0                    5.0          True
-2020       181          -27871.0                   20.0          True
-2020       182          -28304.0                   19.0          True
-2020       183          -30191.0                    9.0          True
-2020       184          -30319.0                   22.0          True
-2020       185          -31858.1                    2.6          True
-2020       186          -31715.0                   21.0          True
-2020       187          -33029.0                   22.0          True
-2020       188          -32371.3                    2.7          True
-2020       189          -33582.0                   20.0          True
-2020       190          -32834.0                    3.0          True
-2020       191          -33798.0                    5.0          True
-2020       192          -32772.0                   16.0          True
-2020       193          -33405.0                    9.0          True
-2020       194          -32211.9                    2.1          True
-2020       195          -32567.1                    1.1          True
-2020       196          -31138.7                    3.0          True
-2020       197          -31139.8                    0.5          True
-2020       198          -29580.8                    0.5          True
-2020       199          -29093.8                    0.5          True
-2020       200          -27240.0                   27.0          True
-2020       201          -26401.0                    3.0          True
-2020       202          -24353.0                   23.0          True
-2020       203          -23143.0                    3.0          True
-2020       204          -20390.0                  200.0         False
-2020       205          -18570.0                  200.0         False
-2020       206          -14190.0                  300.0         False
-2020       207          -10640.0                  300.0         False
-2020       208           -5910.0                  300.0         False
-2020       209           -2230.0                  400.0         False
-2020       210            2680.0                  400.0         False
+         A  NUBASEMassExcess  NUBASEMassExcessError  Experimental
+14084  168            2530.0                  400.0         False
+14189  169           -1790.0                  300.0         False
+14291  170           -3700.0                  200.0         False
+14391  171           -7562.0                   21.0          True
+14492  172           -9320.0                   60.0          True
+14591  173          -12832.0                   23.0          True
+14687  174          -14060.0                  100.0         False
+14781  175          -17400.0                   40.0          True
+14874  176          -18520.0                   30.0          True
+14968  177          -21546.0                   10.0          True
+15060  178          -22303.0                   10.0          True
+15153  179          -24989.0                   12.0          True
+15244  180          -25626.0                    5.0          True
+15334  181          -27871.0                   20.0          True
+15419  182          -28304.0                   19.0          True
+15503  183          -30191.0                    9.0          True
+15588  184          -30319.0                   22.0          True
+15673  185          -31858.1                    2.6          True
+15757  186          -31715.0                   21.0          True
+15842  187          -33029.0                   22.0          True
+15926  188          -32371.3                    2.7          True
+16007  189          -33582.0                   20.0          True
+16088  190          -32834.0                    3.0          True
+16164  191          -33798.0                    5.0          True
+16243  192          -32772.0                   16.0          True
+16320  193          -33405.0                    9.0          True
+16401  194          -32211.9                    2.1          True
+16480  195          -32567.1                    1.1          True
+16560  196          -31138.7                    3.0          True
+16637  197          -31139.8                    0.5          True
+16713  198          -29580.8                    0.5          True
+16788  199          -29093.8                    0.5          True
+16861  200          -27240.0                   27.0          True
+16935  201          -26401.0                    3.0          True
+17012  202          -24353.0                   23.0          True
+17089  203          -23143.0                    3.0          True
+17163  204          -20390.0                  200.0         False
+17237  205          -18570.0                  200.0         False
+17308  206          -14190.0                  300.0         False
+17382  207          -10640.0                  300.0         False
+17456  208           -5910.0                  300.0         False
+17528  209           -2230.0                  400.0         False
+17603  210            2680.0                  400.0         False
 ```
 
 ## Contributing
 
 If you have ideas for additional functionality or find bugs please create an [issue](https://github.com/php1ic/nuclearmasses/issues) or better yet a [pull request](https://github.com/php1ic/nuclearmasses/pulls).
 
-We use a combination of [isort](https://pycqa.github.io/isort/), [ruff](https://docs.astral.sh/ruff/) and [mypy](https://www.mypy-lang.org/) to keep things tidy and hopefully catch errors and bugs before they happen.
+We use a combination of [ruff](https://docs.astral.sh/ruff/) and [mypy](https://www.mypy-lang.org/) to keep things tidy and hopefully catch errors and bugs before they happen.
 The command below returns no errors or issues so should be run after any code changes.
 We might add a CI pipeline in the future, but for the moment, it's a manual process.
 ```bash
-isort . && ruff format && ruff check && mypy src
+ruff format && ruff check && mypy src
 ```
 
 ## Known issues

@@ -1,88 +1,82 @@
 import logging
-import pathlib
 
 import pandas as pd
 
 from nuclearmasses.io.ame_reaction_1_file import AMEReactionFileOne
+from nuclearmasses.utils.converter import Converter, DataInput
 
 
-class AMEReactionParserOne(AMEReactionFileOne):
+class AMEReactionParserOne(AMEReactionFileOne, Converter):
     """Parse the first AME reaction file.
 
     The format is known but I don't think python can easily parse it.
     """
 
-    def __init__(self, filename: pathlib.Path, year: int):
+    def __init__(self, filename: DataInput, year: int):
         """Set the file to read and table year."""
-        self.filename = filename
+        super().__init__(year=year)
+        self.filename: DataInput = filename
         self.year = year
-        super().__init__(self.year)
         logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
-        match self.year:
-            case _:
-                return [
-                    "A",
-                    "Z",
-                    "TwoNeutronSeparationEnergy",
-                    "TwoNeutronSeparationEnergyError",
-                    "TwoProtonSeparationEnergy",
-                    "TwoProtonSeparationEnergyError",
-                    "QAlpha",
-                    "QAlphaError",
-                    "QTwoBeta",
-                    "QTwoBetaError",
-                    "QEpsilon",
-                    "QEpsilonError",
-                    "QBetaNeutron",
-                    "QBetaNeutronError",
-                ]
+        return [
+            "A",
+            "Z",
+            "TwoNeutronSeparationEnergy",
+            "TwoNeutronSeparationEnergyError",
+            "TwoProtonSeparationEnergy",
+            "TwoProtonSeparationEnergyError",
+            "QAlpha",
+            "QAlphaError",
+            "QTwoBeta",
+            "QTwoBetaError",
+            "QEpsilon",
+            "QEpsilonError",
+            "QBetaNeutron",
+            "QBetaNeutronError",
+        ]
 
     def _data_types(self) -> dict:
         """Set the data type depending on the year"""
-        match self.year:
-            case _:
-                return {
-                    "TableYear": "Int64",
-                    "Symbol": "string",
-                    "A": "Int64",
-                    "Z": "Int64",
-                    "N": "Int64",
-                    "TwoNeutronSeparationEnergy": "float64",
-                    "TwoNeutronSeparationEnergyError": "float64",
-                    "TwoProtonSeparationEnergy": "float64",
-                    "TwoProtonSeparationEnergyError": "float64",
-                    "QAlpha": "float64",
-                    "QAlphaError": "float64",
-                    "QTwoBeta": "float64",
-                    "QTwoBetaError": "float64",
-                    "QEpsilon": "float64",
-                    "QEpsilonError": "float64",
-                    "QBetaNeutron": "float64",
-                    "QBetaNeutronError": "float64",
-                }
+        return {
+            "TableYear": "Int64",
+            "Symbol": "string",
+            "A": "Int64",
+            "Z": "Int64",
+            "N": "Int64",
+            "TwoNeutronSeparationEnergy": "float64",
+            "TwoNeutronSeparationEnergyError": "float64",
+            "TwoProtonSeparationEnergy": "float64",
+            "TwoProtonSeparationEnergyError": "float64",
+            "QAlpha": "float64",
+            "QAlphaError": "float64",
+            "QTwoBeta": "float64",
+            "QTwoBetaError": "float64",
+            "QEpsilon": "float64",
+            "QEpsilonError": "float64",
+            "QBetaNeutron": "float64",
+            "QBetaNeutronError": "float64",
+        }
 
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
-        match self.year:
-            case _:
-                return {
-                    "A": [""],
-                    "TwoNeutronSeparationEnergy": ["", "*"],
-                    "TwoNeutronSeparationEnergyError": ["", "*"],
-                    "TwoProtonSeparationEnergy": ["", "*"],
-                    "TwoProtonSeparationEnergyError": ["", "*"],
-                    "QAlpha": ["", "*"],
-                    "QAlphaError": ["", "*"],
-                    "QTwoBeta": ["", "*"],
-                    "QTwoBetaError": ["", "*"],
-                    "QEpsilon": ["", "*"],
-                    "QEpsilonError": ["", "*"],
-                    "QBetaNeutron": ["", "*"],
-                    "QBetaNeutronError": ["", "*"],
-                }
+        return {
+            "A": [""],
+            "TwoNeutronSeparationEnergy": ["", "*"],
+            "TwoNeutronSeparationEnergyError": ["", "*"],
+            "TwoProtonSeparationEnergy": ["", "*"],
+            "TwoProtonSeparationEnergyError": ["", "*"],
+            "QAlpha": ["", "*"],
+            "QAlphaError": ["", "*"],
+            "QTwoBeta": ["", "*"],
+            "QTwoBetaError": ["", "*"],
+            "QEpsilon": ["", "*"],
+            "QEpsilonError": ["", "*"],
+            "QBetaNeutron": ["", "*"],
+            "QBetaNeutronError": ["", "*"],
+        }
 
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
@@ -91,7 +85,7 @@ class AMEReactionParserOne(AMEReactionFileOne):
         column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
-        df = pd.read_fwf(
+        df = Converter.read_fwf(
             self.filename,
             colspecs=self.column_limits,
             names=self._column_names(),
@@ -113,6 +107,6 @@ class AMEReactionParserOne(AMEReactionFileOne):
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
 
         return df.astype(self._data_types())

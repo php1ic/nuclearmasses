@@ -1,22 +1,22 @@
 import logging
-import pathlib
 import typing
 
 import pandas as pd
 
 from nuclearmasses.io.nubase_file import NUBASEFile
+from nuclearmasses.utils.converter import Converter, DataInput
 
 
-class NUBASEParser(NUBASEFile):
+class NUBASEParser(NUBASEFile, Converter):
     """Parse the NUBASE data file.
 
     A collection of functions to parse the weird format of the NUBASE file.
     """
 
-    def __init__(self, filename: pathlib.Path, year: int):
+    def __init__(self, filename: DataInput, year: int):
         """Set the file to read and the table year."""
-        super().__init__(year)
-        self.filename: pathlib.Path = filename
+        super().__init__(year=year)
+        self.filename: DataInput = filename
         self.year: int = year
         self.unit_replacements: dict[str, str] = {
             r"y$": "yr",
@@ -26,92 +26,67 @@ class NUBASEParser(NUBASEFile):
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
-        match self.year:
-            case 1995 | 2003:
-                return [
-                    "A",
-                    "Z",
-                    "State",
-                    "NUBASEMassExcess",
-                    "NUBASEMassExcessError",
-                    "IsomerEnergy",
-                    "IsomerEnergyError",
-                    "HalfLifeValue",
-                    "HalfLifeUnit",
-                    "HalfLifeError",
-                    "Spin",
-                    "DecayModes",
-                ]
-            case _:
-                return [
-                    "A",
-                    "Z",
-                    "State",
-                    "NUBASEMassExcess",
-                    "NUBASEMassExcessError",
-                    "IsomerEnergy",
-                    "IsomerEnergyError",
-                    "HalfLifeValue",
-                    "HalfLifeUnit",
-                    "HalfLifeError",
-                    "Spin",
-                    "DiscoveryYear",
-                    "DecayModes",
-                ]
+        col_names = [
+            "A",
+            "Z",
+            "State",
+            "NUBASEMassExcess",
+            "NUBASEMassExcessError",
+            "IsomerEnergy",
+            "IsomerEnergyError",
+            "HalfLifeValue",
+            "HalfLifeUnit",
+            "HalfLifeError",
+            "Spin",
+            "DiscoveryYear",
+            "DecayModes",
+        ]
+
+        # The discovery year was added after 2003, and I assume it will be there in the future, so we will set up
+        # as if it is always present and delete for the first two tables.
+        if self.year == 1995 or self.year == 2003:
+            col_names.remove("DiscoveryYear")
+
+        return col_names
 
     def _data_types(self) -> dict:
         """Set the data type depending on the year"""
-        match self.year:
-            case 1995 | 2003:
-                return {
-                    "Symbol": "string",
-                    "A": "Int64",
-                    "Z": "Int64",
-                    "N": "Int64",
-                    "Experimental": "boolean",
-                    # "State": "Int64",
-                    "NUBASEMassExcess": "float64",
-                    "NUBASEMassExcessError": "float64",
-                    # "IsomerEnergy": "float64",
-                    # "IsomerEnergyError": "float64",
-                    "HalfLifeValue": "float64",
-                    "HalfLifeUnit": "string",
-                    "HalfLifeError": "float64",
-                    "HalfLifeSeconds": "float64",
-                    "HalfLifeErrorSeconds": "float64",
-                    "Spin": "string",
-                    "DecayModes": "string",
-                }
-            case _:
-                return {
-                    "Symbol": "string",
-                    "A": "Int64",
-                    "Z": "Int64",
-                    "N": "Int64",
-                    "Experimental": "boolean",
-                    # "State": "Int64",
-                    "NUBASEMassExcess": "float64",
-                    "NUBASEMassExcessError": "float64",
-                    # "IsomerEnergy": "float64",
-                    # "IsomerEnergyError": "float64",
-                    "HalfLifeValue": "float64",
-                    "HalfLifeUnit": "string",
-                    "HalfLifeError": "float64",
-                    "HalfLifeSeconds": "float64",
-                    "HalfLifeErrorSeconds": "float64",
-                    "Spin": "string",
-                    "DiscoveryYear": "Int64",
-                    "DecayModes": "string",
-                }
+        data_types = {
+            "Symbol": "string",
+            "A": "Int64",
+            "Z": "Int64",
+            "N": "Int64",
+            "Experimental": "boolean",
+            # "State": "Int64",
+            "NUBASEMassExcess": "float64",
+            "NUBASEMassExcessError": "float64",
+            # "IsomerEnergy": "float64",
+            # "IsomerEnergyError": "float64",
+            "HalfLifeValue": "float64",
+            "HalfLifeUnit": "string",
+            "HalfLifeError": "float64",
+            "HalfLifeSeconds": "float64",
+            "HalfLifeErrorSeconds": "float64",
+            "Spin": "string",
+            "DiscoveryYear": "Int64",
+            "DecayModes": "string",
+        }
+
+        # The discovery year was added after 2003, and I assume it will be there in the future, so we will set up
+        # as if it is always present and delete for the first two tables.
+        if self.year == 1995 or self.year == 2003:
+            data_types.pop("DiscoveryYear")
+
+        return data_types
 
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
         match self.year:
             case 1995:
                 return {
+                    "State": [""],
                     "NUBASEMassExcess": [""],
                     "NUBASEMassExcessError": [""],
-                    "State": [""],
                     "HalfLifeValue": [""],
                     "HalfLifeUnit": [""],
                     "HalfLifeError": [""],
@@ -137,8 +112,6 @@ class NUBASEParser(NUBASEFile):
         any type of sorting or algorithm. Convert to the SI unit of seconds, but don't overwrite original columns.
         """
         # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
-        # pandas v3 became much stricter with type conversions so convert to object (from string) so
-        # we can assign a float without breaking other parts of the code
         raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("object")
         raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("object")
 
@@ -151,6 +124,7 @@ class NUBASEParser(NUBASEFile):
 
         # Use the 3 half-life columns to create 2 new columns with units of seconds
         raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].astype("string")
+        # Bookkeeping: Tidy up know unusual units, i.e. y for years and m for minutes
         for pattern, replacement in self.unit_replacements.items():
             raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].str.replace(pattern, replacement, regex=True)
 
@@ -177,6 +151,18 @@ class NUBASEParser(NUBASEFile):
 
         return raw_df
 
+    def calculate_relative_error(self, raw_df) -> pd.DataFrame:
+        """Calculate the relative error of the mass excess
+
+        12C has a 0.0 +/- 0.0 mass excess definition by definition so ensure that is still true.
+        """
+        raw_df["NUBASERelativeError"] = abs(
+            raw_df["NUBASEMassExcessError"].astype(float) / raw_df["NUBASEMassExcess"].astype(float)
+        )
+        raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), "NUBASERelativeError"] = 0.0
+
+        return raw_df
+
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
 
@@ -184,7 +170,7 @@ class NUBASEParser(NUBASEFile):
         column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
-        df = pd.read_fwf(
+        df = Converter.read_fwf(
             self.filename,
             colspecs=typing.cast(typing.Sequence[tuple[int, int]], self.column_limits),  # appease mypy
             names=self._column_names(),
@@ -203,9 +189,14 @@ class NUBASEParser(NUBASEFile):
         df.replace("#", "", regex=True, inplace=True)
 
         df = self.parse_half_life(df)
+        df = self.calculate_relative_error(df)
+
+        if self.year == 2012:
+            # 198Au has a typo in it's decay mode in the 2012 table. It is recorded as '-'
+            df.loc[(df.A == 198) & (df.Z == 79), "DecayModes"] = "B-"
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
 
         return df.astype(self._data_types())

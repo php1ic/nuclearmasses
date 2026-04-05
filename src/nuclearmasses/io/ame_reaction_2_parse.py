@@ -1,88 +1,82 @@
 import logging
-import pathlib
 
 import pandas as pd
 
 from nuclearmasses.io.ame_reaction_2_file import AMEReactionFileTwo
+from nuclearmasses.utils.converter import Converter, DataInput
 
 
-class AMEReactionParserTwo(AMEReactionFileTwo):
+class AMEReactionParserTwo(AMEReactionFileTwo, Converter):
     """Parse the second AME reaction file.
 
     The format is known but I don't think python can easily parse it.
     """
 
-    def __init__(self, filename: pathlib.Path, year: int):
+    def __init__(self, filename: DataInput, year: int):
         """Set the file to read and table year."""
-        self.filename = filename
+        super().__init__(year=year)
+        self.filename: DataInput = filename
         self.year = year
-        super().__init__(self.year)
         logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
-        match self.year:
-            case _:
-                return [
-                    "A",
-                    "Z",
-                    "OneNeutronSeparationEnergy",
-                    "OneNeutronSeparationEnergyError",
-                    "OneProtonSeparationEnergy",
-                    "OneProtonSeparationEnergyError",
-                    "QFourBeta",
-                    "QFourBetaError",
-                    "QDeuteronAlpha",
-                    "QDeuteronAlphaError",
-                    "QProtonAlpha",
-                    "QProtonAlphaError",
-                    "QNeutronAlpha",
-                    "QNeutronAlphaError",
-                ]
+        return [
+            "A",
+            "Z",
+            "OneNeutronSeparationEnergy",
+            "OneNeutronSeparationEnergyError",
+            "OneProtonSeparationEnergy",
+            "OneProtonSeparationEnergyError",
+            "QFourBeta",
+            "QFourBetaError",
+            "QDeuteronAlpha",
+            "QDeuteronAlphaError",
+            "QProtonAlpha",
+            "QProtonAlphaError",
+            "QNeutronAlpha",
+            "QNeutronAlphaError",
+        ]
 
     def _data_types(self) -> dict:
         """Set the data type depending on the year"""
-        match self.year:
-            case _:
-                return {
-                    "TableYear": "Int64",
-                    "Symbol": "string",
-                    "A": "Int64",
-                    "Z": "Int64",
-                    "N": "Int64",
-                    "OneNeutronSeparationEnergy": "float64",
-                    "OneNeutronSeparationEnergyError": "float64",
-                    "OneProtonSeparationEnergy": "float64",
-                    "OneProtonSeparationEnergyError": "float64",
-                    "QFourBeta": "float64",
-                    "QFourBetaError": "float64",
-                    "QDeuteronAlpha": "float64",
-                    "QDeuteronAlphaError": "float64",
-                    "QProtonAlpha": "float64",
-                    "QProtonAlphaError": "float64",
-                    "QNeutronAlpha": "float64",
-                    "QNeutronAlphaError": "float64",
-                }
+        return {
+            "TableYear": "Int64",
+            "Symbol": "string",
+            "A": "Int64",
+            "Z": "Int64",
+            "N": "Int64",
+            "OneNeutronSeparationEnergy": "float64",
+            "OneNeutronSeparationEnergyError": "float64",
+            "OneProtonSeparationEnergy": "float64",
+            "OneProtonSeparationEnergyError": "float64",
+            "QFourBeta": "float64",
+            "QFourBetaError": "float64",
+            "QDeuteronAlpha": "float64",
+            "QDeuteronAlphaError": "float64",
+            "QProtonAlpha": "float64",
+            "QProtonAlphaError": "float64",
+            "QNeutronAlpha": "float64",
+            "QNeutronAlphaError": "float64",
+        }
 
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
-        match self.year:
-            case _:
-                return {
-                    "A": [""],
-                    "OneNeutronSeparationEnergy": ["", "*"],
-                    "OneNeutronSeparationEnergyError": ["", "*"],
-                    "OneProtonSeparationEnergy": ["", "*"],
-                    "OneProtonSeparationEnergyError": ["", "*"],
-                    "QFourBeta": ["", "*"],
-                    "QFourBetaError": ["", "*"],
-                    "QDeuteronAlpha": ["", "*"],
-                    "QDeuteronAlphaError": ["", "*"],
-                    "QProtonAlpha": ["", "*"],
-                    "QProtonAlphaError": ["", "*"],
-                    "QNeutronAlpha": ["", "*"],
-                    "QNeutronAlphaError": ["", "*"],
-                }
+        return {
+            "A": [""],
+            "OneNeutronSeparationEnergy": ["", "*"],
+            "OneNeutronSeparationEnergyError": ["", "*"],
+            "OneProtonSeparationEnergy": ["", "*"],
+            "OneProtonSeparationEnergyError": ["", "*"],
+            "QFourBeta": ["", "*"],
+            "QFourBetaError": ["", "*"],
+            "QDeuteronAlpha": ["", "*"],
+            "QDeuteronAlphaError": ["", "*"],
+            "QProtonAlpha": ["", "*"],
+            "QProtonAlphaError": ["", "*"],
+            "QNeutronAlpha": ["", "*"],
+            "QNeutronAlphaError": ["", "*"],
+        }
 
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
@@ -91,7 +85,7 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
         column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
-        df = pd.read_fwf(
+        df = Converter.read_fwf(
             self.filename,
             colspecs=self.column_limits,
             names=self._column_names(),
@@ -117,6 +111,6 @@ class AMEReactionParserTwo(AMEReactionFileTwo):
         # Repeated column heading also means we have to cast to create new columns
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
 
         return df.astype(self._data_types())

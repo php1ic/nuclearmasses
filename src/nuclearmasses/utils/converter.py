@@ -1,6 +1,14 @@
+import importlib
+from importlib.resources.abc import Traversable
+import os
+import typing
+
 import astropy  # type: ignore[import-untyped]
 import numpy as np
 import pandas as pd
+
+# Typing hint Union for the different ways a file or data can be represented
+DataInput = Traversable | os.PathLike[str] | str | typing.TextIO
 
 
 class Converter:
@@ -10,8 +18,10 @@ class Converter:
     and the other symbol to Z.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs) -> None:
         """Construct the symbol -> Z and Z -> symbol dictionaries."""
+        # We are using multiple inheritance, so need this for MRO
+        super().__init__(**kwargs)
         # fmt: off
         # Formatter wants to put each item on it's own line, I don't
         self.z_to_symbol: dict[int, str] = {
@@ -92,3 +102,23 @@ class Converter:
             return np.nan
 
         return float(unit.to(astropy.units.s))
+
+    @staticmethod
+    def read_fwf(base: DataInput, **kwargs):
+        """Overloaded version of pandas.read_fwf() that accepts more types
+
+        Our use of importlib.resource means we have types that the pandas version of read_fwf does not accept.
+        It can still be used but some work is required. This function does that work, as well as some other checking
+        to make sure we can pass the necessary types into our parser classes.
+        """
+        # A file like object
+        if hasattr(base, "read"):
+            return pd.read_fwf(base, **kwargs)  # type: ignore[arg-type]
+
+        # importlib.resource Traversable
+        if isinstance(base, Traversable):
+            with importlib.resources.as_file(base) as the_file:
+                return pd.read_fwf(the_file, **kwargs)
+
+        # Filesystem path
+        return pd.read_fwf(base, **kwargs)

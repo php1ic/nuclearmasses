@@ -1,12 +1,12 @@
 import logging
-import pathlib
 
 import pandas as pd
 
 from nuclearmasses.io.ame_mass_file import AMEMassFile
+from nuclearmasses.utils.converter import Converter, DataInput
 
 
-class AMEMassParser(AMEMassFile):
+class AMEMassParser(AMEMassFile, Converter):
     """Parse the AME mass file.
 
     The format is known but the provided string does not match all lines.
@@ -14,65 +14,71 @@ class AMEMassParser(AMEMassFile):
     read the columns are interested in.
     """
 
-    def __init__(self, filename: pathlib.Path, year: int):
+    def __init__(self, filename: DataInput, year: int):
         """Set the file to read and table year"""
-        self.filename: pathlib.Path = filename
+        super().__init__(year=year)
+        self.filename: DataInput = filename
         self.year: int = year
-        super().__init__(self.year)
         logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
-        match self.year:
-            case _:
-                return [
-                    "Z",
-                    "A",
-                    "AMEMassExcess",
-                    "AMEMassExcessError",
-                    "BindingEnergyPerA",
-                    "BindingEnergyPerAError",
-                    "BetaDecayEnergy",
-                    "BetaDecayEnergyError",
-                    "AtomicNumber",
-                    "AtomicMass",
-                    "AtomicMassError",
-                ]
+        return [
+            "Z",
+            "A",
+            "AMEMassExcess",
+            "AMEMassExcessError",
+            "BindingEnergyPerA",
+            "BindingEnergyPerAError",
+            "BetaDecayEnergy",
+            "BetaDecayEnergyError",
+            "AtomicNumber",
+            "AtomicMass",
+            "AtomicMassError",
+        ]
 
     def _data_types(self) -> dict:
         """Set the data type depending on the year"""
-        match self.year:
-            case _:
-                return {
-                    "TableYear": "Int64",
-                    "Symbol": "string",
-                    "N": "Int64",
-                    "Z": "Int64",
-                    "A": "Int64",
-                    "AMEMassExcess": "float64",
-                    "AMEMassExcessError": "float64",
-                    "BindingEnergyPerA": "float64",
-                    "BindingEnergyPerAError": "float64",
-                    "BetaDecayEnergy": "float64",
-                    "BetaDecayEnergyError": "float64",
-                    "AtomicMass": "float64",
-                    "AtomicMassError": "float64",
-                }
+        return {
+            "TableYear": "Int64",
+            "Symbol": "string",
+            "N": "Int64",
+            "Z": "Int64",
+            "A": "Int64",
+            "AMEMassExcess": "float64",
+            "AMEMassExcessError": "float64",
+            "BindingEnergyPerA": "float64",
+            "BindingEnergyPerAError": "float64",
+            "BetaDecayEnergy": "float64",
+            "BetaDecayEnergyError": "float64",
+            "AtomicMass": "float64",
+            "AtomicMassError": "float64",
+        }
 
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
-        match self.year:
-            case 1983:
-                return {
-                    "A": [""],
-                    "BetaDecayEnergy": ["", "*"],
-                    "BetaDecayEnergyError": ["", "*"],
-                }
-            case _:
-                return {
-                    "BetaDecayEnergy": ["", "*"],
-                    "BetaDecayEnergyError": ["", "*"],
-                }
+        na_vals = {
+            "A": [""],
+            "BetaDecayEnergy": ["", "*"],
+            "BetaDecayEnergyError": ["", "*"],
+        }
+
+        if self.year != 1983:
+            na_vals.pop("A")
+
+        return na_vals
+
+    def calculate_relative_error(self, raw_df) -> pd.DataFrame:
+        """Calculate the relative error of the mass excess
+
+        12C has a 0.0 +/- 0.0 mass excess definition by definition so ensure that is still true.
+        """
+        raw_df["AMERelativeError"] = abs(
+            raw_df["AMEMassExcessError"].astype(float) / raw_df["AMEMassExcess"].astype(float)
+        )
+        raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), "AMERelativeError"] = 0.0
+
+        return raw_df
 
     def read_file(self) -> pd.DataFrame:
         """Read the file using it's known format
@@ -81,7 +87,7 @@ class AMEMassParser(AMEMassFile):
         column names, data types and locations of the date so we can now make the generic
         call to parse the file.
         """
-        df = pd.read_fwf(
+        df = Converter.read_fwf(
             self.filename,
             colspecs=self.column_limits,
             names=self._column_names(),
@@ -119,9 +125,10 @@ class AMEMassParser(AMEMassFile):
 
         # We need to rescale the error value because we combined the two columns above
         df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
+        df = self.calculate_relative_error(df)
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.z_to_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
 
         return df.astype(self._data_types())
