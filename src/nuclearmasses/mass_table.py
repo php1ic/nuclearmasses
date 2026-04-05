@@ -42,8 +42,8 @@ class MassTable:
     # def __iter__(self):
     #     return iter(self.df)
     #
-    # def __getitem__(self, key):
-    #     return type(self)(df=self.df[key])
+    def __getitem__(self, key):
+        return type(self)(df=self.df[key])
 
     def get(self, column: str, value: typing.Any) -> typing.Self:
         """Generic getter: all_data.get('A', 123)"""
