@@ -38,6 +38,26 @@ def test_empty_filter(empty_frame):
     assert len(empty_frame._filters) == 0
 
 
+def test_unique_and_sorted_dir(empty_frame):
+    output = dir(empty_frame)
+    assert output == sorted(output)
+    assert len(output) == len(set(output))
+
+
+def test_dir_includes_class_attributes(empty_frame):
+    output = dir(empty_frame)
+
+    assert "_parse_files" in output
+    assert "get" in output
+
+
+def test_dir_includes_pandas_attributes(empty_frame):
+    output = dir(empty_frame)
+
+    assert "describe" in output
+    assert "head" in output
+
+
 def test_manually_populated_filter():
     cols = ["ManualParameter"]
     test_frame = pd.DataFrame.from_dict(data=dict.fromkeys(cols, [0]))
@@ -66,9 +86,9 @@ def test_auto_populated_filter():
 def test_getter_on_index():
     cols = ["Mass", "Error", "Param", "RandomLongerString"]
     test_frame = pd.DataFrame.from_dict(data=dict.fromkeys(cols, [0]))
+    test_frame.set_index("Param")
 
     m_df = MassTable(df=test_frame)
-    m_df.set_index("Param")
     m_df = m_df.get_Param(0).df
 
     expected = pd.DataFrame(
