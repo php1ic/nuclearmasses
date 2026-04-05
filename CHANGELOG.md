@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.0] - BREAKING CHANGES - 2026-04-05
+- BREAKING: Users now access the full dataframe via `.data` and we no longer make the `TableYear` column the index [#24](https://github.com/php1ic/nuclearmasses/pull/24)
+- Significant restructuring code layout. No change to functionality.
+
 ## [0.0.5] - 2026-03-22
 - Fix bug that was creating a new column to update a single value, rather than updating value in existing column [a420c33](https://github.com/php1ic/nuclearmasses/commit/a420c332d1ff76ed32156c2f4d6e86c9e4e2375f)
 - Refactor NUBASE parsing [#15](https://github.com/php1ic/nuclearmasses/issues/15)
