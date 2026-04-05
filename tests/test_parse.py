@@ -40,8 +40,8 @@ def test_units_to_seconds(converter):
     assert converter.unit_to_seconds("d") == 86400.0
     assert converter.unit_to_seconds("year") == 31557600.0
 
+
+@pytest.mark.parametrize("unit", [5, "m", "Hz", "", "  "])
+def test_nontime_unit_return_nan(converter, unit):
     # Don't use == on np.nan. Floating point numbers are complicated!
-    assert np.isnan(converter.unit_to_seconds(5))
-    assert np.isnan(converter.unit_to_seconds("keV"))
-    assert np.isnan(converter.unit_to_seconds(""))
-    assert np.isnan(converter.unit_to_seconds("  "))
+    assert np.isnan(converter.unit_to_seconds(unit))
