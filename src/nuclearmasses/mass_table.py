@@ -18,7 +18,7 @@ class MassTable:
     def _parse_files(self) -> pd.DataFrame:
         data_path = importlib.resources.files("nuclearmasses").joinpath("data")
 
-        common_columns = ["A", "Z", "N", "TableYear", "Symbol"]
+        common_columns = ["A", "Z", "N", "TableYear", "Symbol", "DataSource"]
 
         return pd.merge(AME(data_path).ame_df, NUBASE(data_path).nubase_df, on=common_columns, how="outer")
 

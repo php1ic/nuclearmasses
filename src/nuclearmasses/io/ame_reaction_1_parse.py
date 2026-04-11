@@ -58,6 +58,7 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
             "QEpsilonError": "float64",
             "QBetaNeutron": "float64",
             "QBetaNeutronError": "float64",
+            "DataSource": "Int64",
         }
 
     def _na_values(self) -> dict:
@@ -108,5 +109,6 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
         df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
+        df["DataSource"] = 0
 
         return df.astype(self._data_types())

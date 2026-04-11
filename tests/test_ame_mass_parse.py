@@ -32,6 +32,7 @@ def test_1983_mass():
             "BetaDecayEnergyError": [20.646],
             "AtomicMass": [66.931579167],
             "AtomicMassError": [20.457 / 1.0e6],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -64,6 +65,7 @@ def test_1993_mass():
             "BetaDecayEnergyError": [543.150],
             "AtomicMass": [66.950000000],
             "AtomicMassError": [500.0 / 1.0e6],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -97,6 +99,7 @@ def test_1995_mass():
             "BetaDecayEnergyError": [543.150],
             "AtomicMass": [66.950000000],
             "AtomicMassError": [500.0 / 1.0e6],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -129,6 +132,7 @@ def test_2003_mass():
             "BetaDecayEnergyError": [523.438],
             "AtomicMass": [66.950947244],
             "AtomicMassError": [446.132 / 1.0e6],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -161,6 +165,7 @@ def test_2012_mass():
             "BetaDecayEnergyError": [218.067],
             "AtomicMass": [66.950543395],
             "AtomicMassError": [234.002 / 1.0e6],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -193,6 +198,7 @@ def test_2016_mass():
             "BetaDecayEnergyError": [270.362],
             "AtomicMass": [66.951035482],
             "AtomicMassError": [290.163 / 1.0e6],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -225,6 +231,7 @@ def test_2020_mass():
             "BetaDecayEnergyError": [7.4900],
             "AtomicMass": [66.950930],
             "AtomicMassError": [4.100 / 1.0e6],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())

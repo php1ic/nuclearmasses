@@ -41,7 +41,7 @@ class AME:
         rct2_df = AMEReactionParserTwo(filename=ame_reaction_2, year=year).read_file()
 
         # Merge all 3 of the AME dataframes into one
-        common_columns = ["A", "Z", "N", "TableYear", "Symbol"]
+        common_columns = ["A", "Z", "N", "TableYear", "Symbol", "DataSource"]
         return mass_df.merge(rct1_df, on=common_columns, how="outer").merge(rct2_df, on=common_columns, how="outer")
 
     def parse_all_years(self) -> pd.DataFrame:
