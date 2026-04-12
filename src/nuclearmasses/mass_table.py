@@ -27,7 +27,10 @@ class MassTable:
         return pd.merge(AME(data_path).ame_df, NUBASE(data_path).nubase_df, on=common_columns, how="outer")
 
     def add_user_data(
-        self, file: pathlib.Path, source: int = 1, common_values: dict[str, typing.Any] | None = None
+        self,
+        file: str | pathlib.Path | typing.IO,
+        source: int = 1,
+        common_values: dict[str, typing.Any] | None = None,
     ) -> None:
         """Merge user data into the mass table"""
         # We are going to force at least 3 columns in the user data
@@ -58,7 +61,7 @@ class MassTable:
 
         # Check we have the necessary columns
         if missing := required_columns - user_columns:
-            raise ValueError(f"Missing required columns: {missing}")
+            raise ValueError(f"ERROR: Missing required columns: {missing}")
 
         # Check any columns, in addition to those required, match the existing ones
         mt_columns = self._complete_df.columns
@@ -68,13 +71,13 @@ class MassTable:
 
                 msg = f"ERROR: Column '{col}' not recognised."
                 if suggestion := get_close_matches(col, mt_columns, n=1):
-                    msg += f"Did you mean '{suggestion[0]}'?"
+                    msg += f" Did you mean '{suggestion[0]}'?"
 
                 raise ValueError(msg)
 
         # Confirm the provided columns are not empty or null
         if user_df[list(required_columns)].isna().any().any():
-            raise ValueError("Required columns have missing values")
+            raise ValueError("Required columns have missing values.")
 
         # Check the user hasn't duplicated rows
         if user_df.duplicated(subset=required_columns).any():
