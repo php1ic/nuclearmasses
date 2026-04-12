@@ -23,6 +23,15 @@ def test_valid_user_data(the_table):
     assert df[(df["A"] == 5) & (df["Z"] == 2) & (df["DataSource"] == 1)]["AMEMassExcess"].iloc[0] == 123456.7
 
 
+def test_common_value_user_data(the_table):
+    data = StringIO('[{"A": 5, "Z": 2, "AMEMassExcess": 123456.7}]')
+    common_val = {"TableYear": 2099}
+    the_table.add_user_data(data, common_values=common_val)
+    df = the_table.data
+    assert (21422, 51) == df.shape
+    assert df[(df["A"] == 5) & (df["Z"] == 2) & (df["DataSource"] == 1)]["TableYear"].iloc[0] == 2099
+
+
 def test_missing_column_user_data(the_table):
     data = StringIO('[{"Z": 2, "AMEMassExcess": 123456.7}]')
     with pytest.raises(ValueError, match="ERROR: Missing required columns:.*A.*"):
