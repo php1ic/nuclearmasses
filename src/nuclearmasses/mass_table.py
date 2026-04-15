@@ -52,7 +52,7 @@ class MassTable:
         if "Symbol" not in user_columns:
             user_df["Symbol"] = pd.to_numeric(user_df["Z"]).map(Converter().get_symbol)
 
-        # Set the source value using the function parameter
+        # Set the source value using the function parameter if it hasn't already been set
         if "DataSource" not in user_columns:
             user_df["DataSource"] = source
 
@@ -67,8 +67,6 @@ class MassTable:
         mt_columns = self._complete_df.columns
         if unexpected := user_columns - set(mt_columns):
             for col in unexpected:
-                # suggestion = get_close_matches(col, mt_columns, n=1)
-
                 msg = f"ERROR: Column '{col}' not recognised."
                 if suggestion := get_close_matches(col, mt_columns, n=1):
                     msg += f" Did you mean '{suggestion[0]}'?"
