@@ -42,10 +42,13 @@ The package is available on the Python Package Index so can be installed via pip
 pip install nuclearmasses
 ```
 
-Or you can clone the latest version from github.
-All work is done on a feature branch so cloning and using `main` should be the same as using the latest installed version from pip.
+Or you can clone the latest version from github and install locally.
+All work is done on a feature branch so cloning and using `main` should be the similar to using the latest installed version from pip.
+There may be some additional functionality, but nothing should have been removed.
 ```bash
 git clone https://github.com/php1ic/nuclearmasses
+cd nuclearmasses
+pip install -e .
 ```
 
 ## Usage
@@ -60,17 +63,17 @@ The combination of AME and NUBASE values from all years is available as a single
 >>> df = MassTable().data
 ```
 You can then interrogate, or extract, whatever information you want.
-For example, how has the mass excess and it's accuracy changed overtime for 190Re according to the AME
+For example, how has the mass excess and its accuracy changed overtime for 190Re according to the AME
 ```python
->>> df[(df['A'] == 190) & (df['Symbol'] == 'Re')][['AMEMassExcess', 'AMEMassExcessError']]
-       AMEMassExcess  AMEMassExcessError
-16054     -35536.605             200.029
-16055     -35557.789             145.549
-16056     -35568.032             212.151
-16057     -35566.326             149.248
-16058     -35634.992              70.542
-16059     -35635.830              70.852
-16060     -35583.015               4.870
+>>> df[(df['A'] == 190) & (df['Symbol'] == 'Re')][['TableYear', 'AMEMassExcess', 'AMEMassExcessError']]
+       TableYear  AMEMassExcess  AMEMassExcessError
+16054       1983     -35536.605             200.029
+16055       1993     -35557.789             145.549
+16056       1995     -35568.032             212.151
+16057       2003     -35566.326             149.248
+16058       2012     -35634.992              70.542
+16059       2016     -35635.830              70.852
+16060       2020     -35583.015               4.870
 ```
 Or how does the mass excess of gold vary across the isotopic chain according to NUBASE in the most recent table for both experimentally measured and theoretical values
 ```python
