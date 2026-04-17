@@ -75,53 +75,21 @@ For example, how has the mass excess and its accuracy changed overtime for 190Re
 16059       2016     -35635.830              70.852
 16060       2020     -35583.015               4.870
 ```
-Or how does the mass excess of gold vary across the isotopic chain according to NUBASE in the most recent table for both experimentally measured and theoretical values
+Or how does the mass excess of lithium vary across the isotopic chain according to NUBASE in the most recent table for both experimentally measured and theoretical values
 ```python
->>> df.query("TableYear == 2020 and Symbol == 'Au'")[['A', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'Experimental']]
-         A  NUBASEMassExcess  NUBASEMassExcessError  Experimental
-14084  168            2530.0                  400.0         False
-14189  169           -1790.0                  300.0         False
-14291  170           -3700.0                  200.0         False
-14391  171           -7562.0                   21.0          True
-14492  172           -9320.0                   60.0          True
-14591  173          -12832.0                   23.0          True
-14687  174          -14060.0                  100.0         False
-14781  175          -17400.0                   40.0          True
-14874  176          -18520.0                   30.0          True
-14968  177          -21546.0                   10.0          True
-15060  178          -22303.0                   10.0          True
-15153  179          -24989.0                   12.0          True
-15244  180          -25626.0                    5.0          True
-15334  181          -27871.0                   20.0          True
-15419  182          -28304.0                   19.0          True
-15503  183          -30191.0                    9.0          True
-15588  184          -30319.0                   22.0          True
-15673  185          -31858.1                    2.6          True
-15757  186          -31715.0                   21.0          True
-15842  187          -33029.0                   22.0          True
-15926  188          -32371.3                    2.7          True
-16007  189          -33582.0                   20.0          True
-16088  190          -32834.0                    3.0          True
-16164  191          -33798.0                    5.0          True
-16243  192          -32772.0                   16.0          True
-16320  193          -33405.0                    9.0          True
-16401  194          -32211.9                    2.1          True
-16480  195          -32567.1                    1.1          True
-16560  196          -31138.7                    3.0          True
-16637  197          -31139.8                    0.5          True
-16713  198          -29580.8                    0.5          True
-16788  199          -29093.8                    0.5          True
-16861  200          -27240.0                   27.0          True
-16935  201          -26401.0                    3.0          True
-17012  202          -24353.0                   23.0          True
-17089  203          -23143.0                    3.0          True
-17163  204          -20390.0                  200.0         False
-17237  205          -18570.0                  200.0         False
-17308  206          -14190.0                  300.0         False
-17382  207          -10640.0                  300.0         False
-17456  208           -5910.0                  300.0         False
-17528  209           -2230.0                  400.0         False
-17603  210            2680.0                  400.0         False
+>>> df.query("TableYear == 2020 and Symbol == 'Li'")[['A', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'Experimental']]
+      A  NUBASEMassExcess  NUBASEMassExcessError  Experimental
+38    3        28670.0000              2000.0000         False
+59    4        25320.0000               210.0000          True
+79    5        11680.0000                50.0000          True
+104   6        14086.8804                 0.0014          True
+133   7        14907.1050                 0.0040          True
+161   8        20945.8000                 0.0500          True
+196   9        24954.9100                 0.1900          True
+229  10        33053.0000                13.0000          True
+264  11        40728.3000                 0.6000          True
+298  12        49010.0000                30.0000          True
+336  13        56980.0000                70.0000          True
 ```
 
 ## Contributing
