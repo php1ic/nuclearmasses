@@ -1,5 +1,6 @@
 from difflib import get_close_matches
 import importlib.resources
+import io
 import pathlib
 import typing
 
@@ -28,7 +29,7 @@ class MassTable:
 
     def add_user_data(
         self,
-        file: str | pathlib.Path | typing.IO,
+        data: str | pathlib.Path | typing.IO,
         source: int = 1,
         common_values: dict[str, typing.Any] | None = None,
     ) -> None:
@@ -38,8 +39,12 @@ class MassTable:
         # One via code: DataSource to differentiate from the original table data
         required_columns = {"A", "Z", "DataSource"}
 
+        # Convert a string into a type read_json can read
+        if isinstance(data, str):
+            data = io.StringIO(data)
+
         # Read the file, should be valid json so nice and simple
-        user_df: pd.DataFrame = pd.read_json(file, dtype={"A": int, "Z": int})
+        user_df: pd.DataFrame = pd.read_json(data, dtype={"A": int, "Z": int})
 
         # Add any additional data that is constant for the user data, e.g. TableYear
         if common_values is not None:
