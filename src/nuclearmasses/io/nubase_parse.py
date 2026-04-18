@@ -132,8 +132,11 @@ class NUBASEParser(NUBASEFile, Converter):
         # Ensure numeric values
         for col in ["HalfLifeValue", "HalfLifeError"]:
             raw_df[col] = pd.to_numeric(raw_df[col], errors="coerce")
-        # Pre-compute unit -> second conversions
-        unit_map = raw_df["HalfLifeUnit"].map(self.unit_to_seconds)
+
+        # Pre-compute unit -> second conversions as there is likely only a dozen or so unique units
+        unit_lookup = {u: self.unit_to_seconds(u) for u in raw_df["HalfLifeUnit"].dropna().unique()}
+        # Apply mapping so we can reuse
+        unit_map = raw_df["HalfLifeUnit"].map(unit_lookup)
 
         raw_df["HalfLifeSeconds"] = raw_df["HalfLifeValue"] * unit_map
         raw_df["HalfLifeErrorSeconds"] = raw_df["HalfLifeError"] * unit_map
