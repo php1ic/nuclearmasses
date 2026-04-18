@@ -1,4 +1,3 @@
-import logging
 import typing
 
 import pandas as pd
@@ -22,7 +21,6 @@ class NUBASEParser(NUBASEFile, Converter):
             r"y$": "yr",
             r"^m$": "min",
         }
-        logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""

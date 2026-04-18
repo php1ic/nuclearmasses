@@ -1,5 +1,3 @@
-import logging
-
 import pandas as pd
 
 from nuclearmasses.io.ame_reaction_1_file import AMEReactionFileOne
@@ -17,7 +15,6 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
         super().__init__(year=year)
         self.filename: DataInput = filename
         self.year = year
-        logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""

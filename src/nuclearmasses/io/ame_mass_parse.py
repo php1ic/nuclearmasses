@@ -1,5 +1,3 @@
-import logging
-
 import pandas as pd
 
 from nuclearmasses.io.ame_mass_file import AMEMassFile
@@ -19,7 +17,6 @@ class AMEMassParser(AMEMassFile, Converter):
         super().__init__(year=year)
         self.filename: DataInput = filename
         self.year: int = year
-        logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
