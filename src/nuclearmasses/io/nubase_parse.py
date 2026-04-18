@@ -82,29 +82,23 @@ class NUBASEParser(NUBASEFile, Converter):
 
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
-        match self.year:
-            case 1995:
-                return {
-                    "State": [""],
-                    "NUBASEMassExcess": [""],
-                    "NUBASEMassExcessError": [""],
-                    "HalfLifeValue": [""],
-                    "HalfLifeUnit": [""],
-                    "HalfLifeError": [""],
-                    "Spin": [""],
-                    "DecayModes": [""],
-                }
-            case _:
-                return {
-                    "State": [""],
-                    "NUBASEMassExcess": [""],
-                    "NUBASEMassExcessError": [""],
-                    "HalfLifeValue": ["", "p-unst", "p-unst#"],
-                    "HalfLifeUnit": [""],
-                    "HalfLifeError": [""],
-                    "DiscoveryYear": [""],
-                    "DecayModes": [""],
-                }
+        na_values = {
+            "State": [""],
+            "NUBASEMassExcess": [""],
+            "NUBASEMassExcessError": [""],
+            "HalfLifeValue": [""],
+            "HalfLifeUnit": [""],
+            "HalfLifeError": [""],
+            "DecayModes": [""],
+        }
+
+        if self.year == 1995:
+            na_values["Spin"] = [""]
+        else:
+            na_values["HalfLifeValue"] = ["", "p-unst", "p-unst#"]
+            na_values["DiscoveryYear"] = [""]
+
+        return na_values
 
     def parse_half_life(self, raw_df) -> pd.DataFrame:
         """Create half-life columns with SI units
