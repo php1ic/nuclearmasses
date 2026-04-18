@@ -39,9 +39,14 @@ class MassTable:
         # One via code: DataSource to differentiate from the original table data
         required_columns = {"A", "Z", "DataSource"}
 
-        # Convert a string into a type read_json can read
+        # Is the string a json string or filename
         if isinstance(data, str):
-            data = io.StringIO(data)
+            path = pathlib.Path(data)
+
+            if path.is_file():
+                data = path
+            else:
+                data = io.StringIO(data)
 
         # Read the file, should be valid json so nice and simple
         user_df: pd.DataFrame = pd.read_json(data, dtype={"A": int, "Z": int})
