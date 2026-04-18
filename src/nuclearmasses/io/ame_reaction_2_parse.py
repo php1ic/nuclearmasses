@@ -58,6 +58,7 @@ class AMEReactionParserTwo(AMEReactionFileTwo, Converter):
             "QProtonAlphaError": "float64",
             "QNeutronAlpha": "float64",
             "QNeutronAlphaError": "float64",
+            "DataSource": "Int64",
         }
 
     def _na_values(self) -> dict:
@@ -112,5 +113,6 @@ class AMEReactionParserTwo(AMEReactionFileTwo, Converter):
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
         df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
+        df["DataSource"] = 0
 
         return df.astype(self._data_types())

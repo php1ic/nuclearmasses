@@ -34,6 +34,7 @@ def test_1983_rct2():
             "QProtonAlphaError": [1.8],
             "QNeutronAlpha": [7180],
             "QNeutronAlphaError": [50],
+            "DataSource": [0],
         }
     )
 
@@ -70,6 +71,7 @@ def test_1993_rct2():
             "QProtonAlphaError": [1.25],
             "QNeutronAlpha": [7690.59],
             "QNeutronAlphaError": [15.05],
+            "DataSource": [0],
         }
     )
 
@@ -106,6 +108,7 @@ def test_1995_rct2():
             "QProtonAlphaError": [1.24],
             "QNeutronAlpha": [7702.97],
             "QNeutronAlphaError": [3.35],
+            "DataSource": [0],
         }
     )
 
@@ -142,6 +145,7 @@ def test_2003_rct2():
             "QProtonAlphaError": [1.16],
             "QNeutronAlpha": [7701.54],
             "QNeutronAlphaError": [3.34],
+            "DataSource": [0],
         }
     )
 
@@ -178,6 +182,7 @@ def test_2012_rct2():
             "QProtonAlphaError": [1.15],
             "QNeutronAlpha": [7701.67],
             "QNeutronAlphaError": [3.33],
+            "DataSource": [0],
         }
     )
 
@@ -214,6 +219,7 @@ def test_2016_rct2():
             "QProtonAlphaError": [1.07],
             "QNeutronAlpha": [7700.97],
             "QNeutronAlphaError": [3.31],
+            "DataSource": [0],
         }
     )
 
@@ -250,6 +256,7 @@ def test_2020_rct2():
             "QProtonAlphaError": [1.0721],
             "QNeutronAlpha": [7701.0380],
             "QNeutronAlphaError": [3.3084],
+            "DataSource": [0],
         }
     )
 

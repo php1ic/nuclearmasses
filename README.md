@@ -42,10 +42,13 @@ The package is available on the Python Package Index so can be installed via pip
 pip install nuclearmasses
 ```
 
-Or you can clone the latest version from github.
-All work is done on a feature branch so cloning and using `main` should be the same as using the latest installed version from pip.
+Or you can clone the latest version from github and install locally.
+All work is done on a feature branch so cloning and using `main` should be the similar to using the latest installed version from pip.
+There may be some additional functionality, but nothing should have been removed.
 ```bash
 git clone https://github.com/php1ic/nuclearmasses
+cd nuclearmasses
+pip install -e .
 ```
 
 ## Usage
@@ -60,66 +63,116 @@ The combination of AME and NUBASE values from all years is available as a single
 >>> df = MassTable().data
 ```
 You can then interrogate, or extract, whatever information you want.
-For example, how has the mass excess and it's accuracy changed overtime for 190Re according to the AME
+For example, how has the mass excess and its accuracy changed overtime for 190Re according to the AME
 ```python
->>> df[(df['A'] == 190) & (df['Symbol'] == 'Re')][['AMEMassExcess', 'AMEMassExcessError']]
-       AMEMassExcess  AMEMassExcessError
-16054     -35536.605             200.029
-16055     -35557.789             145.549
-16056     -35568.032             212.151
-16057     -35566.326             149.248
-16058     -35634.992              70.542
-16059     -35635.830              70.852
-16060     -35583.015               4.870
+>>> df[(df['A'] == 190) & (df['Symbol'] == 'Re')][['TableYear', 'AMEMassExcess', 'AMEMassExcessError']]
+       TableYear  AMEMassExcess  AMEMassExcessError
+16054       1983     -35536.605             200.029
+16055       1993     -35557.789             145.549
+16056       1995     -35568.032             212.151
+16057       2003     -35566.326             149.248
+16058       2012     -35634.992              70.542
+16059       2016     -35635.830              70.852
+16060       2020     -35583.015               4.870
 ```
-Or how does the mass excess of gold vary across the isotopic chain according to NUBASE in the most recent table for both experimentally measured and theoretical values
+Or how does the mass excess of lithium vary across the isotopic chain according to NUBASE in the most recent table for both experimentally measured and theoretical values
 ```python
->>> df.query("TableYear == 2020 and Symbol == 'Au'")[['A', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'Experimental']]
-         A  NUBASEMassExcess  NUBASEMassExcessError  Experimental
-14084  168            2530.0                  400.0         False
-14189  169           -1790.0                  300.0         False
-14291  170           -3700.0                  200.0         False
-14391  171           -7562.0                   21.0          True
-14492  172           -9320.0                   60.0          True
-14591  173          -12832.0                   23.0          True
-14687  174          -14060.0                  100.0         False
-14781  175          -17400.0                   40.0          True
-14874  176          -18520.0                   30.0          True
-14968  177          -21546.0                   10.0          True
-15060  178          -22303.0                   10.0          True
-15153  179          -24989.0                   12.0          True
-15244  180          -25626.0                    5.0          True
-15334  181          -27871.0                   20.0          True
-15419  182          -28304.0                   19.0          True
-15503  183          -30191.0                    9.0          True
-15588  184          -30319.0                   22.0          True
-15673  185          -31858.1                    2.6          True
-15757  186          -31715.0                   21.0          True
-15842  187          -33029.0                   22.0          True
-15926  188          -32371.3                    2.7          True
-16007  189          -33582.0                   20.0          True
-16088  190          -32834.0                    3.0          True
-16164  191          -33798.0                    5.0          True
-16243  192          -32772.0                   16.0          True
-16320  193          -33405.0                    9.0          True
-16401  194          -32211.9                    2.1          True
-16480  195          -32567.1                    1.1          True
-16560  196          -31138.7                    3.0          True
-16637  197          -31139.8                    0.5          True
-16713  198          -29580.8                    0.5          True
-16788  199          -29093.8                    0.5          True
-16861  200          -27240.0                   27.0          True
-16935  201          -26401.0                    3.0          True
-17012  202          -24353.0                   23.0          True
-17089  203          -23143.0                    3.0          True
-17163  204          -20390.0                  200.0         False
-17237  205          -18570.0                  200.0         False
-17308  206          -14190.0                  300.0         False
-17382  207          -10640.0                  300.0         False
-17456  208           -5910.0                  300.0         False
-17528  209           -2230.0                  400.0         False
-17603  210            2680.0                  400.0         False
+>>> df.query("TableYear == 2020 and Symbol == 'Li'")[['A', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'Experimental']]
+      A  NUBASEMassExcess  NUBASEMassExcessError  Experimental
+38    3        28670.0000              2000.0000         False
+59    4        25320.0000               210.0000          True
+79    5        11680.0000                50.0000          True
+104   6        14086.8804                 0.0014          True
+133   7        14907.1050                 0.0040          True
+161   8        20945.8000                 0.0500          True
+196   9        24954.9100                 0.1900          True
+229  10        33053.0000                13.0000          True
+264  11        40728.3000                 0.6000          True
+298  12        49010.0000                30.0000          True
+336  13        56980.0000                70.0000          True
 ```
+
+### Adding User Data
+
+Functionality exists for a user to add their own data into the combined table.
+The function `add_user_data()` is a method of the `MassTable` class and takes data in [json](https://www.json.org) format and adds it to the table.
+
+An identifier column `DataSource` already exists and for all published data and is set to 0.
+Along with providing the new data, a user can specify a value for `DataSource`, otherwise a value of 1 is automatically assigned.
+The ability to specify a value means multiple data sources can be added whilst maintaining the ability to distinguish.
+If no value is given, the value of 1 will always be used.
+
+To ensure uniqueness, values for `A` and `Z` must be part of the data.
+With the assumption that you would like to compare and contrast this new data with the published values, the name associated with your data must also match existing columns.
+I know this doesn't quite make sense, as you might not necessarily want to assign your new mass to either AME or NUBASE, but in general, the columns are generic so I'm sure you'll work it out.
+
+Let's imagine I have a new measurement for the mass excess of 100Ag at -78136.4 +/- 0.6 and I want to add it to the table
+```python
+>>> # Addition is done on the class level so create an instance of the MassTable
+>>> from nuclearmasses.mass_table import MassTable
+>>> table = MassTable()
+>>> # This step doesn't need to be done, but, for demonstration purposes,
+>>> # extract the table data and check the current details for 100Ag
+>>> df = table.data
+>>> df.query("Symbol == 'Ag' and A == 100")[['A', 'Z', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'DataSource']])
+        A  NUBASEMassExcess  NUBASEMassExcessError  DataSource
+6976  100               NaN                    NaN           0
+6977  100               NaN                    NaN           0
+6978  100          -78180.0                   80.0           0
+6979  100          -78150.0                   80.0           0
+6980  100          -78138.0                    5.0           0
+6981  100          -78138.0                    5.0           0
+6982  100          -78138.0                    5.0           0
+>>> # Add our new value to the NUBASE columns
+>>> table.add_user_data('[{"A": 100, "Z": 47, "NUBASEMassExcess": -78136.4, "NUBASEMassExcessError": 0.6}]')
+>>> # The underlying table has been modified, so we need to get the latest version
+>>> df = table.data
+>>> # Re-run the query to see the new value, notice the value for DataSource has been set to 1
+>>> df.query("Symbol == 'Ag' and A == 100")[['A', 'Z', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'DataSource']])
+         A  NUBASEMassExcess  NUBASEMassExcessError  DataSource
+6976   100               NaN                    NaN           0
+6977   100               NaN                    NaN           0
+6978   100          -78180.0                   80.0           0
+6979   100          -78150.0                   80.0           0
+6980   100          -78138.0                    5.0           0
+6981   100          -78138.0                    5.0           0
+6982   100          -78138.0                    5.0           0
+21421  100          -78136.4                    0.6           1
+>>> # We can add the same data but this time assign to a different source
+>>> table.add_user_data('[{"A": 100, "Z": 47, "NUBASEMassExcess": -78136.4, "NUBASEMassExcessError": 0.6}]', source=5)
+>>> # Again, this modifies the underlying dataframe so we need to fetch the updated version
+>>> df = table.data
+>>> # Run the query and see that our new data is there twice against two different sources
+>>> df.query("Symbol == 'Ag' and A == 100")[['A', 'Z', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'DataSource']])
+         A  NUBASEMassExcess  NUBASEMassExcessError  DataSource
+6976   100               NaN                    NaN           0
+6977   100               NaN                    NaN           0
+6978   100          -78180.0                   80.0           0
+6979   100          -78150.0                   80.0           0
+6980   100          -78138.0                    5.0           0
+6981   100          -78138.0                    5.0           0
+6982   100          -78138.0                    5.0           0
+21421  100          -78136.4                    0.6           1
+21422  100          -78136.4                    0.6           5
+```
+
+Now let's imagine that we have a large new data set in a json file, but have forgotten to add the `Experimental` attribute and for reasons, it is not possible to edit or update the file with this additional information.
+When reading in the file, we can pass a dictionary as a parameter, and the keys will be used as the column names, with the values used as value to for all new isotopes.
+
+In the following example, we will assume the data is in a file `new_data.json` and of type [pathlib](https://docs.python.org/3/library/pathlib.html).
+```python
+>>> import pathlib
+>>> from nuclearmasses.mass_table import MassTable
+>>> table = MassTable()
+>>> missed_values = {'Experimental': True}
+>>> new_data = pathlib.Path('new_data.json')
+>>> table.add_user_data(new_data, common_values=missed_values)
+>>> # All isotopes from new_data.json will have their Experimental column assigned to True
+```
+
+If an existing column is not populated with new data, it is assigned the value pd.NA.
+We do not try and infer what a value could, should or might be.
+
 
 ## Contributing
 

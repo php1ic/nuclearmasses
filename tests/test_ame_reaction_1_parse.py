@@ -36,6 +36,7 @@ def test_1983_rct1():
             "QEpsilonError": [20],
             "QBetaNeutron": [-10640],
             "QBetaNeutronError": [200],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -71,6 +72,7 @@ def test_1993_rct1():
             "QEpsilonError": [20.03],
             "QBetaNeutron": [-10622],
             "QBetaNeutronError": [230],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -106,6 +108,7 @@ def test_1995_rct1():
             "QEpsilonError": [20.03],
             "QBetaNeutron": [-10682.00],
             "QBetaNeutronError": [207.60],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -141,6 +144,7 @@ def test_2003_rct1():
             "QEpsilonError": [16.57],
             "QBetaNeutron": [-10561.10],
             "QBetaNeutronError": [44.19],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -176,6 +180,7 @@ def test_2012_rct1():
             "QEpsilonError": [16.57],
             "QBetaNeutron": [-10557.95],
             "QBetaNeutronError": [30.67],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -211,6 +216,7 @@ def test_2016_rct1():
             "QEpsilonError": [16.55],
             "QBetaNeutron": [-10555.52],
             "QBetaNeutronError": [30.67],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())
@@ -246,6 +252,7 @@ def test_2020_rct1():
             "QEpsilonError": [16.5459],
             "QBetaNeutron": [-10555.5245],
             "QBetaNeutronError": [30.6658],
+            "DataSource": [0],
         }
     )
     expected = expected.astype(parser._data_types())

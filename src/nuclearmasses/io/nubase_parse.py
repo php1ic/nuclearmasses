@@ -70,6 +70,7 @@ class NUBASEParser(NUBASEFile, Converter):
             "Spin": "string",
             "DiscoveryYear": "Int64",
             "DecayModes": "string",
+            "DataSource": "Int64",
         }
 
         # The discovery year was added after 2003, and I assume it will be there in the future, so we will set up
@@ -198,5 +199,6 @@ class NUBASEParser(NUBASEFile, Converter):
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
         df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
+        df["DataSource"] = 0
 
         return df.astype(self._data_types())

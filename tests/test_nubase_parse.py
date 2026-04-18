@@ -31,6 +31,7 @@ def test_1995_nubase():
             "HalfLifeErrorSeconds": [4.2],
             "Spin": ["3+"],
             "DecayModes": ["B-=100"],
+            "DataSource": [0],
         }
     )
 
@@ -64,6 +65,7 @@ def test_2003_nubase():
             "HalfLifeErrorSeconds": [4.2],
             "Spin": ["3+"],
             "DecayModes": ["B-=100"],
+            "DataSource": [0],
         }
     )
 
@@ -98,6 +100,7 @@ def test_2012_nubase():
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
             "DecayModes": ["B-=100"],
+            "DataSource": [0],
         }
     )
 
@@ -132,6 +135,7 @@ def test_2016_nubase():
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
             "DecayModes": ["B-=100"],
+            "DataSource": [0],
         }
     )
 
@@ -167,6 +171,7 @@ def test_2020_nubase():
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
             "DecayModes": ["B-=100"],
+            "DataSource": [0],
         }
     )
 
