@@ -1,7 +1,7 @@
 # Changelog
 
 ## [0.2.0] - 2026-04-05
-- Allow users to add their own data to the mass table with `add_usr_data()` [#24](https://github.com/php1ic/nuclearmasses/pull/24)
+- Allow users to add their own data to the mass table with `add_usr_data()` [#25](https://github.com/php1ic/nuclearmasses/pull/25)
 
 ## [0.1.0] - BREAKING CHANGES - 2026-04-05
 - BREAKING: Users now access the full dataframe via `.data` and we no longer make the `TableYear` column the index [#24](https://github.com/php1ic/nuclearmasses/pull/24)
