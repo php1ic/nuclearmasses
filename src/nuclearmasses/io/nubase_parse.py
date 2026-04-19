@@ -111,6 +111,11 @@ class NUBASEParser(NUBASEFile, Converter):
         mask = raw_df["HalfLifeValue"] == "stbl"
         raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (99.99, "Zyr", 0.0)
 
+        if self.year == 2016:
+            # the half-life related columns are misaligned for 92Br in 2016
+            mask = (raw_df.A == 92) & (raw_df.Z == 35)
+            raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (0.314, "s", 0.016)
+
         raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("string").str.replace(r"[<>?~]", "", regex=True)
         # We'll be lazy here and remove any characters in this column. Future us will parse this properly
         raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("string").str.replace(r"[<>?~a-z]", "", regex=True)
