@@ -38,7 +38,7 @@ def test_units_to_seconds(converter):
     assert converter.unit_to_seconds("min") == 60.0
     assert converter.unit_to_seconds("h") == 3600.0
     assert converter.unit_to_seconds("d") == 86400.0
-    assert converter.unit_to_seconds("year") == 31557600.0
+    assert converter.unit_to_seconds("yr") == 31557600.0
 
 
 @pytest.mark.parametrize("unit", [5, "m", "Hz", "", "  "])

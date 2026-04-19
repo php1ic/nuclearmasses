@@ -3,12 +3,35 @@ from importlib.resources.abc import Traversable
 import os
 import typing
 
-import astropy  # type: ignore[import-untyped]
 import numpy as np
 import pandas as pd
 
 # Typing hint Union for the different ways a file or data can be represented
 DataInput = Traversable | os.PathLike[str] | str | typing.TextIO
+
+UNIT_TO_SECONDS: dict[str, float] = {
+    # Base SI and common
+    "s": 1.0,
+    "ms": 1e-3,
+    "us": 1e-6,
+    "ns": 1e-9,
+    "ps": 1e-12,
+    "as": 1e-18,
+    "zs": 1e-21,
+    "ys": 1e-24,
+    "min": 60.0,
+    "h": 3600.0,
+    "d": 86400.0,
+    "yr": 31_557_600.0,  # 365.25 days
+    "kyr": 3.15576e10,
+    "myr": 3.15576e13,
+    "gyr": 3.15576e16,
+    "zyr": 3.15576e21,
+    "eyr": 3.15576e18,
+    "pyr": 3.15576e15,
+    "tyr": 3.15576e12,
+    "yyr": 3.15576e24,
+}
 
 
 class Converter:
@@ -82,7 +105,7 @@ class Converter:
         "keV" -> np.nan
         2 -> np.nan
         """
-        if pd.isna(unit_str) or type(unit_str) is not str:
+        if pd.isna(unit_str) or not isinstance(unit_str, str):
             return np.nan
 
         # Remove white space and make lower case to be consistent
@@ -90,18 +113,7 @@ class Converter:
         if not cleaned_unit:
             return np.nan
 
-        # Use 'silent' so failure is written into the variable, not thrown as an exception
-        unit = astropy.units.Unit(cleaned_unit, parse_strict="silent")
-        # Check for failures as mentioned above
-        if isinstance(unit, astropy.units.UnrecognizedUnit):
-            return np.nan
-
-        # We now know the unit is physically valid, but not that it's time related, e.g. minutes rather than km
-        # Astropy allows us to check that
-        if unit.physical_type != "time":
-            return np.nan
-
-        return float(unit.to(astropy.units.s))
+        return UNIT_TO_SECONDS.get(cleaned_unit, np.nan)
 
     @staticmethod
     def read_fwf(base: DataInput, **kwargs):
