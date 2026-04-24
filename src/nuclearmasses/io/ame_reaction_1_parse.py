@@ -95,8 +95,7 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
         )
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         # so for this data we'll just drop any and all '#' characters
-        str_cols = df.select_dtypes(include=["object", "string"]).columns
-        df[str_cols] = df[str_cols].astype(str).apply(lambda s: s.str.replace("#", "", regex=False))
+        df = self.strip_char_from_string_columns(df, "#")
 
         if self.year == 1983:
             # The column headers and units are repeated in the 1983 table

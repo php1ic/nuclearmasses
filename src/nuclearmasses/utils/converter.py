@@ -134,3 +134,9 @@ class Converter:
 
         # Filesystem path
         return pd.read_fwf(base, **kwargs)
+
+    @staticmethod
+    def strip_char_from_string_columns(df: pd.DataFrame, char: str) -> pd.DataFrame:
+        cols = df.select_dtypes(include=["object", "string"]).columns
+        df[cols] = df[cols].apply(lambda s: s.str.replace(char, "", regex=False))
+        return df

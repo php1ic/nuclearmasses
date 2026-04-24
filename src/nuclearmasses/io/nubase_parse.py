@@ -185,8 +185,7 @@ class NUBASEParser(NUBASEFile, Converter):
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         df["Experimental"] = ~df["NUBASEMassExcess"].astype("string").str.contains("#", na=False)
         # Once we have used the '#' to determine if it's experimental or not, we can remove all instances of it
-        str_cols = df.select_dtypes(include=["object", "string"]).columns
-        df[str_cols] = df[str_cols].astype(str).apply(lambda s: s.str.replace("#", "", regex=False))
+        df = self.strip_char_from_string_columns(df, "#")
 
         df = self.parse_half_life(df)
         df = self.calculate_relative_error(df)
