@@ -9,30 +9,6 @@ import pandas as pd
 # Typing hint Union for the different ways a file or data can be represented
 DataInput = Traversable | os.PathLike[str] | str | typing.TextIO
 
-UNIT_TO_SECONDS: dict[str, float] = {
-    # Base SI and common
-    "s": 1.0,
-    "ms": 1e-3,
-    "us": 1e-6,
-    "ns": 1e-9,
-    "ps": 1e-12,
-    "as": 1e-18,
-    "zs": 1e-21,
-    "ys": 1e-24,
-    "min": 60.0,
-    "h": 3600.0,
-    "d": 86400.0,
-    "yr": 31_557_600.0,  # 365.25 days
-    "kyr": 3.15576e10,
-    "myr": 3.15576e13,
-    "gyr": 3.15576e16,
-    "zyr": 3.15576e21,
-    "eyr": 3.15576e18,
-    "pyr": 3.15576e15,
-    "tyr": 3.15576e12,
-    "yyr": 3.15576e24,
-}
-
 
 class Converter:
     """A utility class for converting between symbol and Z value
@@ -41,46 +17,72 @@ class Converter:
     and the other symbol to Z.
     """
 
+    UNIT_TO_SECONDS: dict[str, float] = {
+        "s": 1.0,
+        "ms": 1e-3,
+        "us": 1e-6,
+        "ns": 1e-9,
+        "ps": 1e-12,
+        "as": 1e-18,
+        "zs": 1e-21,
+        "ys": 1e-24,
+        "min": 60.0,
+        "h": 3600.0,
+        "d": 86400.0,
+        "yr": 31_557_600.0,  # 365.25 days
+        "kyr": 3.15576e10,
+        "myr": 3.15576e13,
+        "gyr": 3.15576e16,
+        "zyr": 3.15576e21,
+        "eyr": 3.15576e18,
+        "pyr": 3.15576e15,
+        "tyr": 3.15576e12,
+        "yyr": 3.15576e24,
+    }
+
+    # fmt: off
+    # Formatter wants to put each item on it's own line, I don't
+    Z_TO_SYMBOL: dict[int, str] = {
+        0: "n", 1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F",
+        10: "Ne", 11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P", 16: "S", 17: "Cl", 18: "Ar", 19: "K",
+        20: "Ca", 21: "Sc", 22: "Ti", 23: "V", 24: "Cr", 25: "Mn", 26: "Fe", 27: "Co", 28: "Ni", 29: "Cu",
+        30: "Zn", 31: "Ga", 32: "Ge", 33: "As", 34: "Se", 35: "Br", 36: "Kr", 37: "Rb", 38: "Sr", 39: "Y",
+        40: "Zr", 41: "Nb", 42: "Mo", 43: "Tc", 44: "Ru", 45: "Rh", 46: "Pd", 47: "Ag", 48: "Cd", 49: "In",
+        50: "Sn", 51: "Sb", 52: "Te", 53: "I", 54: "Xe", 55: "Cs", 56: "Ba", 57: "La", 58: "Ce", 59: "Pr",
+        60: "Nd", 61: "Pm", 62: "Sm", 63: "Eu", 64: "Gd", 65: "Tb", 66: "Dy", 67: "Ho", 68: "Er", 69: "Tm",
+        70: "Yb", 71: "Lu", 72: "Hf", 73: "Ta", 74: "W", 75: "Re", 76: "Os", 77: "Ir", 78: "Pt", 79: "Au",
+        80: "Hg", 81: "Tl", 82: "Pb", 83: "Bi", 84: "Po", 85: "At", 86: "Rn", 87: "Fr", 88: "Ra", 89: "Ac",
+        90: "Th", 91: "Pa", 92: "U", 93: "Np", 94: "Pu", 95: "Am", 96: "Cm", 97: "Bk", 98: "Cf", 99: "Es",
+        100: "Fm", 101: "Md", 102: "No", 103: "Lr", 104: "Rf", 105: "Db", 106: "Sg", 107: "Bh", 108: "Hs", 109: "Mt",
+        110: "Ds", 111: "Rg", 112: "Cn", 113: "Ed", 114: "Fl", 115: "Ef", 116: "Lv", 117: "Ts", 118: "Og"
+    }
+    # fmt: on
+
+    # Switch the keys and values of the z_to_symbol dictionary so a user can access the Z value using the symbol
+    SYMBOL_TO_Z: dict[str, int] = {val: key for key, val in Z_TO_SYMBOL.items()}
+
     def __init__(self, **kwargs) -> None:
         """Construct the symbol -> Z and Z -> symbol dictionaries."""
         # We are using multiple inheritance, so need this for MRO
         super().__init__(**kwargs)
-        # fmt: off
-        # Formatter wants to put each item on it's own line, I don't
-        self.z_to_symbol: dict[int, str] = {
-            0: "n", 1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F",
-            10: "Ne", 11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P", 16: "S", 17: "Cl", 18: "Ar", 19: "K",
-            20: "Ca", 21: "Sc", 22: "Ti", 23: "V", 24: "Cr", 25: "Mn", 26: "Fe", 27: "Co", 28: "Ni", 29: "Cu",
-            30: "Zn", 31: "Ga", 32: "Ge", 33: "As", 34: "Se", 35: "Br", 36: "Kr", 37: "Rb", 38: "Sr", 39: "Y",
-            40: "Zr", 41: "Nb", 42: "Mo", 43: "Tc", 44: "Ru", 45: "Rh", 46: "Pd", 47: "Ag", 48: "Cd", 49: "In",
-            50: "Sn", 51: "Sb", 52: "Te", 53: "I", 54: "Xe", 55: "Cs", 56: "Ba", 57: "La", 58: "Ce", 59: "Pr",
-            60: "Nd", 61: "Pm", 62: "Sm", 63: "Eu", 64: "Gd", 65: "Tb", 66: "Dy", 67: "Ho", 68: "Er", 69: "Tm",
-            70: "Yb", 71: "Lu", 72: "Hf", 73: "Ta", 74: "W", 75: "Re", 76: "Os", 77: "Ir", 78: "Pt", 79: "Au",
-            80: "Hg", 81: "Tl", 82: "Pb", 83: "Bi", 84: "Po", 85: "At", 86: "Rn", 87: "Fr", 88: "Ra", 89: "Ac",
-            90: "Th", 91: "Pa", 92: "U", 93: "Np", 94: "Pu", 95: "Am", 96: "Cm", 97: "Bk", 98: "Cf", 99: "Es",
-            100: "Fm", 101: "Md", 102: "No", 103: "Lr", 104: "Rf", 105: "Db", 106: "Sg", 107: "Bh", 108: "Hs", 109: "Mt", # noqa: E501
-            110: "Ds", 111: "Rg", 112: "Cn", 113: "Ed", 114: "Fl", 115: "Ef", 116: "Lv", 117: "Ts", 118: "Og"
-        }
-        # fmt: on
 
-        # Switch the keys and values of the z_to_symbol dictionary so a user can access the Z value using the symbol
-        self.symbol_to_z: dict[str, int] = {val: key for key, val in self.z_to_symbol.items()}
-
-    def get_symbol(self, z: int) -> str | None:
+    @staticmethod
+    def get_symbol(z: int) -> str | None:
         """Get the symbol representing <z>
 
         This is a nicely named, very thin wrapper around the inbuilt dictionary.
         I'm sure I was going to do something else in this function beyond basic accessing, but don't recall.
         Leave as is and hopefully I'll remember
         """
-        return self.z_to_symbol.get(z, None)
+        return Converter.Z_TO_SYMBOL.get(z, None)
 
-    def get_z(self, symbol: str) -> int | None:
+    @staticmethod
+    def get_z(symbol: str) -> int | None:
         """Get the z (proton number) representing <symbol>
 
         This is a nicely named, very thin wrapper around the inbuilt dictionary.
         """
-        return self.symbol_to_z.get(symbol, None)
+        return Converter.SYMBOL_TO_Z.get(symbol, None)
 
     @staticmethod
     def normalise_symbol(symbol: str) -> str:
@@ -94,7 +96,8 @@ class Converter:
         """
         return symbol.strip().title()
 
-    def unit_to_seconds(self, unit_str: str) -> float:
+    @staticmethod
+    def unit_to_seconds(unit_str: str) -> float:
         """Convert a time unit to a scale factor in seconds.
 
         Returns np.nan for non-valid time units.
@@ -113,7 +116,7 @@ class Converter:
         if not cleaned_unit:
             return np.nan
 
-        return UNIT_TO_SECONDS.get(cleaned_unit, np.nan)
+        return Converter.UNIT_TO_SECONDS.get(cleaned_unit, np.nan)
 
     @staticmethod
     def read_fwf(base: DataInput, **kwargs):
