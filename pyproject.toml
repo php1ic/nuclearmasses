@@ -30,7 +30,6 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
-  "numpy",
   "pandas",
   "pytest",
 ]
