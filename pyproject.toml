@@ -31,7 +31,6 @@ classifiers = [
 ]
 dependencies = [
   "pandas",
-  "pytest",
 ]
 keywords = [
  "nuclear",
@@ -50,6 +49,8 @@ dev = [
   "coverage",
   "mypy",
   "pandas-stubs",
+  "pytest",
+  "ruff"
 ]
 
 [project.urls]
