@@ -3,7 +3,6 @@ from importlib.resources.abc import Traversable
 import os
 import typing
 
-import numpy as np
 import pandas as pd
 
 # Typing hint Union for the different ways a file or data can be represented
@@ -97,7 +96,7 @@ class Converter:
         return symbol.strip().title()
 
     @staticmethod
-    def unit_to_seconds(unit_str: str) -> float:
+    def unit_to_seconds(unit_str: str) -> float | None:
         """Convert a time unit to a scale factor in seconds.
 
         Returns np.nan for non-valid time units.
@@ -109,14 +108,14 @@ class Converter:
         2 -> np.nan
         """
         if pd.isna(unit_str) or not isinstance(unit_str, str):
-            return np.nan
+            return None
 
         # Remove white space and make lower case to be consistent
         cleaned_unit = unit_str.strip().lower()
         if not cleaned_unit:
-            return np.nan
+            return None
 
-        return Converter.UNIT_TO_SECONDS.get(cleaned_unit, np.nan)
+        return Converter.UNIT_TO_SECONDS.get(cleaned_unit, None)
 
     @staticmethod
     def read_fwf(base: DataInput, **kwargs):

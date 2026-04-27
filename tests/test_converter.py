@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from nuclearmasses.utils.converter import Converter
@@ -43,5 +42,4 @@ def test_units_to_seconds(converter):
 
 @pytest.mark.parametrize("unit", [5, "m", "Hz", "", "  "])
 def test_nontime_unit_return_nan(converter, unit):
-    # Don't use == on np.nan. Floating point numbers are complicated!
-    assert np.isnan(converter.unit_to_seconds(unit))
+    assert converter.unit_to_seconds(unit) is None
