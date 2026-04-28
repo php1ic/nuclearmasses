@@ -1,4 +1,3 @@
-import logging
 import typing
 
 import pandas as pd
@@ -22,7 +21,6 @@ class NUBASEParser(NUBASEFile, Converter):
             r"y$": "yr",
             r"^m$": "min",
         }
-        logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
@@ -82,29 +80,23 @@ class NUBASEParser(NUBASEFile, Converter):
 
     def _na_values(self) -> dict:
         """Set the columns that have placeholder values"""
-        match self.year:
-            case 1995:
-                return {
-                    "State": [""],
-                    "NUBASEMassExcess": [""],
-                    "NUBASEMassExcessError": [""],
-                    "HalfLifeValue": [""],
-                    "HalfLifeUnit": [""],
-                    "HalfLifeError": [""],
-                    "Spin": [""],
-                    "DecayModes": [""],
-                }
-            case _:
-                return {
-                    "State": [""],
-                    "NUBASEMassExcess": [""],
-                    "NUBASEMassExcessError": [""],
-                    "HalfLifeValue": ["", "p-unst", "p-unst#"],
-                    "HalfLifeUnit": [""],
-                    "HalfLifeError": [""],
-                    "DiscoveryYear": [""],
-                    "DecayModes": [""],
-                }
+        na_values = {
+            "State": [""],
+            "NUBASEMassExcess": [""],
+            "NUBASEMassExcessError": [""],
+            "HalfLifeValue": [""],
+            "HalfLifeUnit": [""],
+            "HalfLifeError": [""],
+            "DecayModes": [""],
+        }
+
+        if self.year == 1995:
+            na_values["Spin"] = [""]
+        else:
+            na_values["HalfLifeValue"] = ["", "p-unst", "p-unst#"]
+            na_values["DiscoveryYear"] = [""]
+
+        return na_values
 
     def parse_half_life(self, raw_df) -> pd.DataFrame:
         """Create half-life columns with SI units
@@ -119,6 +111,11 @@ class NUBASEParser(NUBASEFile, Converter):
         mask = raw_df["HalfLifeValue"] == "stbl"
         raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (99.99, "Zyr", 0.0)
 
+        if self.year == 2016:
+            # the half-life related columns are misaligned for 92Br in 2016
+            mask = (raw_df.A == 92) & (raw_df.Z == 35)
+            raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (0.314, "s", 0.016)
+
         raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("string").str.replace(r"[<>?~]", "", regex=True)
         # We'll be lazy here and remove any characters in this column. Future us will parse this properly
         raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("string").str.replace(r"[<>?~a-z]", "", regex=True)
@@ -132,7 +129,8 @@ class NUBASEParser(NUBASEFile, Converter):
         # Ensure numeric values
         for col in ["HalfLifeValue", "HalfLifeError"]:
             raw_df[col] = pd.to_numeric(raw_df[col], errors="coerce")
-        # Pre-compute unit -> second conversions
+
+        # Pre-compute unit -> second conversion
         unit_map = raw_df["HalfLifeUnit"].map(self.unit_to_seconds)
 
         raw_df["HalfLifeSeconds"] = raw_df["HalfLifeValue"] * unit_map
@@ -187,7 +185,7 @@ class NUBASEParser(NUBASEFile, Converter):
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         df["Experimental"] = ~df["NUBASEMassExcess"].astype("string").str.contains("#", na=False)
         # Once we have used the '#' to determine if it's experimental or not, we can remove all instances of it
-        df.replace("#", "", regex=True, inplace=True)
+        df = self.strip_char_from_string_columns(df, "#")
 
         df = self.parse_half_life(df)
         df = self.calculate_relative_error(df)

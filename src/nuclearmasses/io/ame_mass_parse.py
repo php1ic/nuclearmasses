@@ -1,5 +1,3 @@
-import logging
-
 import pandas as pd
 
 from nuclearmasses.io.ame_mass_file import AMEMassFile
@@ -19,7 +17,6 @@ class AMEMassParser(AMEMassFile, Converter):
         super().__init__(year=year)
         self.filename: DataInput = filename
         self.year: int = year
-        logging.info(f"Reading {self.filename} from {self.year}")
 
     def _column_names(self) -> list[str]:
         """Set the column name depending on the year"""
@@ -100,7 +97,7 @@ class AMEMassParser(AMEMassFile, Converter):
         )
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         # so for this data we'll just drop any and all '#' characters
-        df.replace("#", "", regex=True, inplace=True)
+        df = self.strip_char_from_string_columns(df, "#")
 
         if self.year == 1983:
             # The column headers and units are repeated in the 1983 table

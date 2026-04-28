@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.0] - 2026-04-2?
+- [#26](https://github.com/php1ic/nuclearmasses/pull/26)
+  * Optimise initial parsing of the files.
+  * Remove numpy as dependency and shift pytest to the optional dev dependency.
+
+
 ## [0.2.0] - 2026-04-18
 - Allow users to add their own data to the mass table with `add_user_data()` [#25](https://github.com/php1ic/nuclearmasses/pull/25)
 
