@@ -75,9 +75,10 @@ class Converter:
 
     @staticmethod
     def get_symbol(z: int) -> str | None:
-        """Get the symbol representing ``z``
+        """
+        Get the symbol representing ``z``.
 
-        This is a nicely named, very thin wrapper around the inbuilt dictionary get
+        This is a nicely named, very thin wrapper around the inbuilt dictionary get.
 
         Parameters
         ----------
@@ -93,7 +94,8 @@ class Converter:
 
     @staticmethod
     def get_z(symbol: str) -> int | None:
-        """Get the z (proton number) representing ``symbol``
+        """
+        Get the z (proton number) representing ``symbol``.
 
         This is a nicely named, very thin wrapper around the inbuilt dictionary.
 
@@ -111,7 +113,8 @@ class Converter:
 
     @staticmethod
     def normalise_symbol(symbol: str) -> str:
-        """Validate format of <symbol> to allow simpler conversions
+        """
+        Validate format of ``symbol`` to allow simpler conversions.
 
         Element symbols always have a capital first letter and lower case second, if it exists. We store all symbols
         like this so want any user input to be of this format. In typesetting, this is known as title case so we can
@@ -169,7 +172,7 @@ class Converter:
     @staticmethod
     def read_fwf(base: DataInput, **kwargs):
         """
-        Overloaded version of :meth:`pandas.read_fwf` that accepts additional types
+        Overloaded version of :meth:`pandas.read_fwf` that accepts additional types.
 
         The use of importlib.resource means we have types that the pandas version of read_fwf does not accept.
         It can still be used but some work is required. This function does that work, as well as some other checking
