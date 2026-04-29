@@ -167,7 +167,7 @@ class Converter:
         return Converter.UNIT_TO_SECONDS.get(cleaned_unit, None)
 
     @staticmethod
-    def read_fwf(base: DataInput, **kwargs) -> pd.DataFrame
+    def read_fwf(base: DataInput, **kwargs):
         """
         Overloaded version of :meth:`pandas.read_fwf` that accepts additional types
 
