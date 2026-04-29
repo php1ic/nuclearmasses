@@ -19,7 +19,7 @@ from nuclearmasses.utils.converter import Converter
 
 class MassTable:
     """
-    Container class for the complete mass table
+    Container class for the complete mass table.
 
     Any ``MassTable`` instance parses all data files on construction, and has its own copy of the mass table dataframe.
     The dataframe is accessed via the ``data`` attribute, but functionality that manipulates the mass table is generally
@@ -36,7 +36,7 @@ class MassTable:
 
     def _parse_files(self) -> pd.DataFrame:
         """
-        Parse all the published data files and merge into a single dataframe
+        Parse all the published data files and merge into a single dataframe.
 
         The merge is carried out on values unique to an isotope, and the published year, to remove duplicated columns.
         No indexing or slicing is done, so the dataframe is in a relatively raw form.
@@ -44,7 +44,7 @@ class MassTable:
         Returns
         -------
         pandas.DataFrame
-            The complete mass table as a pandas dataframe
+            The complete mass table as a pandas dataframe.
         """
         data_path = importlib.resources.files("nuclearmasses").joinpath("data")
 
@@ -59,7 +59,7 @@ class MassTable:
         common_values: dict[str, typing.Any] | None = None,
     ) -> None:
         """
-        Add user data into the published mass table
+        Add user data into the published mass table.
 
         Read json formatted ``data`` for isotope identification and values then add it to the existing mass table using
         ``source`` to differentiate it from published values. If not present in ``data``, the dictionary
@@ -75,7 +75,7 @@ class MassTable:
         source : int, default 1
             The value used to identify where this data has originated.
         common_values : dict[str, typing.Any] | None
-            Additional values, not provided in ``data`` but common to all entires
+            Additional values, not provided in ``data`` but common to all entries.
         """
         # We are going to force at least 3 columns in the user data
         # Two in the input file: A and Z to uniquely identify the isotope
@@ -144,13 +144,13 @@ class MassTable:
     @property
     def data(self) -> pd.DataFrame:
         """
-        Return the dataframe containing the complete mass table
+        Return the dataframe containing the complete mass table.
 
         Data from all available years and both AME and NUBASE sources is combined and collated into a single dataframe.
 
         Returns
         -------
         pandas.DataFrame
-            The complete mass table as a pandas dataframe
+            The complete mass table as a pandas dataframe.
         """
         return self._complete_df
