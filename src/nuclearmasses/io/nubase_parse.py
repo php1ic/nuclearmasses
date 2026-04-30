@@ -16,7 +16,7 @@ class NUBASEParser(NUBASEFile, Converter):
     """
     Parse the NUBASE file, doing the necessary preparations and clean up of data.
 
-    There are some quirks to the format used in the NUBASE file. It's based on fixed-width format, but deviates in
+    There are some quirks to the format used in the file. It's based on fixed-width format, but deviates in various
     various places so additional work is required once the file is parsed.
 
     Parameters
