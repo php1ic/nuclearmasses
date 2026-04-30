@@ -14,9 +14,10 @@ from nuclearmasses.utils.converter import Converter, DataInput
 
 class NUBASEParser(NUBASEFile, Converter):
     """
-    Parse the NUBASE file, doing the necessary preparations and clean ups of data.
+    Parse the NUBASE file, doing the necessary preparations and clean up of data.
 
-    A collection of functions to parse the weird format of the NUBASE file.
+    There are some quirks to the format used in the NUBASE file. It's based on fixed-width format, but deviates in
+    various places so additional work is required once the file is parsed.
 
     Parameters
     ----------
