@@ -1,3 +1,9 @@
+"""
+The ame_mass_parse module defines the ``AMEMassParser`` class. This class contains the logic required to sort and
+organise the inputs to :meth:`pandas.read_fwf` dependent on the year of the file. Once parsed, known typos and
+inconsistencies are cleaned from the resultant dataframe.
+"""
+
 import pandas as pd
 
 from nuclearmasses.io.ame_mass_file import AMEMassFile
@@ -5,21 +11,41 @@ from nuclearmasses.utils.converter import Converter, DataInput
 
 
 class AMEMassParser(AMEMassFile, Converter):
-    """Parse the AME mass file.
+    """
+    Parse the AME mass file, doing the necessary preparation and clean ups of data.
 
-    The format is known but the provided string does not match all lines.
-    We will therefore use START and END markers, which are inherited, and
-    read the columns are interested in.
+    There are some quirks to the format used in the file. It's based on fixed-width format, but deviates in various
+    places so additional work is required once the file is parsed.
+
+    Parameters
+    ----------
+    filename : DataInput
+        The file-like object to parse.
+    year : int
+        The published year of the data file.
+
+    Attributes
+    ----------
+    filename : DataInput
+        The file-like object to parse.
+    year : int
+        The published year of the data file.
     """
 
     def __init__(self, filename: DataInput, year: int):
-        """Set the file to read and table year"""
         super().__init__(year=year)
         self.filename: DataInput = filename
         self.year: int = year
 
     def _column_names(self) -> list[str]:
-        """Set the column name depending on the year"""
+        """
+        Set the column name depending on the year.
+
+        Returns
+        -------
+        list[str]
+            An ordered list of the columns that exist in the file.
+        """
         return [
             "Z",
             "A",
@@ -35,7 +61,14 @@ class AMEMassParser(AMEMassFile, Converter):
         ]
 
     def _data_types(self) -> dict:
-        """Set the data type depending on the year"""
+        """
+        Set the column data types depending on the year.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary of the columns that exist and their data type
+        """
         return {
             "TableYear": "Int64",
             "Symbol": "string",
@@ -54,7 +87,14 @@ class AMEMassParser(AMEMassFile, Converter):
         }
 
     def _na_values(self) -> dict:
-        """Set the columns that have placeholder values"""
+        """
+        Set the columns that have empty fields that should be NaN'd depending on the year.
+
+        Returns
+        -------
+        dict[str, list[str]]
+            A dictionary of the columns that will have values that should be interpreted as NaN.
+        """
         na_vals = {
             "A": [""],
             "BetaDecayEnergy": ["", "*"],
@@ -67,9 +107,21 @@ class AMEMassParser(AMEMassFile, Converter):
         return na_vals
 
     def calculate_relative_error(self, raw_df) -> pd.DataFrame:
-        """Calculate the relative error of the mass excess
+        """
+        Calculate the relative error of the mass excess.
 
-        12C has a 0.0 +/- 0.0 mass excess definition by definition so ensure that is still true.
+        12C has a 0.0 +/- 0.0 mass excess by definition, so relative error is 0.0. The division by zero will put a NaN
+        value in the column for 12C so we will manually correct and set to 0.0.
+
+        Parameters
+        ----------
+        raw_df : pandas.DataFrame
+            The raw dataframe upon which we will act.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The updated dataframe with a new relative mass excess column.
         """
         raw_df["AMERelativeError"] = abs(
             raw_df["AMEMassExcessError"].astype(float) / raw_df["AMEMassExcess"].astype(float)
@@ -79,11 +131,16 @@ class AMEMassParser(AMEMassFile, Converter):
         return raw_df
 
     def read_file(self) -> pd.DataFrame:
-        """Read the file using it's known format
+        """
+        Read the file-like object ``self.filename`` into a dataframe
 
-        The AMEMassFile and other functions in this class have hopefully sanitized the
-        column names, data types and locations of the date so we can now make the generic
-        call to parse the file.
+        The ``AMEMassFile`` and other functions in this class have hopefully sanitized the column names, data types and
+        locations of the date so we can now make the generic call to parse the file.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A dataframe containing the parsed and organised contents of the AME mass data file
         """
         df = Converter.read_fwf(
             self.filename,

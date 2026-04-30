@@ -1,3 +1,9 @@
+"""
+The mass_table module defines the ``MassTable`` class that is used to store all the data published by the AME and
+NUBASE papers. Once an instance of the class is instantiated, the ``data`` attribute can be used to access the
+complete mass table as a pandas Dataframe.
+"""
+
 from difflib import get_close_matches
 import importlib.resources
 import io
@@ -12,15 +18,34 @@ from nuclearmasses.utils.converter import Converter
 
 
 class MassTable:
-    """Class for all of the mass data.
+    """
+    Container class for the complete mass table.
 
-    Internally there are separate dataframes for the NUBASE and AME data as well as a combined one for all data
+    Any ``MassTable`` instance parses all data files on construction, and has its own copy of the mass table dataframe.
+    The dataframe is accessed via the ``data`` attribute, but functionality that manipulates the mass table is generally
+    done on the class instance level.
+
+    Attributes
+    ----------
+    data : pandas.DataFrame
+        The parsed mass table and any additional user data.
     """
 
     def __init__(self) -> None:
         self._complete_df: pd.DataFrame = self._parse_files()
 
     def _parse_files(self) -> pd.DataFrame:
+        """
+        Parse all the published data files and merge into a single dataframe.
+
+        The merge is carried out on values unique to an isotope, and the published year, to remove duplicated columns.
+        No indexing or slicing is done, so the dataframe is in a relatively raw form.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The complete mass table as a pandas dataframe.
+        """
         data_path = importlib.resources.files("nuclearmasses").joinpath("data")
 
         common_columns = ["A", "Z", "N", "TableYear", "Symbol", "DataSource"]
@@ -33,7 +58,25 @@ class MassTable:
         source: int = 1,
         common_values: dict[str, typing.Any] | None = None,
     ) -> None:
-        """Merge user data into the mass table"""
+        """
+        Add user data into the published mass table.
+
+        Read json formatted ``data`` for isotope identification and values then add it to the existing mass table using
+        ``source`` to differentiate it from published values. If not present in ``data``, the dictionary
+        ``common_values`` can be used to set a single value for a property on all isotopes added.
+
+        The ``data`` is added via :meth:`pandas.concat` to create new entries for each isotope, rather than overwriting.
+        It is not merged in via :meth:`pandas.merge` so any values not provided are set to NaN.
+
+        Parameters
+        ----------
+        data : str | pathlib.Path | typing.IO
+            The data, in json format, that will be added to the existing dataframe.
+        source : int, default 1
+            The value used to identify where this data has originated.
+        common_values : dict[str, typing.Any] | None
+            Additional values, not provided in ``data`` but common to all entries.
+        """
         # We are going to force at least 3 columns in the user data
         # Two in the input file: A and Z to uniquely identify the isotope
         # One via code: DataSource to differentiate from the original table data
@@ -48,7 +91,7 @@ class MassTable:
             else:
                 data = io.StringIO(data)
 
-        # Read the file, should be valid json so nice and simple
+        # Read the data, should be valid json so nice and simple
         user_df: pd.DataFrame = pd.read_json(data, dtype={"A": int, "Z": int})
 
         # Add any additional data that is constant for the user data, e.g. TableYear
@@ -100,5 +143,14 @@ class MassTable:
 
     @property
     def data(self) -> pd.DataFrame:
-        """Access the complete mass table dataframe"""
+        """
+        Return the dataframe containing the complete mass table.
+
+        Data from all available years and both AME and NUBASE sources is combined and collated into a single dataframe.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The complete mass table as a pandas dataframe.
+        """
         return self._complete_df

@@ -1,3 +1,7 @@
+"""
+The ame module defines the ``AME`` class to work on and store details related to the AME data.
+"""
+
 from importlib.resources.abc import Traversable
 
 import pandas as pd
@@ -8,7 +12,31 @@ from nuclearmasses.io.ame_reaction_2_parse import AMEReactionParserTwo
 
 
 class AME:
-    """Top level storage and functionality for AME data"""
+    """
+    Container class to store details related to the years a AME table was published.
+
+    This is a high level class that tracks details, but delegates the parsing of the files.
+
+    Parameters
+    ----------
+    data_path : Traversable
+        Absolute path to the data files location. Not an actual file, rather the top level directory that contains from
+        where we access the year then individual file
+
+    Attributes
+    ----------
+    data_path : Traversable
+        Absolute path to the data files location. Not an actual file, rather the top level directory that contains from
+        where we access the year then individual file.
+    years : list[ints]
+        An ordered list of the years in which a NUBASE table was published.
+    ame_files : list[tuple[str, str, str]]
+        The filenames each AME data file in year order.
+    files : dict[int, tuple[str, str, str]]
+        A dictionary mapping published year to filename.
+    nubase_df : pandas.DataFrame
+        A dataframe containing the NUBASE data from all published years.
+    """
 
     def __init__(self, data_path: Traversable):
         self.data_path = data_path
@@ -26,14 +54,38 @@ class AME:
         self.ame_df: pd.DataFrame = self.parse_all_years()
 
     def get_datafiles(self, year: int) -> tuple[Traversable, Traversable, Traversable]:
-        """Use the given year to locate the 3 AME data file and return the absolute paths."""
+        """
+        Construct the absolute paths to the files for the given ``year``.
+
+        Parameters
+        ----------
+        year : int
+            The published year to get the file for.
+
+        Returns
+        -------
+        tuple[Traversable,Traversable,Traversable]
+            The absolute paths to the three AME data files.
+        """
         root = self.data_path / str(year)
         mass, rct1, rct2 = self.files[year]
 
         return root / mass, root / rct1, root / rct2
 
     def parse_year(self, year: int) -> pd.DataFrame:
-        """Combine all the AME files from the given ``year``"""
+        """
+        Parse the data from the given ``year``.
+
+        Parameters
+        ----------
+        year : int
+            The published year to get the data for.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The data from ``year`` as a dataframe
+        """
         ame_mass, ame_reaction_1, ame_reaction_2 = self.get_datafiles(year)
 
         mass_df = AMEMassParser(filename=ame_mass, year=year).read_file()
@@ -45,5 +97,12 @@ class AME:
         return mass_df.merge(rct1_df, on=common_columns, how="outer").merge(rct2_df, on=common_columns, how="outer")
 
     def parse_all_years(self) -> pd.DataFrame:
-        """Parse the files for all available years"""
+        """
+        Parse the files for all available years.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The data from all published years as a single dataframe.
+        """
         return pd.concat((self.parse_year(y) for y in self.years), ignore_index=True)
