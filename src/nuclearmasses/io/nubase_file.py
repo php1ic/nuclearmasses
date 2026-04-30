@@ -1,14 +1,39 @@
-class NUBASEFile:
-    """Easy access to the variables in the NUBASE file.
+"""
+The nubase_file module defines the ``NUBASEFile`` class. This class stores the column positions of the start and finish
+location of the different parameters recorded in the NUBASE data file. The positions have changed between years so the
+year of the table is given as a parameter at construction.
+"""
 
-    The NUBASE data file is formatted by location in the line, values exist
-    between 2 specific columns in the line. Store the start and end locations
-    in this class to allow simple access and stop the NUBASE parser having
-    magic numbers.
+
+class NUBASEFile:
+    """
+    Storage class for the data in the NUBASE data file.
+
+    The NUBASE data file is fixed-width file format so we will store the format details in this class.
+
+    Note we have not listed all parameters in the attributes section as there are so many. The naming convention is
+    however shown, along with a description.
+
+    Parameters
+    ----------
+    year : int
+        The year the file being parsed was published
+
+    Attributes
+    ----------
+    HEADER : int
+        The number of lines in the file to be interpreted as the header.
+    FOOTER : int
+        The number of lines in the file to be interpreted as the footer.
+    START_X : int
+        The first column of parameter X.
+    END_X : int or None
+        The last column of parameter X or None to represent the end of the line.
+    column_limits : list[tuple[int, int]]
+        The start and end positions of all parameters as a list of tuples that can be passed to :meth:`pandas.read_fwf`.
     """
 
     def __init__(self, year: int, **kwargs):
-        """Setup the values that locate the variable."""
         super().__init__(**kwargs)
         match year:
             case 1995:

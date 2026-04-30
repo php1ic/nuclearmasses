@@ -1,3 +1,9 @@
+"""
+The nubase_parse module defines the ``NUBASEParser`` class. This class contains the logic required to sort and organise
+the inputs to :meth:`pandas.read_fwf` dependent on the year of the file. Once parsed, known typos and inconsistencies
+are cleaned from the resultant dataframe.
+"""
+
 import typing
 
 import pandas as pd
@@ -7,13 +13,29 @@ from nuclearmasses.utils.converter import Converter, DataInput
 
 
 class NUBASEParser(NUBASEFile, Converter):
-    """Parse the NUBASE data file.
+    """
+    Parse the NUBASE file, doing the necessary preparations and clean ups of data.
 
     A collection of functions to parse the weird format of the NUBASE file.
+
+    Parameters
+    ----------
+    filename : DataInput
+        The file-like object to parse.
+    year : int
+        The published year of the data file.
+
+    Attributes
+    ----------
+    filename : DataInput
+        The file-like object to parse.
+    year : int
+        The published year of the data file.
+    unit_replacements : dict[str, str]
+        A dictionary used to tidy up time units from NUBASE format to one the module recognises.
     """
 
     def __init__(self, filename: DataInput, year: int):
-        """Set the file to read and the table year."""
         super().__init__(year=year)
         self.filename: DataInput = filename
         self.year: int = year
@@ -23,7 +45,14 @@ class NUBASEParser(NUBASEFile, Converter):
         }
 
     def _column_names(self) -> list[str]:
-        """Set the column name depending on the year"""
+        """
+        Set the column name depending on the year.
+
+        Returns
+        -------
+        list[str]
+            An ordered list of the columns that exist in the file.
+        """
         col_names = [
             "A",
             "Z",
@@ -48,7 +77,14 @@ class NUBASEParser(NUBASEFile, Converter):
         return col_names
 
     def _data_types(self) -> dict:
-        """Set the data type depending on the year"""
+        """
+        Set the column data types depending on the year.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary of the columns that exist and their data type
+        """
         data_types = {
             "Symbol": "string",
             "A": "Int64",
@@ -79,7 +115,14 @@ class NUBASEParser(NUBASEFile, Converter):
         return data_types
 
     def _na_values(self) -> dict:
-        """Set the columns that have placeholder values"""
+        """
+        Set the columns that have empty fields that should be NaN'd depending on the year.
+
+        Returns
+        -------
+        dict[str, list[str]]
+            A dictionary of the columns that will have values that should be interpreted as NaN.
+        """
         na_values = {
             "State": [""],
             "NUBASEMassExcess": [""],
@@ -99,10 +142,21 @@ class NUBASEParser(NUBASEFile, Converter):
         return na_values
 
     def parse_half_life(self, raw_df) -> pd.DataFrame:
-        """Create half-life columns with SI units
+        """
+        Create additional half-life columns with values in seconds
 
-        The half-life is stored as a human readable value, e.g. 2ms, 4Gyr, 5mins, this is fine to read but not to do
+        The half-life is stored as a human readable value, e.g. 2ms, 4Gyr, 5mins. This is fine to read but not to do
         any type of sorting or algorithm. Convert to the SI unit of seconds, but don't overwrite original columns.
+
+        Parameters
+        ----------
+        raw_df : pandas.DataFrame
+            The dataframe to use to convert raw half-life records into values in seconds.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The updated dataframe with new columns containing half-life values in seconds.
         """
         # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
         raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("object")
@@ -139,9 +193,21 @@ class NUBASEParser(NUBASEFile, Converter):
         return raw_df
 
     def parse_state(self, raw_df) -> pd.DataFrame:
-        """Interpret the state of the isotope
+        """
+        Interpret the state of the isotope
 
-        Currently we are only interested in ground states, but in the future we will care about isomers.
+        Currently we are only interested in ground states so drop any other row that is not that.
+        In the future we will care about isomers.
+
+        Parameters
+        ----------
+        raw_df : pandas.DataFrame
+            The raw dataframe with all states of isotopes in.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The updated dataframe containing only ground state data
         """
         # Ignore anything this is not the ground state
         raw_df = raw_df[raw_df["State"] == 0]
@@ -151,9 +217,21 @@ class NUBASEParser(NUBASEFile, Converter):
         return raw_df
 
     def calculate_relative_error(self, raw_df) -> pd.DataFrame:
-        """Calculate the relative error of the mass excess
+        """
+        Calculate the relative error of the mass excess.
 
-        12C has a 0.0 +/- 0.0 mass excess definition by definition so ensure that is still true.
+        12C has a 0.0 +/- 0.0 mass excess by definition, so relative error is 0.0. The division by zero will put a NaN
+        value in the column for 12C so we will manually correct and set to 0.0.
+
+        Parameters
+        ----------
+        raw_df : pandas.DataFrame
+            The raw dataframe upon which we will act.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The updated dataframe with a new relative mass excess column.
         """
         raw_df["NUBASERelativeError"] = abs(
             raw_df["NUBASEMassExcessError"].astype(float) / raw_df["NUBASEMassExcess"].astype(float)
@@ -163,11 +241,16 @@ class NUBASEParser(NUBASEFile, Converter):
         return raw_df
 
     def read_file(self) -> pd.DataFrame:
-        """Read the file using it's known format
+        """
+        Read the file-like object ``self.filename`` into a dataframe
 
-        The NUBASEFile and other functions in this class have hopefully sanitized the
-        column names, data types and locations of the date so we can now make the generic
-        call to parse the file.
+        The ``NUBASEFile`` and other functions in this class have hopefully sanitized the column names, data types and
+        locations of the date so we can now make the generic call to parse the file.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A dataframe containing the parsed and organised contents of the NUBASE data file
         """
         df = Converter.read_fwf(
             self.filename,
