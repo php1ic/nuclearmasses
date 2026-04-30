@@ -217,30 +217,6 @@ class NUBASEParser(NUBASEFile, Converter):
 
         return raw_df
 
-    def calculate_relative_error(self, raw_df) -> pd.DataFrame:
-        """
-        Calculate the relative error of the mass excess.
-
-        12C has a 0.0 +/- 0.0 mass excess by definition, so relative error is 0.0. The division by zero will put a NaN
-        value in the column for 12C so we will manually correct and set to 0.0.
-
-        Parameters
-        ----------
-        raw_df : pandas.DataFrame
-            The raw dataframe upon which we will act.
-
-        Returns
-        -------
-        pandas.DataFrame
-            The updated dataframe with a new relative mass excess column.
-        """
-        raw_df["NUBASERelativeError"] = abs(
-            raw_df["NUBASEMassExcessError"].astype(float) / raw_df["NUBASEMassExcess"].astype(float)
-        )
-        raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), "NUBASERelativeError"] = 0.0
-
-        return raw_df
-
     def read_file(self) -> pd.DataFrame:
         """
         Read the file-like object ``self.filename`` into a dataframe
@@ -272,7 +248,7 @@ class NUBASEParser(NUBASEFile, Converter):
         df = self.strip_char_from_string_columns(df, "#")
 
         df = self.parse_half_life(df)
-        df = self.calculate_relative_error(df)
+        df = self.calculate_relative_error(df, "NUBASE")
 
         if self.year == 2012:
             # 198Au has a typo in it's decay mode in the 2012 table. It is recorded as '-'

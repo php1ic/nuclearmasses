@@ -226,3 +226,30 @@ class Converter:
         cols = df.select_dtypes(include=["object", "string"]).columns
         df[cols] = df[cols].apply(lambda s: s.str.replace(char, "", regex=False))
         return df
+
+    @staticmethod
+    def calculate_relative_error(raw_df: pd.DataFrame, source: str) -> pd.DataFrame:
+        """
+        Calculate the relative error of the mass excess.
+
+        12C has a 0.0 +/- 0.0 mass excess by definition, so relative error is 0.0. The division by zero will put a NaN
+        value in the column for 12C so we will manually correct and set to 0.0.
+
+        Parameters
+        ----------
+        raw_df : pandas.DataFrame
+            The raw dataframe upon which we will act.
+        source : str
+            Which table's data are we working with
+
+        Returns
+        -------
+        pandas.DataFrame
+            The updated dataframe with a new relative mass excess column.
+        """
+        raw_df[f"{source}RelativeError"] = abs(
+            raw_df[f"{source}MassExcessError"].astype(float) / raw_df[f"{source}MassExcess"].astype(float)
+        )
+        raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), f"{source}RelativeError"] = 0.0
+
+        return raw_df

@@ -106,30 +106,6 @@ class AMEMassParser(AMEMassFile, Converter):
 
         return na_vals
 
-    def calculate_relative_error(self, raw_df) -> pd.DataFrame:
-        """
-        Calculate the relative error of the mass excess.
-
-        12C has a 0.0 +/- 0.0 mass excess by definition, so relative error is 0.0. The division by zero will put a NaN
-        value in the column for 12C so we will manually correct and set to 0.0.
-
-        Parameters
-        ----------
-        raw_df : pandas.DataFrame
-            The raw dataframe upon which we will act.
-
-        Returns
-        -------
-        pandas.DataFrame
-            The updated dataframe with a new relative mass excess column.
-        """
-        raw_df["AMERelativeError"] = abs(
-            raw_df["AMEMassExcessError"].astype(float) / raw_df["AMEMassExcess"].astype(float)
-        )
-        raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), "AMERelativeError"] = 0.0
-
-        return raw_df
-
     def read_file(self) -> pd.DataFrame:
         """
         Read the file-like object ``self.filename`` into a dataframe
@@ -180,7 +156,7 @@ class AMEMassParser(AMEMassFile, Converter):
 
         # We need to rescale the error value because we combined the two columns above
         df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
-        df = self.calculate_relative_error(df)
+        df = self.calculate_relative_error(df, "AME")
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
