@@ -1,16 +1,16 @@
 """
-The ame_reaction_2_parse module defines the ``AMEReactionParserTwo`` class. This class contains the logic required to
+The ame_reaction_2_parse module defines the ``AMEReactionTwoParser`` class. This class contains the logic required to
 sort and organise the inputs to :meth:`pandas.read_fwf` dependent on the year of the file. Once parsed, known typos and
 inconsistencies are cleaned from the resultant dataframe.
 """
 
 import pandas as pd
 
-from nuclearmasses.io.ame_reaction_2_file import AMEReactionFileTwo
+from nuclearmasses.io.ame_reaction_2_file import AMEReactionTwoFile
 from nuclearmasses.utils.converter import Converter, DataInput
 
 
-class AMEReactionParserTwo(AMEReactionFileTwo, Converter):
+class AMEReactionTwoParser:
     """
     Parse the second AME reaction file, doing the necessary preparation and clean ups of data.
 
@@ -33,9 +33,13 @@ class AMEReactionParserTwo(AMEReactionFileTwo, Converter):
     """
 
     def __init__(self, filename: DataInput, year: int):
-        super().__init__(year=year)
         self.filename: DataInput = filename
         self.year = year
+        self.layout = AMEReactionTwoFile(year).layout
+
+        self.column_limits = [
+            (getattr(self.layout, start), getattr(self.layout, end)) for _, start, end in self.layout.positions
+        ]
 
     def _column_names(self) -> list[str]:
         """
@@ -46,22 +50,7 @@ class AMEReactionParserTwo(AMEReactionFileTwo, Converter):
         list[str]
             An ordered list of the columns that exist in the file.
         """
-        return [
-            "A",
-            "Z",
-            "OneNeutronSeparationEnergy",
-            "OneNeutronSeparationEnergyError",
-            "OneProtonSeparationEnergy",
-            "OneProtonSeparationEnergyError",
-            "QFourBeta",
-            "QFourBetaError",
-            "QDeuteronAlpha",
-            "QDeuteronAlphaError",
-            "QProtonAlpha",
-            "QProtonAlphaError",
-            "QNeutronAlpha",
-            "QNeutronAlphaError",
-        ]
+        return self.layout.columns
 
     def _data_types(self) -> dict:
         """
@@ -137,12 +126,12 @@ class AMEReactionParserTwo(AMEReactionFileTwo, Converter):
             na_values=self._na_values(),
             keep_default_na=False,
             on_bad_lines="warn",
-            skiprows=self.HEADER,
-            skipfooter=self.FOOTER,
+            skiprows=self.layout.HEADER,
+            skipfooter=self.layout.FOOTER,
         )
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         # so for this data we'll just drop any and all '#' characters
-        df = self.strip_char_from_string_columns(df, "#")
+        df = Converter.strip_char_from_string_columns(df, "#")
 
         if self.year == 1983:
             # The column headers and units are repeated in the 1983 table
@@ -156,7 +145,7 @@ class AMEReactionParserTwo(AMEReactionFileTwo, Converter):
         # Repeated column heading also means we have to cast to create new columns
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(Converter.get_symbol)
         df["DataSource"] = 0
 
         return df.astype(self._data_types())

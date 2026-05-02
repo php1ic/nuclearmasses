@@ -8,7 +8,7 @@ import pandas as pd
 
 from nuclearmasses.io.ame_mass_parse import AMEMassParser
 from nuclearmasses.io.ame_reaction_1_parse import AMEReactionParserOne
-from nuclearmasses.io.ame_reaction_2_parse import AMEReactionParserTwo
+from nuclearmasses.io.ame_reaction_2_parse import AMEReactionTwoParser
 
 
 class AME:
@@ -90,7 +90,7 @@ class AME:
 
         mass_df = AMEMassParser(filename=ame_mass, year=year).read_file()
         rct1_df = AMEReactionParserOne(filename=ame_reaction_1, year=year).read_file()
-        rct2_df = AMEReactionParserTwo(filename=ame_reaction_2, year=year).read_file()
+        rct2_df = AMEReactionTwoParser(filename=ame_reaction_2, year=year).read_file()
 
         # Merge all 3 of the AME dataframes into one
         common_columns = ["A", "Z", "N", "TableYear", "Symbol", "DataSource"]

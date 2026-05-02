@@ -1,23 +1,27 @@
 """
-The ame_reaction_2_file module defines the ``AMEReactionFileTwo`` class. This class stores the column positions of the
-start and finish location of the different parameters recorded in the AME reaction 2 data file. The positions have
-changed between years so the year of the table is given as a parameter at construction.
+The ame_reaction_2_file module defines the ``AMEReactionTwoLayout`` and ``AMEReactionTwoFile`` classes.
+The ``AMEreactionTwoLayout`` class acts like a base class, storing the common column names and the start and end
+positions of the values within the AME data file. The positions change as time progress so the ``AMEReactionTwoFile``
+class uses the year, passed as a parameter, to update the values as required.
+
+The years 1995, 2003, 2012 and 2016 have identical formatting so are used as the base, not the 1983 format.
 """
 
+import dataclasses
 
-class AMEReactionFileTwo:
+
+@dataclasses.dataclass(kw_only=True)
+class AMEReactionTwoLayout:
     """
-    Storage class for the data in the AME reaction 2 data file.
+    Storage class for the most common data in the AME reaction 2 data file.
 
     The AME reaction 2 data file is fixed-width file format so we will store the format details in this class.
 
     Note we have not listed all parameters in the attributes section as there are so many. The naming convention is
     however shown, along with a description.
 
-    Parameters
-    ----------
-    year : int
-        The year the file being parsed was published
+    The attribute names align with column names as a string to allow dynamic creation of other variables and attributes
+    in other parts of the code.
 
     Attributes
     ----------
@@ -29,124 +33,148 @@ class AMEReactionFileTwo:
         The first column of parameter X.
     END_X : int or None
         The last column of parameter X or None to represent the end of the line.
-    column_limits : list[tuple[int, int]]
-        The start and end positions of all parameters as a list of tuples that can be passed to :meth:`pandas.read_fwf`.
+    column : list[str]
+        The list of columns that appear in the file
+    positions : list[tuple[str, str, str]]
+        A list of tuples detailing column name alongside start and end position in the line.
     """
 
-    def __init__(self, year: int, **kwargs):
-        super().__init__(**kwargs)
-        match year:
-            case 1983:
-                self.HEADER = 30
-                self.FOOTER = 0
-                self.START_R2_A = 1
-                self.END_R2_A = 4
-                self.START_R2_Z = 8
-                self.END_R2_Z = 11
-                self.START_SN = 14
-                self.END_SN = 22
-                self.START_DSN = 24
-                self.END_DSN = 28
-                self.START_SP = 30
-                self.END_SP = 40
-                self.START_DSP = 42
-                self.END_DSP = 48
-                self.START_Q4B = 49
-                self.END_Q4B = 57
-                self.START_DQ4B = 60
-                self.END_DQ4B = 65
-                self.START_QDA = 68
-                self.END_QDA = 76
-                self.START_DQDA = 78
-                self.END_DQDA = 84
-                self.START_QPA = 86
-                self.END_QPA = 94
-                self.START_DQPA = 96
-                self.END_DQPA = 102
-                self.START_QNA = 103
-                self.END_QNA = 112
-                self.START_DQNA = 114
-                self.END_DQNA = 120
-            case 2020:
-                self.HEADER = 37
-                self.FOOTER = 15
-                self.START_R2_A = 1
-                self.END_R2_A = 4
-                self.START_R2_Z = 8
-                self.END_R2_Z = 11
-                self.START_SN = 14
-                self.END_SN = 24
-                self.START_DSN = 25
-                self.END_DSN = 34
-                self.START_SP = 36
-                self.END_SP = 46
-                self.START_DSP = 47
-                self.END_DSP = 56
-                self.START_Q4B = 57
-                self.END_Q4B = 68
-                self.START_DQ4B = 69
-                self.END_DQ4B = 78
-                self.START_QDA = 79
-                self.END_QDA = 90
-                self.START_DQDA = 91
-                self.END_DQDA = 100
-                self.START_QPA = 101
-                self.END_QPA = 112
-                self.START_DQPA = 113
-                self.END_DQPA = 122
-                self.START_QNA = 123
-                self.END_QNA = 134
-                self.START_DQNA = 135
-                self.END_DQNA = 144
-            case _:
-                match year:
-                    case 1995 | 2003 | 2012 | 2016:
-                        self.HEADER = 39
-                    case 1993:
-                        self.HEADER = 40
-                self.FOOTER = 0
-                self.START_R2_A = 1
-                self.END_R2_A = 4
-                self.START_R2_Z = 8
-                self.END_R2_Z = 11
-                self.START_SN = 14
-                self.END_SN = 22
-                self.START_DSN = 23
-                self.END_DSN = 30
-                self.START_SP = 32
-                self.END_SP = 40
-                self.START_DSP = 41
-                self.END_DSP = 48
-                self.START_Q4B = 49
-                self.END_Q4B = 58
-                self.START_DQ4B = 59
-                self.END_DQ4B = 66
-                self.START_QDA = 67
-                self.END_QDA = 76
-                self.START_DQDA = 77
-                self.END_DQDA = 84
-                self.START_QPA = 85
-                self.END_QPA = 94
-                self.START_DQPA = 95
-                self.END_DQPA = 102
-                self.START_QNA = 103
-                self.END_QNA = 112
-                self.START_DQNA = 113
-                self.END_DQNA = 125
+    HEADER: int = 39
+    FOOTER: int = 0
+    START_A: int = 1
+    END_A: int = 4
+    START_Z: int = 8
+    END_Z: int = 11
+    START_OneNeutronSeparationEnergy: int = 14
+    END_OneNeutronSeparationEnergy: int = 22
+    START_OneNeutronSeparationEnergyError: int = 23
+    END_OneNeutronSeparationEnergyError: int = 30
+    START_OneProtonSeparationEnergy: int = 32
+    END_OneProtonSeparationEnergy: int = 40
+    START_OneProtonSeparationEnergyError: int = 41
+    END_OneProtonSeparationEnergyError: int = 48
+    START_QFourBeta: int = 49
+    END_QFourBeta: int = 58
+    START_QFourBetaError: int = 59
+    END_QFourBetaError: int = 66
+    START_QDeuteronAlpha: int = 67
+    END_QDeuteronAlpha: int = 76
+    START_QDeuteronAlphaError: int = 77
+    END_QDeuteronAlphaError: int = 84
+    START_QProtonAlpha: int = 85
+    END_QProtonAlpha: int = 94
+    START_QProtonAlphaError: int = 95
+    END_QProtonAlphaError: int = 102
+    START_QNeutronAlpha: int = 103
+    END_QNeutronAlpha: int = 112
+    START_QNeutronAlphaError: int = 113
+    END_QNeutronAlphaError: int = 125
 
-        self.column_limits = [
-            (self.START_R2_A, self.END_R2_A),
-            (self.START_R2_Z, self.END_R2_Z),
-            (self.START_SN, self.END_SN),
-            (self.START_DSN, self.END_DSN),
-            (self.START_SP, self.END_SP),
-            (self.START_DSP, self.END_DSP),
-            (self.START_Q4B, self.END_Q4B),
-            (self.START_DQ4B, self.END_DQ4B),
-            (self.START_QDA, self.END_QDA),
-            (self.START_DQDA, self.END_DQDA),
-            (self.START_QPA, self.END_QPA),
-            (self.START_DQPA, self.END_DQPA),
-            (self.START_QNA, self.END_QNA),
-            (self.START_DQNA, self.END_DQNA),
+    def __post_init__(self) -> None:
+        self.columns: list[str] = [
+            "A",
+            "Z",
+            "OneNeutronSeparationEnergy",
+            "OneNeutronSeparationEnergyError",
+            "OneProtonSeparationEnergy",
+            "OneProtonSeparationEnergyError",
+            "QFourBeta",
+            "QFourBetaError",
+            "QDeuteronAlpha",
+            "QDeuteronAlphaError",
+            "QProtonAlpha",
+            "QProtonAlphaError",
+            "QNeutronAlpha",
+            "QNeutronAlphaError",
         ]
+
+        self.positions: list[tuple[str, str, str]] = [(f"{c}", f"START_{c}", f"END_{c}") for c in self.columns]
+
+
+class AMEReactionTwoFile:
+    """
+    Storage class for the year specific data in the AME reaction 2 data file.
+
+    The base ``AMEReactionTwoLayout`` class is constructed and updated as required for the given ``year``.
+
+    Parameters
+    ----------
+    year : int
+        The year the file being parsed was published
+
+    Attributes
+    ----------
+    YEAR_OVERRIDES : dict[int | str, dict[str, int]]
+        Year specific updates and changes required to ``AMEReactionTwoLayout``.
+    layout : AMEReactionTwoLayout
+        A storage class containing details of parameters and their locations in the line.
+    """
+
+    YEAR_OVERRIDES: dict[int | str, dict[str, int]] = {
+        "default": {},
+        1983: {
+            "HEADER": 30,
+            "START_OneNeutronSeparationEnergyError": 24,
+            "END_OneNeutronSeparationEnergyError": 28,
+            "START_OneProtonSeparationEnergy": 30,
+            "END_OneProtonSeparationEnergy": 40,
+            "START_OneProtonSeparationEnergyError": 42,
+            "END_OneProtonSeparationEnergyError": 48,
+            "START_QFourBeta": 49,
+            "END_QFourBeta": 57,
+            "START_QFourBetaError": 60,
+            "END_QFourBetaError": 65,
+            "START_QDeuteronAlpha": 68,
+            "END_QDeuteronAlpha": 76,
+            "START_QDeuteronAlphaError": 78,
+            "END_QDeuteronAlphaError": 84,
+            "START_QProtonAlpha": 86,
+            "END_QProtonAlpha": 94,
+            "START_QProtonAlphaError": 96,
+            "END_QProtonAlphaError": 102,
+            "START_QNeutronAlpha": 103,
+            "END_QNeutronAlpha": 112,
+            "START_QNeutronAlphaError": 114,
+            "END_QNeutronAlphaError": 120,
+        },
+        1993: {
+            "HEADER": 40,
+        },
+        # 1995 - 2016 are the base years
+        1995: {},
+        2003: {},
+        2012: {},
+        2016: {},
+        2020: {
+            "HEADER": 37,
+            "FOOTER": 15,
+            "END_OneNeutronSeparationEnergy": 24,
+            "START_OneNeutronSeparationEnergyError": 25,
+            "END_OneNeutronSeparationEnergyError": 34,
+            "START_OneProtonSeparationEnergy": 36,
+            "END_OneProtonSeparationEnergy": 46,
+            "START_OneProtonSeparationEnergyError": 47,
+            "END_OneProtonSeparationEnergyError": 56,
+            "START_QFourBeta": 57,
+            "END_QFourBeta": 68,
+            "START_QFourBetaError": 69,
+            "END_QFourBetaError": 78,
+            "START_QDeuteronAlpha": 79,
+            "END_QDeuteronAlpha": 90,
+            "START_QDeuteronAlphaError": 91,
+            "END_QDeuteronAlphaError": 100,
+            "START_QProtonAlpha": 101,
+            "END_QProtonAlpha": 112,
+            "START_QProtonAlphaError": 113,
+            "END_QProtonAlphaError": 122,
+            "START_QNeutronAlpha": 123,
+            "END_QNeutronAlpha": 134,
+            "START_QNeutronAlphaError": 134,
+            "END_QNeutronAlphaError": 144,
+        },
+    }
+
+    def __init__(self, year: int) -> None:
+        self.layout = AMEReactionTwoLayout(
+            **AMEReactionTwoFile.YEAR_OVERRIDES.get(year, AMEReactionTwoFile.YEAR_OVERRIDES["default"])
+        )
