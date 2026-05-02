@@ -1,16 +1,16 @@
 """
-The ame_reaction_1_parse module defines the ``AMEReactionParserOne`` class. This class contains the logic required to
+The ame_reaction_1_parse module defines the ``AMEReactionOneParser`` class. This class contains the logic required to
 sort and organise the inputs to :meth:`pandas.read_fwf` dependent on the year of the file. Once parsed, known typos and
 inconsistencies are cleaned from the resultant dataframe.
 """
 
 import pandas as pd
 
-from nuclearmasses.io.ame_reaction_1_file import AMEReactionFileOne
+from nuclearmasses.io.ame_reaction_1_file import AMEReactionOneFile
 from nuclearmasses.utils.converter import Converter, DataInput
 
 
-class AMEReactionParserOne:
+class AMEReactionOneParser:
     """
     Parse the first AME reaction file, doing the necessary preparation and clean ups of data.
 
@@ -35,7 +35,7 @@ class AMEReactionParserOne:
     def __init__(self, filename: DataInput, year: int):
         self.filename: DataInput = filename
         self.year = year
-        self.layout = AMEReactionFileOne(year).layout
+        self.layout = AMEReactionOneFile(year).layout
 
         self.column_limits = [
             (getattr(self.layout, start), getattr(self.layout, end)) for _, start, end in self.layout.positions

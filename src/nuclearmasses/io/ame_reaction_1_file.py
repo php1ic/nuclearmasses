@@ -91,7 +91,7 @@ class AMEReactionOneLayout:
         self.positions: list[tuple[str, str, str]] = [(f"{c}", f"START_{c}", f"END_{c}") for c in self.columns]
 
 
-class AMEReactionFileOne:
+class AMEReactionOneFile:
     """
     Storage class for the year specific data in the AME reaction 1 data file.
 
@@ -174,5 +174,5 @@ class AMEReactionFileOne:
 
     def __init__(self, year: int) -> None:
         self.layout = AMEReactionOneLayout(
-            **AMEReactionFileOne.YEAR_OVERRIDES.get(year, AMEReactionFileOne.YEAR_OVERRIDES["default"])
+            **AMEReactionOneFile.YEAR_OVERRIDES.get(year, AMEReactionOneFile.YEAR_OVERRIDES["default"])
         )
