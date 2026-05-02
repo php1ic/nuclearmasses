@@ -10,7 +10,7 @@ from nuclearmasses.io.ame_mass_file import AMEMassFile
 from nuclearmasses.utils.converter import Converter, DataInput
 
 
-class AMEMassParser(AMEMassFile, Converter):
+class AMEMassParser:
     """
     Parse the AME mass file, doing the necessary preparation and clean ups of data.
 
@@ -33,9 +33,13 @@ class AMEMassParser(AMEMassFile, Converter):
     """
 
     def __init__(self, filename: DataInput, year: int):
-        super().__init__(year=year)
         self.filename: DataInput = filename
         self.year: int = year
+        self.layout = AMEMassFile(year=year).layout
+
+        self.column_limits = [
+            (getattr(self.layout, start), getattr(self.layout, end)) for _, start, end in self.layout.positions
+        ]
 
     def _column_names(self) -> list[str]:
         """
@@ -46,19 +50,7 @@ class AMEMassParser(AMEMassFile, Converter):
         list[str]
             An ordered list of the columns that exist in the file.
         """
-        return [
-            "Z",
-            "A",
-            "AMEMassExcess",
-            "AMEMassExcessError",
-            "BindingEnergyPerA",
-            "BindingEnergyPerAError",
-            "BetaDecayEnergy",
-            "BetaDecayEnergyError",
-            "AtomicNumber",
-            "AtomicMass",
-            "AtomicMassError",
-        ]
+        return self.layout.columns
 
     def _data_types(self) -> dict:
         """
@@ -125,12 +117,12 @@ class AMEMassParser(AMEMassFile, Converter):
             na_values=self._na_values(),
             keep_default_na=False,
             on_bad_lines="warn",
-            skiprows=self.HEADER,
-            skipfooter=self.FOOTER,
+            skiprows=self.layout.HEADER,
+            skipfooter=self.layout.FOOTER,
         )
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         # so for this data we'll just drop any and all '#' characters
-        df = self.strip_char_from_string_columns(df, "#")
+        df = Converter.strip_char_from_string_columns(df, "#")
 
         if self.year == 1983:
             # The column headers and units are repeated in the 1983 table
@@ -156,11 +148,11 @@ class AMEMassParser(AMEMassFile, Converter):
 
         # We need to rescale the error value because we combined the two columns above
         df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
-        df = self.calculate_relative_error(df, "AME")
+        df = Converter.calculate_relative_error(df, "AME")
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(Converter.get_symbol)
         df["DataSource"] = 0
 
         return df.astype(self._data_types())

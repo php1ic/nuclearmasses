@@ -12,8 +12,8 @@ def test_1983_mass():
         "0 11   39   28   67 Ni +n2p  -63742.471   19.056 582618.683   19.066    B-   3560.871   20.646   66 931570.167   20.457  -.0"
     )
     parser = AMEMassParser(line, 1983)
-    parser.HEADER = 0
-    parser.FOOTER = 0
+    parser.layout.HEADER = 0
+    parser.layout.FOOTER = 0
     df = parser.read_file()
 
     expected = pd.DataFrame(
@@ -45,8 +45,8 @@ def test_1993_mass():
         "0 15   41   26   67 Fe    x  -46574.693  465.747 567012.139  465.747    B-   8746.727  543.150   66 950000.000  500.000"
     )
     parser = AMEMassParser(line, 1993)
-    parser.HEADER = 0
-    parser.FOOTER = 0
+    parser.layout.HEADER = 0
+    parser.layout.FOOTER = 0
     df = parser.read_file()
 
     expected = pd.DataFrame(
@@ -79,8 +79,8 @@ def test_1995_mass():
         "  15   41   26   67 Fe    x  -46574.693  465.747 567012.133  465.747    B-   8746.727  543.150   66 950000.000  500.000"
     )
     parser = AMEMassParser(line, 1995)
-    parser.HEADER = 0
-    parser.FOOTER = 0
+    parser.layout.HEADER = 0
+    parser.layout.FOOTER = 0
     df = parser.read_file()
 
     expected = pd.DataFrame(
@@ -112,8 +112,8 @@ def test_2003_mass():
         "  15   41   26   67 Fe    x  -45692.348    415.570     8449.695    6.203 B-   9368.702  523.438  66 950947.244    446.132"
     )
     parser = AMEMassParser(line, 2003)
-    parser.HEADER = 0
-    parser.FOOTER = 0
+    parser.layout.HEADER = 0
+    parser.layout.FOOTER = 0
     df = parser.read_file()
 
     expected = pd.DataFrame(
@@ -145,8 +145,8 @@ def test_2012_mass():
         "  15   41   26   67 Fe    x  -46068.530    217.972     8455.310    3.253 B-   9253.245  218.067  66 950543.395    234.002"
     )
     parser = AMEMassParser(line, 2012)
-    parser.HEADER = 0
-    parser.FOOTER = 0
+    parser.layout.HEADER = 0
+    parser.layout.FOOTER = 0
     df = parser.read_file()
 
     expected = pd.DataFrame(
@@ -178,8 +178,8 @@ def test_2016_mass():
         "  15   41   26   67 Fe    x  -45610.155    270.285     8448.469    4.034 B-   9711.620  270.362  66 951035.482    290.163"
     )
     parser = AMEMassParser(line, 2016)
-    parser.HEADER = 0
-    parser.FOOTER = 0
+    parser.layout.HEADER = 0
+    parser.layout.FOOTER = 0
     df = parser.read_file()
 
     expected = pd.DataFrame(
@@ -211,8 +211,8 @@ def test_2020_mass():
         "  15   41   26   67 Fe    x  -45708.416       3.819      8449.9359     0.0570  B-   9613.3678     7.4900   66 950930.000       4.100"
     )
     parser = AMEMassParser(line, 2020)
-    parser.HEADER = 0
-    parser.FOOTER = 0
+    parser.layout.HEADER = 0
+    parser.layout.FOOTER = 0
     df = parser.read_file()
 
     expected = pd.DataFrame(
