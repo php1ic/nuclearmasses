@@ -7,7 +7,9 @@ inconsistencies are cleaned from the resultant dataframe.
 import pandas as pd
 
 from nuclearmasses.io.ame_reaction_2_file import AMEReactionTwoFile
-from nuclearmasses.utils.converter import Converter, DataInput
+from nuclearmasses.utils.dataframe_utils import read_fwf, strip_char_from_string_columns
+from nuclearmasses.utils.periodic import get_symbol
+from nuclearmasses.utils.type_defs import DataInput
 
 
 class AMEReactionTwoParser:
@@ -119,7 +121,7 @@ class AMEReactionTwoParser:
         pandas.DataFrame
             A dataframe containing the parsed and organised contents of the second AME reaction data file
         """
-        df = Converter.read_fwf(
+        df = read_fwf(
             self.filename,
             colspecs=self.column_limits,
             names=self._column_names(),
@@ -131,7 +133,7 @@ class AMEReactionTwoParser:
         )
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         # so for this data we'll just drop any and all '#' characters
-        df = Converter.strip_char_from_string_columns(df, "#")
+        df = strip_char_from_string_columns(df, "#")
 
         if self.year == 1983:
             # The column headers and units are repeated in the 1983 table
@@ -145,7 +147,7 @@ class AMEReactionTwoParser:
         # Repeated column heading also means we have to cast to create new columns
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(Converter.get_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(get_symbol)
         df["DataSource"] = 0
 
         return df.astype(self._data_types())

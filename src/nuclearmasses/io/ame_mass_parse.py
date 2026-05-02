@@ -7,7 +7,9 @@ inconsistencies are cleaned from the resultant dataframe.
 import pandas as pd
 
 from nuclearmasses.io.ame_mass_file import AMEMassFile
-from nuclearmasses.utils.converter import Converter, DataInput
+from nuclearmasses.utils.dataframe_utils import calculate_relative_error, read_fwf, strip_char_from_string_columns
+from nuclearmasses.utils.periodic import get_symbol
+from nuclearmasses.utils.type_defs import DataInput
 
 
 class AMEMassParser:
@@ -110,7 +112,7 @@ class AMEMassParser:
         pandas.DataFrame
             A dataframe containing the parsed and organised contents of the AME mass data file
         """
-        df = Converter.read_fwf(
+        df = read_fwf(
             self.filename,
             colspecs=self.column_limits,
             names=self._column_names(),
@@ -122,7 +124,7 @@ class AMEMassParser:
         )
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         # so for this data we'll just drop any and all '#' characters
-        df = Converter.strip_char_from_string_columns(df, "#")
+        df = strip_char_from_string_columns(df, "#")
 
         if self.year == 1983:
             # The column headers and units are repeated in the 1983 table
@@ -148,11 +150,11 @@ class AMEMassParser:
 
         # We need to rescale the error value because we combined the two columns above
         df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
-        df = Converter.calculate_relative_error(df, "AME")
+        df = calculate_relative_error(df, "AME")
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(Converter.get_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(get_symbol)
         df["DataSource"] = 0
 
         return df.astype(self._data_types())

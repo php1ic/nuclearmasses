@@ -7,7 +7,10 @@ are cleaned from the resultant dataframe.
 import pandas as pd
 
 from nuclearmasses.io.nubase_file import NUBASEFile
-from nuclearmasses.utils.converter import Converter, DataInput
+from nuclearmasses.utils.dataframe_utils import calculate_relative_error, read_fwf, strip_char_from_string_columns
+from nuclearmasses.utils.periodic import get_symbol
+from nuclearmasses.utils.type_defs import DataInput
+from nuclearmasses.utils.units import unit_to_seconds
 
 
 class NUBASEParser:
@@ -179,7 +182,7 @@ class NUBASEParser:
             raw_df[col] = pd.to_numeric(raw_df[col], errors="coerce")
 
         # Pre-compute unit -> second conversion
-        unit_map = raw_df["HalfLifeUnit"].map(Converter.unit_to_seconds)
+        unit_map = raw_df["HalfLifeUnit"].map(unit_to_seconds)
 
         raw_df["HalfLifeSeconds"] = raw_df["HalfLifeValue"] * unit_map
         raw_df["HalfLifeErrorSeconds"] = raw_df["HalfLifeError"] * unit_map
@@ -222,7 +225,7 @@ class NUBASEParser:
         pandas.DataFrame
             A dataframe containing the parsed and organised contents of the NUBASE data file
         """
-        df = Converter.read_fwf(
+        df = read_fwf(
             self.filename,
             colspecs=self.column_limits,
             names=self._column_names(),
@@ -238,10 +241,10 @@ class NUBASEParser:
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         df["Experimental"] = ~df["NUBASEMassExcess"].astype("string").str.contains("#", na=False)
         # Once we have used the '#' to determine if it's experimental or not, we can remove all instances of it
-        df = Converter.strip_char_from_string_columns(df, "#")
+        df = strip_char_from_string_columns(df, "#")
 
         df = self.parse_half_life(df)
-        df = Converter.calculate_relative_error(df, "NUBASE")
+        df = calculate_relative_error(df, "NUBASE")
 
         if self.year == 2012:
             # 198Au has a typo in it's decay mode in the 2012 table. It is recorded as '-'
@@ -249,7 +252,7 @@ class NUBASEParser:
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(Converter.get_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(get_symbol)
         df["DataSource"] = 0
 
         return df.astype(self._data_types())
