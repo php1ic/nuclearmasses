@@ -1,6 +1,6 @@
-from nuclearmasses.utils.dataframe_utils import calculate_relative_error, strip_char_from_string_columns
-
 import pandas as pd
+
+from nuclearmasses.utils.dataframe_utils import calculate_relative_error, strip_char_from_string_columns
 
 
 def test_12C_relative_error():
@@ -28,7 +28,7 @@ def test_relative_error():
     )
 
     df = calculate_relative_error(df, "NUBASE")
-    assert df["NUBASERelativeError"][0] == 10.0/100000.0
+    assert df["NUBASERelativeError"][0] == 10.0 / 100000.0
 
 
 def test_remove_hash_from_column():

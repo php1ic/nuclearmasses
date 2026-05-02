@@ -22,4 +22,3 @@ def test_normalise_symbol():
     assert normalise_symbol("h") == "H"
     assert normalise_symbol("mg") == "Mg"
     assert normalise_symbol("RN") == "Rn"
-
