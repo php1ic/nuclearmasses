@@ -10,7 +10,7 @@ from nuclearmasses.io.ame_reaction_1_file import AMEReactionFileOne
 from nuclearmasses.utils.converter import Converter, DataInput
 
 
-class AMEReactionParserOne(AMEReactionFileOne, Converter):
+class AMEReactionParserOne:
     """
     Parse the first AME reaction file, doing the necessary preparation and clean ups of data.
 
@@ -33,9 +33,13 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
     """
 
     def __init__(self, filename: DataInput, year: int):
-        super().__init__(year=year)
         self.filename: DataInput = filename
         self.year = year
+        self.layout = AMEReactionFileOne(year).layout
+
+        self.column_limits = [
+            (getattr(self.layout, start), getattr(self.layout, end)) for _, start, end in self.layout.positions
+        ]
 
     def _column_names(self) -> list[str]:
         """
@@ -46,22 +50,7 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
         list[str]
             An ordered list of the columns that exist in the file.
         """
-        return [
-            "A",
-            "Z",
-            "TwoNeutronSeparationEnergy",
-            "TwoNeutronSeparationEnergyError",
-            "TwoProtonSeparationEnergy",
-            "TwoProtonSeparationEnergyError",
-            "QAlpha",
-            "QAlphaError",
-            "QTwoBeta",
-            "QTwoBetaError",
-            "QEpsilon",
-            "QEpsilonError",
-            "QBetaNeutron",
-            "QBetaNeutronError",
-        ]
+        return self.layout.columns
 
     def _data_types(self) -> dict:
         """
@@ -137,12 +126,12 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
             na_values=self._na_values(),
             keep_default_na=False,
             on_bad_lines="warn",
-            skiprows=self.HEADER,
-            skipfooter=self.FOOTER,
+            skiprows=self.layout.HEADER,
+            skipfooter=self.layout.FOOTER,
         )
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         # so for this data we'll just drop any and all '#' characters
-        df = self.strip_char_from_string_columns(df, "#")
+        df = Converter.strip_char_from_string_columns(df, "#")
 
         if self.year == 1983:
             # The column headers and units are repeated in the 1983 table
@@ -152,7 +141,7 @@ class AMEReactionParserOne(AMEReactionFileOne, Converter):
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(Converter.get_symbol)
         df["DataSource"] = 0
 
         return df.astype(self._data_types())
