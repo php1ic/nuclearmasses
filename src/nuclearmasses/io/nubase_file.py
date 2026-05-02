@@ -1,6 +1,6 @@
 """
 The nubase_file module defines the ``NUBASELayout`` and ``NUBASEFile`` classes. The ``NUBASELayout`` class acts like a
-base class, storing the original column names and the start and end positionsof the values within the NUBASE data file.
+base class, storing the original column names and the start and end positions of the values within the NUBASE data file.
 The positions change as time progress so the ``NUBASEFile`` class uses the year, passed as a parameter, to update the
 values as required.
 """
