@@ -33,7 +33,7 @@ class NUBASELayout:
         The last column of parameter X or None if X is not in the datafile for that year.
     columns : list[str]
         The list of columns that appear in the file.
-    positions : list[tuple(str, str, str)]
+    positions : list[tuple[str, str, str]]
         A list of tuples detailing column name alongside start and end position in the line.
     """
 
