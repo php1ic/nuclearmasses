@@ -17,12 +17,12 @@ All data should, however, be accurate.
 
 ## Mass tables
 
-The data files released by the papers linked below are used to create the mass tables read by this code.
+The data files released by the papers linked below are used to create the mass tables output by this code.
 There was no AME data published in 1997, but the 1995 AME matches the 1997 NUBASE according to section 4, "The tables" on P31 of [these proceedings](https://www.google.co.uk/books/edition/Atomic_Physics_at_Accelerators_Mass_Spec/3AbsCAAAQBAJ?hl=en).
 As a result the 1997 NUBASE data is referred to as being from 1995 for simplicity when merging data.
 
 There are published papers for [1971](https://doi.org/10.1007/978-1-4684-7876-1_30) and [1977](https://doi.org/10.1016/0092-640X(77)90004-3), but I can't find the associated data files.
-If you are reading this and know of someone with a copy, or have any information, please let me know via this issue [#13](https://github.com/php1ic/nuclearmasses/issues/13)
+If you are reading this and have a copy, know of someone with a copy, or have any information, please let me know via this issue [#13](https://github.com/php1ic/nuclearmasses/issues/13)
 
 - [AME1983](https://doi.org/10.1016/0375-9474(85)90283-0)
 - [AME1993](https://doi.org/10.1016/0375-9474(93)90024-R)
@@ -32,12 +32,13 @@ If you are reading this and know of someone with a copy, or have any information
 - [AME2016](https://doi.org/10.1088/1674-1137/41/3/030002) + [NUBASE2016](https://doi.org/10.1088/1674-1137/41/3/030001)
 - [AME2020](https://doi.org/10.1088/1674-1137/abddaf) + [NUBASE2020](https://doi.org/10.1088/1674-1137/abddae)
 
-The NUBASE files are read for all of the data values, with the AME files being used to populate an additional mass excess data field.
-No comparison or validation is done on common values.
+All data from the single NUBASE data file, the AME mass file and two reaction files are parsed and saved into the table.
+Details from the different sources are merged on `A`, `Z` and published year for each isotope, but otherwise, no comparison or validation is done on common values.
+
 
 ## Setup
 
-The package is available on the Python Package Index so can be installed via pip
+The package is available on the [Python Package Index](https://pypi.org/project/nuclearmasses/) so can be installed via pip
 ```bash
 pip install nuclearmasses
 ```
