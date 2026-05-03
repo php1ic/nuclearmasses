@@ -149,7 +149,7 @@ def test_2020_nubase():
         "168 0670   168Ho  -60060         30                                     2.99   m 0.07   3+            10          1960 B-=100"
     )
     parser = NUBASEParser(line, 2020)
-    parser.HEADER = 0
+    parser.layout.HEADER = 0
     df = parser.read_file()
 
     expected = pd.DataFrame(

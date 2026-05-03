@@ -4,15 +4,16 @@ the inputs to :meth:`pandas.read_fwf` dependent on the year of the file. Once pa
 are cleaned from the resultant dataframe.
 """
 
-import typing
-
 import pandas as pd
 
 from nuclearmasses.io.nubase_file import NUBASEFile
-from nuclearmasses.utils.converter import Converter, DataInput
+from nuclearmasses.utils.dataframe_utils import calculate_relative_error, read_fwf, strip_char_from_string_columns
+from nuclearmasses.utils.periodic import get_symbol
+from nuclearmasses.utils.type_defs import DataInput
+from nuclearmasses.utils.units import unit_to_seconds
 
 
-class NUBASEParser(NUBASEFile, Converter):
+class NUBASEParser:
     """
     Parse the NUBASE file, doing the necessary preparations and clean up of data.
 
@@ -32,18 +33,28 @@ class NUBASEParser(NUBASEFile, Converter):
         The file-like object to parse.
     year : int
         The published year of the data file.
+    layout : NUBASEFile
+        A storage class containing details of parameters and their location in the line.
     unit_replacements : dict[str, str]
         A dictionary used to tidy up time units from NUBASE format to one the module recognises.
+    column_limits : list[tuple[int, int]]
+        The start and end positions of all parameters as a list of tuples that can be passed to :meth:`pandas.read_fwf`.
     """
 
     def __init__(self, filename: DataInput, year: int):
-        super().__init__(year=year)
         self.filename: DataInput = filename
         self.year: int = year
+        self.layout = NUBASEFile(year=year).layout
         self.unit_replacements: dict[str, str] = {
             r"y$": "yr",
             r"^m$": "min",
         }
+        self.column_limits = [
+            (getattr(self.layout, start), getattr(self.layout, end)) for _, start, end in self.layout.positions
+        ]
+
+        if year > 2003:
+            self.column_limits.insert(-1, (self.layout.START_DiscoveryYear, self.layout.END_DiscoveryYear))
 
     def _column_names(self) -> list[str]:
         """
@@ -54,30 +65,14 @@ class NUBASEParser(NUBASEFile, Converter):
         list[str]
             An ordered list of the columns that exist in the file.
         """
-        col_names = [
-            "A",
-            "Z",
-            "State",
-            "NUBASEMassExcess",
-            "NUBASEMassExcessError",
-            "IsomerEnergy",
-            "IsomerEnergyError",
-            "HalfLifeValue",
-            "HalfLifeUnit",
-            "HalfLifeError",
-            "Spin",
-            "DiscoveryYear",
-            "DecayModes",
-        ]
+        col_names = self.layout.columns
 
-        # The discovery year was added after 2003, and I assume it will be there in the future, so we will set up
-        # as if it is always present and delete for the first two tables.
-        if self.year == 1995 or self.year == 2003:
-            col_names.remove("DiscoveryYear")
+        if self.year > 2003:
+            col_names.insert(-1, "DiscoveryYear")
 
         return col_names
 
-    def _data_types(self) -> dict:
+    def _data_types(self) -> dict[str, str]:
         """
         Set the column data types depending on the year.
 
@@ -92,11 +87,8 @@ class NUBASEParser(NUBASEFile, Converter):
             "Z": "Int64",
             "N": "Int64",
             "Experimental": "boolean",
-            # "State": "Int64",
             "NUBASEMassExcess": "float64",
             "NUBASEMassExcessError": "float64",
-            # "IsomerEnergy": "float64",
-            # "IsomerEnergyError": "float64",
             "HalfLifeValue": "float64",
             "HalfLifeUnit": "string",
             "HalfLifeError": "float64",
@@ -106,11 +98,15 @@ class NUBASEParser(NUBASEFile, Converter):
             "DiscoveryYear": "Int64",
             "DecayModes": "string",
             "DataSource": "Int64",
+            # We will need these one day
+            # "State": "Int64",
+            # "IsomerEnergy": "float64",
+            # "IsomerEnergyError": "float64",
         }
 
         # The discovery year was added after 2003, and I assume it will be there in the future, so we will set up
         # as if it is always present and delete for the first two tables.
-        if self.year == 1995 or self.year == 2003:
+        if self.year <= 2003:
             data_types.pop("DiscoveryYear")
 
         return data_types
@@ -186,7 +182,7 @@ class NUBASEParser(NUBASEFile, Converter):
             raw_df[col] = pd.to_numeric(raw_df[col], errors="coerce")
 
         # Pre-compute unit -> second conversion
-        unit_map = raw_df["HalfLifeUnit"].map(self.unit_to_seconds)
+        unit_map = raw_df["HalfLifeUnit"].map(unit_to_seconds)
 
         raw_df["HalfLifeSeconds"] = raw_df["HalfLifeValue"] * unit_map
         raw_df["HalfLifeErrorSeconds"] = raw_df["HalfLifeError"] * unit_map
@@ -217,30 +213,6 @@ class NUBASEParser(NUBASEFile, Converter):
 
         return raw_df
 
-    def calculate_relative_error(self, raw_df) -> pd.DataFrame:
-        """
-        Calculate the relative error of the mass excess.
-
-        12C has a 0.0 +/- 0.0 mass excess by definition, so relative error is 0.0. The division by zero will put a NaN
-        value in the column for 12C so we will manually correct and set to 0.0.
-
-        Parameters
-        ----------
-        raw_df : pandas.DataFrame
-            The raw dataframe upon which we will act.
-
-        Returns
-        -------
-        pandas.DataFrame
-            The updated dataframe with a new relative mass excess column.
-        """
-        raw_df["NUBASERelativeError"] = abs(
-            raw_df["NUBASEMassExcessError"].astype(float) / raw_df["NUBASEMassExcess"].astype(float)
-        )
-        raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), "NUBASERelativeError"] = 0.0
-
-        return raw_df
-
     def read_file(self) -> pd.DataFrame:
         """
         Read the file-like object ``self.filename`` into a dataframe
@@ -253,15 +225,15 @@ class NUBASEParser(NUBASEFile, Converter):
         pandas.DataFrame
             A dataframe containing the parsed and organised contents of the NUBASE data file
         """
-        df = Converter.read_fwf(
+        df = read_fwf(
             self.filename,
-            colspecs=typing.cast(typing.Sequence[tuple[int, int]], self.column_limits),  # appease mypy
+            colspecs=self.column_limits,
             names=self._column_names(),
             na_values=self._na_values(),
             keep_default_na=False,
             on_bad_lines="warn",
-            skiprows=self.HEADER,
-            skipfooter=self.FOOTER,
+            skiprows=self.layout.HEADER,
+            skipfooter=self.layout.FOOTER,
         )
 
         df = self.parse_state(df)
@@ -269,10 +241,10 @@ class NUBASEParser(NUBASEFile, Converter):
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         df["Experimental"] = ~df["NUBASEMassExcess"].astype("string").str.contains("#", na=False)
         # Once we have used the '#' to determine if it's experimental or not, we can remove all instances of it
-        df = self.strip_char_from_string_columns(df, "#")
+        df = strip_char_from_string_columns(df, "#")
 
         df = self.parse_half_life(df)
-        df = self.calculate_relative_error(df)
+        df = calculate_relative_error(df, "NUBASE")
 
         if self.year == 2012:
             # 198Au has a typo in it's decay mode in the 2012 table. It is recorded as '-'
@@ -280,7 +252,7 @@ class NUBASEParser(NUBASEFile, Converter):
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(get_symbol)
         df["DataSource"] = 0
 
         return df.astype(self._data_types())

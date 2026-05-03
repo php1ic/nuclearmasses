@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.0] - 2026-05-??
+- [#27](https://github.com/php1ic/nuclearmasses/pull/27)
+  * Refactor Converter class in utils into separate modules
+  * Update how the column locations of the parameters are set and accessed
+
 ## [0.3.0] - 2026-04-28
 - [#26](https://github.com/php1ic/nuclearmasses/pull/26)
   * Optimise initial parsing of the files.

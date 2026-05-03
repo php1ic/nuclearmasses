@@ -7,10 +7,12 @@ inconsistencies are cleaned from the resultant dataframe.
 import pandas as pd
 
 from nuclearmasses.io.ame_mass_file import AMEMassFile
-from nuclearmasses.utils.converter import Converter, DataInput
+from nuclearmasses.utils.dataframe_utils import calculate_relative_error, read_fwf, strip_char_from_string_columns
+from nuclearmasses.utils.periodic import get_symbol
+from nuclearmasses.utils.type_defs import DataInput
 
 
-class AMEMassParser(AMEMassFile, Converter):
+class AMEMassParser:
     """
     Parse the AME mass file, doing the necessary preparation and clean ups of data.
 
@@ -33,9 +35,13 @@ class AMEMassParser(AMEMassFile, Converter):
     """
 
     def __init__(self, filename: DataInput, year: int):
-        super().__init__(year=year)
         self.filename: DataInput = filename
         self.year: int = year
+        self.layout = AMEMassFile(year=year).layout
+
+        self.column_limits = [
+            (getattr(self.layout, start), getattr(self.layout, end)) for _, start, end in self.layout.positions
+        ]
 
     def _column_names(self) -> list[str]:
         """
@@ -46,19 +52,7 @@ class AMEMassParser(AMEMassFile, Converter):
         list[str]
             An ordered list of the columns that exist in the file.
         """
-        return [
-            "Z",
-            "A",
-            "AMEMassExcess",
-            "AMEMassExcessError",
-            "BindingEnergyPerA",
-            "BindingEnergyPerAError",
-            "BetaDecayEnergy",
-            "BetaDecayEnergyError",
-            "AtomicNumber",
-            "AtomicMass",
-            "AtomicMassError",
-        ]
+        return self.layout.columns
 
     def _data_types(self) -> dict:
         """
@@ -106,30 +100,6 @@ class AMEMassParser(AMEMassFile, Converter):
 
         return na_vals
 
-    def calculate_relative_error(self, raw_df) -> pd.DataFrame:
-        """
-        Calculate the relative error of the mass excess.
-
-        12C has a 0.0 +/- 0.0 mass excess by definition, so relative error is 0.0. The division by zero will put a NaN
-        value in the column for 12C so we will manually correct and set to 0.0.
-
-        Parameters
-        ----------
-        raw_df : pandas.DataFrame
-            The raw dataframe upon which we will act.
-
-        Returns
-        -------
-        pandas.DataFrame
-            The updated dataframe with a new relative mass excess column.
-        """
-        raw_df["AMERelativeError"] = abs(
-            raw_df["AMEMassExcessError"].astype(float) / raw_df["AMEMassExcess"].astype(float)
-        )
-        raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), "AMERelativeError"] = 0.0
-
-        return raw_df
-
     def read_file(self) -> pd.DataFrame:
         """
         Read the file-like object ``self.filename`` into a dataframe
@@ -142,19 +112,19 @@ class AMEMassParser(AMEMassFile, Converter):
         pandas.DataFrame
             A dataframe containing the parsed and organised contents of the AME mass data file
         """
-        df = Converter.read_fwf(
+        df = read_fwf(
             self.filename,
             colspecs=self.column_limits,
             names=self._column_names(),
             na_values=self._na_values(),
             keep_default_na=False,
             on_bad_lines="warn",
-            skiprows=self.HEADER,
-            skipfooter=self.FOOTER,
+            skiprows=self.layout.HEADER,
+            skipfooter=self.layout.FOOTER,
         )
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         # so for this data we'll just drop any and all '#' characters
-        df = self.strip_char_from_string_columns(df, "#")
+        df = strip_char_from_string_columns(df, "#")
 
         if self.year == 1983:
             # The column headers and units are repeated in the 1983 table
@@ -180,11 +150,11 @@ class AMEMassParser(AMEMassFile, Converter):
 
         # We need to rescale the error value because we combined the two columns above
         df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
-        df = self.calculate_relative_error(df)
+        df = calculate_relative_error(df, "AME")
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(self.get_symbol)
+        df["Symbol"] = pd.to_numeric(df["Z"]).map(get_symbol)
         df["DataSource"] = 0
 
         return df.astype(self._data_types())

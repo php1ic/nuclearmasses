@@ -14,7 +14,7 @@ import pandas as pd
 
 from nuclearmasses.io.ame import AME
 from nuclearmasses.io.nubase import NUBASE
-from nuclearmasses.utils.converter import Converter
+from nuclearmasses.utils.periodic import get_symbol
 
 
 class MassTable:
@@ -103,7 +103,7 @@ class MassTable:
         user_columns = set(user_df.columns)
         # The symbol is commonly used so if it wasn't in the file, create it as a column
         if "Symbol" not in user_columns:
-            user_df["Symbol"] = pd.to_numeric(user_df["Z"]).map(Converter().get_symbol)
+            user_df["Symbol"] = pd.to_numeric(user_df["Z"]).map(get_symbol)
 
         # Set the source value using the function parameter if it hasn't already been set
         if "DataSource" not in user_columns:
