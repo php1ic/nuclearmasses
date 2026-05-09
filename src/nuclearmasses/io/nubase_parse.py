@@ -93,7 +93,7 @@ class NUBASEParser:
             "HalfLifeUnit": "string",
             "HalfLifeError": "float64",
             "HalfLifeSeconds": "float64",
-            "HalfLifeErrorSeconds": "float64",
+            "HalfLifeSecondsError": "float64",
             "Spin": "string",
             "DiscoveryYear": "Int64",
             "DecayModes": "string",
@@ -185,7 +185,7 @@ class NUBASEParser:
         unit_map = raw_df["HalfLifeUnit"].map(unit_to_seconds)
 
         raw_df["HalfLifeSeconds"] = raw_df["HalfLifeValue"] * unit_map
-        raw_df["HalfLifeErrorSeconds"] = raw_df["HalfLifeError"] * unit_map
+        raw_df["HalfLifeSecondsError"] = raw_df["HalfLifeError"] * unit_map
 
         return raw_df
 
