@@ -128,6 +128,7 @@ class NUBASEParser:
             "HalfLifeUnit": [""],
             "HalfLifeError": [""],
             "DecayModes": [""],
+            "Spin": [""],
         }
 
         if self.year == 1995:
