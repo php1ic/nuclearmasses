@@ -147,6 +147,9 @@ class NUBASEParser:
         The half-life is stored as a human readable value, e.g. 2ms, 4Gyr, 5mins. This is fine to read but not to do
         any type of sorting or algorithm. Convert to the SI unit of seconds, but don't overwrite original columns.
 
+        We do carry out some cleaning of the original columns by removing symbols and letters where we know they are
+        numerical values.
+
         Parameters
         ----------
         raw_df : pandas.DataFrame
@@ -157,32 +160,31 @@ class NUBASEParser:
         pandas.DataFrame
             The updated dataframe with new columns containing half-life values in seconds.
         """
-        # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
-        raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("object")
-        raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("object")
+        raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("string")
+        raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("string")
 
+        # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
         mask = raw_df["HalfLifeValue"] == "stbl"
-        raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (99.99, "Zyr", 0.0)
+        raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("99.99", "Zyr", "0.0")
 
         if self.year == 2016:
             # the half-life related columns are misaligned for 92Br in 2016
             mask = (raw_df.A == 92) & (raw_df.Z == 35)
-            raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = (0.314, "s", 0.016)
+            raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("0.314", "s", "0.016")
 
-        raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("string").str.replace(r"[<>?~]", "", regex=True)
+        raw_df["HalfLifeValue"] = pd.to_numeric(
+            raw_df["HalfLifeValue"].replace(r"[<>?~]", "", regex=True), errors="coerce"
+        )
         # We'll be lazy here and remove any characters in this column. Future us will parse this properly
-        raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("string").str.replace(r"[<>?~a-z]", "", regex=True)
+        raw_df["HalfLifeError"] = pd.to_numeric(
+            raw_df["HalfLifeError"].replace(r"[<>?~a-z]", "", regex=True), errors="coerce"
+        )
+
+        # Bookkeeping: Tidy up know unusual units, i.e. y for years and m for minutes
+        # We can pass the dictionary and python will expand automatically
+        raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].replace(self.unit_replacements, regex=True)
 
         # Use the 3 half-life columns to create 2 new columns with units of seconds
-        raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].astype("string")
-        # Bookkeeping: Tidy up know unusual units, i.e. y for years and m for minutes
-        for pattern, replacement in self.unit_replacements.items():
-            raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].str.replace(pattern, replacement, regex=True)
-
-        # Ensure numeric values
-        for col in ["HalfLifeValue", "HalfLifeError"]:
-            raw_df[col] = pd.to_numeric(raw_df[col], errors="coerce")
-
         # Pre-compute unit -> second conversion
         unit_map = raw_df["HalfLifeUnit"].map(unit_to_seconds)
 
