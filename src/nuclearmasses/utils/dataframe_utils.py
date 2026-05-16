@@ -92,5 +92,6 @@ def calculate_relative_error(raw_df: pd.DataFrame, source: str) -> pd.DataFrame:
         raw_df[f"{source}MassExcessError"].astype(float) / raw_df[f"{source}MassExcess"].astype(float)
     )
     raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), f"{source}RelativeError"] = 0.0
+    raw_df[f"{source}RelativeError"] = raw_df[f"{source}RelativeError"].astype("Float64")
 
     return raw_df

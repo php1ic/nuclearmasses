@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased] - 2026-05-??
+- [#31](https://github.com/php1ic/nuclearmasses/pull/31)
+  * Rename `HalfLifeErrorSeconds` to `HalfLifeSecondsError` to be consistent with other parameter naming.
+  * Ensure all types are nullable so missing values are stored as [pd.NA](https://pandas.pydata.org/docs/reference/api/pandas.NA.html#pandas.NA). [#30](https://github.com/php1ic/nuclearmasses/pull/30)
+  * Re-write [parse_half_life](https://github.com/php1ic/nuclearmasses/blob/main/src/nuclearmasses/io/nubase_parse.py#L141) to avoid multiple types conversions.
+
 ## [0.4.0] - 2026-05-03
 - [#27](https://github.com/php1ic/nuclearmasses/pull/27)
   * Refactor Converter class in utils into separate modules.
