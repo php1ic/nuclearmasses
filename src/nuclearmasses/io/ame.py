@@ -20,8 +20,8 @@ class AME:
     Parameters
     ----------
     data_path : Traversable
-        Absolute path to the data files location. Not an actual file, rather the top level directory that contains from
-        where we access the year then individual file
+        Absolute path to the data files location. Not an actual file, rather the top level directory that contains the
+        location from where we access the year followed by the individual file.
 
     Attributes
     ----------
