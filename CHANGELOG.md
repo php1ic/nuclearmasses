@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased] - 2026-05-??
+- Update AME parsing to `join` the dataframes rather than `merge` and avoid the creation of temporary frames.
 - [#31](https://github.com/php1ic/nuclearmasses/pull/31)
   * Rename `HalfLifeErrorSeconds` to `HalfLifeSecondsError` to be consistent with other parameter naming.
   * Ensure all types are nullable so missing values are stored as [pd.NA](https://pandas.pydata.org/docs/reference/api/pandas.NA.html#pandas.NA). [#30](https://github.com/php1ic/nuclearmasses/pull/30)
