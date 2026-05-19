@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2026-05-??
+## [0.5.0] - 2026-05-19
 - Update AME parsing to `join` the dataframes rather than `merge` and avoid the creation of temporary frames.
 - [#31](https://github.com/php1ic/nuclearmasses/pull/31)
   * Rename `HalfLifeErrorSeconds` to `HalfLifeSecondsError` to be consistent with other parameter naming.
