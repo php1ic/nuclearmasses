@@ -56,7 +56,7 @@ pip install -e .
 
 > [!IMPORTANT]
 > While every effort is made to maintain a stable API, this module is relatively new so users should not be surprised if there are changes between versions.
-> If a breaking change has been introduced, it will always be highlighted in the [CHANGELOG](CHANGELOG.md).
+> If a breaking change has been introduced, it will always be highlighted in the [CHANGELOG](https://github.com/php1ic/nuclearmasses/blob/main/CHANGELOG.md).
 
 The combination of AME and NUBASE values from all years is available as a single dataframe
 ```python

@@ -53,6 +53,12 @@ dev = [
   "ruff"
 ]
 
+docs = [
+    "sphinx",
+    "furo",
+    "myst-parser",
+]
+
 [project.urls]
 GitHub = "https://github.com/php1ic/nuclearmasses"
 Changelog = "https://github.com/php1ic/nuclearmasses/blob/main/CHANGELOG.md"
