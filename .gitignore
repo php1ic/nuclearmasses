@@ -20,3 +20,7 @@ coverage_html_report
 # Package build files and folders
 *.egg-info/
 **/dist/
+
+# Sphinx and documentation auto generated files
+docs/build/
+docs/source/generated/
