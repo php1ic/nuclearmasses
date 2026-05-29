@@ -56,7 +56,6 @@ dev = [
 docs = [
     "sphinx",
     "furo",
-    "myst-parser",
 ]
 
 [project.urls]

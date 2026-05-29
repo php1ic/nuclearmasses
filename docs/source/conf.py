@@ -24,7 +24,6 @@ author = "php1ic"
 
 # General configuration
 extensions = [
-    "myst_parser",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
@@ -36,11 +35,6 @@ napoleon_google_docstring = False
 autosummary_generate = True
 
 exclude_patterns = []
-
-source_suffix = {
-    ".rst": "restructuredtext",
-    ".md": "markdown",
-}
 
 # Options for HTML output
 html_theme = "furo"
