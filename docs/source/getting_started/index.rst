@@ -5,7 +5,7 @@ Getting Started
    :maxdepth: 3
 
    installation
-   theory
+   references
    usage/index
 
 
