@@ -2,7 +2,7 @@ Plotting
 ========
 
 Once all the data is parsed into the dataframe, seaborn_ provides a nice interface to allow simple plotting of different properties.
-Below is an example chosen almost at random, so I'm not trying to demonstrate a new discovery.
+Below is an example chosen almost at random.
 
 After populating the default mass table we slice on all Tin (Z=50) isotopes from the 2020 table and keep the 'A', 'N', 'AMEMassExcess' and 'Experimental' columns.
 We then create a new column flagging if the N value is even.
