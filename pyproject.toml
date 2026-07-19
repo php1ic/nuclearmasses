@@ -59,8 +59,13 @@ docs = [
 ]
 
 [project.urls]
+# I know these 3 are all the same link, but they might deviate in the future
 GitHub = "https://github.com/php1ic/nuclearmasses"
+Homepage = "https://github.com/php1ic/nuclearmasses"
+Repository = "https://github.com/php1ic/nuclearmasses"
+Issues = "https://github.com/php1ic/nuclearmasses/issues"
 Changelog = "https://github.com/php1ic/nuclearmasses/blob/main/CHANGELOG.md"
+Documentation = "https://nuclearmasses.readthedocs.io"
 
 [tool.setuptools]
 license-files = ["LICENSE"]
@@ -79,6 +84,11 @@ omit = [
  "tests/*"
 ]
 
+[tool.coverage.run]
+source = [
+  "nuclearmasses"
+]
+
 [tool.ruff]
 line-length = 120
 
@@ -86,7 +96,7 @@ line-length = 120
 # Nothing different from defaults
 
 [tool.ruff.lint.isort]
-known-first-party = ["src"]
+known-first-party = ["nuclearmasses"]
 from-first = false
 order-by-type = true
 force-sort-within-sections = true
