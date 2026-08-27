@@ -3,7 +3,7 @@ The module dataframe_utils contains functionality to extend that available via p
 to a dataframe that is used throughout the repository.
 """
 
-import importlib
+import importlib.resources
 from importlib.resources.abc import Traversable
 
 import pandas as pd
