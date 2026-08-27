@@ -15,6 +15,9 @@ No guarantee is supplied with regards to the accuracy of the data presented.
 Estimated values are included, please always refer to the original sources.
 All data should, however, be accurate.
 
+Work in progress documentation page is here - https://nuclearmasses.readthedocs.io/
+
+
 ## Mass tables
 
 The data files released by the papers linked below are used to create the mass tables output by this code.
@@ -184,6 +187,11 @@ The command below returns no errors or issues so should be run after any code ch
 We might add a CI pipeline in the future, but for the moment, it's a manual process.
 ```bash
 ruff format && ruff check && mypy src
+```
+Checking is also done with [ty](https://github.com/astral-sh/ty), but as that is [not yet stable](https://github.com/astral-sh/ty#version-policy), any issues it flags are not yet considered issues.
+Having said that, all checks currently pass with
+```bash
+ty check
 ```
 
 ## Known issues
