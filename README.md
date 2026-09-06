@@ -8,15 +8,33 @@
 
 ## Introduction
 
-Python package to parse the various files published by the [AME](https://www-nds.iaea.org/amdc/) and [NUBASE](http://amdc.in2p3.fr/web/nubase_en.html).
-The files produced by the AME and NUBASE have unique formats so this package does the hard work for you and parses the data into a [pandas dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) for simple access.
+The package `nuclearmasses` provides convenient Python access to nuclear data published by the Atomic Mass Evaluation ([AME](https://www-nds.iaea.org/amdc/)) and [NUBASE](http://amdc.in2p3.fr/web/nubase_en.html).
+These datasets are published in different, specialised formats, so `nuclearmasses` does the hard work of parsing and combining the data into a [pandas DateFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html), making it simple to query and compare nuclear properties across different evaluations.
 
 No guarantee is supplied with regards to the accuracy of the data presented.
 Estimated values are included, please always refer to the original sources.
 All data should, however, be accurate.
 
-Work in progress documentation page is here - https://nuclearmasses.readthedocs.io/
+Documentation is here - https://nuclearmasses.readthedocs.io/
 
+As a brief example, the combination of AME and NUBASE values from all years is available as a single DateFrame
+```python
+>>> from nuclearmasses.mass_table import MassTable
+>>> df = MassTable().data
+```
+You can then interrogate, or extract, whatever information you want.
+For example, how has the mass excess and its accuracy changed overtime for 190Re according to the AME
+```python
+>>> df[(df['A'] == 190) & (df['Symbol'] == 'Re')][['TableYear', 'AMEMassExcess', 'AMEMassExcessError']]
+       TableYear  AMEMassExcess  AMEMassExcessError
+16054       1983     -35536.605             200.029
+16055       1993     -35557.789             145.549
+16056       1995     -35568.032             212.151
+16057       2003     -35566.326             149.248
+16058       2012     -35634.992              70.542
+16059       2016     -35635.830              70.852
+16060       2020     -35583.015               4.870
+```
 
 ## Mass tables
 
@@ -45,9 +63,8 @@ The package is available on the [Python Package Index](https://pypi.org/project/
 ```bash
 pip install nuclearmasses
 ```
-
 Or you can clone the latest version from github and install locally.
-All work is done on a feature branch so cloning and using `main` should be the similar to using the latest installed version from pip.
+All work is done on a feature branch so cloning and using `main` should be the same as using the latest installed version from pip.
 There may be some additional functionality, but nothing should have been removed.
 ```bash
 git clone https://github.com/php1ic/nuclearmasses
@@ -57,30 +74,19 @@ pip install -e .
 
 ## Usage
 
-> [!IMPORTANT]
-> While every effort is made to maintain a stable API, this module is relatively new so users should not be surprised if there are changes between versions.
-> If a breaking change has been introduced, it will always be highlighted in the [CHANGELOG](https://github.com/php1ic/nuclearmasses/blob/main/CHANGELOG.md).
+### Understanding the data
 
-The combination of AME and NUBASE values from all years is available as a single dataframe
+Once parsed, each row of the DateFrame represents the unique combination of a single isotope and its evaluation year, with all rows correspond to the ground state (see issue [#7](https://github.com/php1ic/nuclearmasses/issues/7) for discussions around the addition of isomeric states).
+
+**Missing Values:** Missing data are represented using [`pd.NA`](https://pandas.pydata.org/docs/reference/api/pandas.NA.html) when the DataFrame is created.
+Values that are missing in the source, either via empty fields, or some other symbol, are converted to `pd.NA` during the parse.
+The use of nullable pandas dtypes allows us to maintain the required column types but users should be aware that subsequent operations on the DataFrame may change how missing values are represented.
+This behaviour follows the approach to missing data described in the [pandas documentation](https://pandas.pydata.org/docs/user_guide/missing_data.html).
+
+For another usage example, how does the mass excess of lithium vary across the isotopic chain according to NUBASE in the most recent table for both experimentally measured and theoretical values.
 ```python
 >>> from nuclearmasses.mass_table import MassTable
 >>> df = MassTable().data
-```
-You can then interrogate, or extract, whatever information you want.
-For example, how has the mass excess and its accuracy changed overtime for 190Re according to the AME
-```python
->>> df[(df['A'] == 190) & (df['Symbol'] == 'Re')][['TableYear', 'AMEMassExcess', 'AMEMassExcessError']]
-       TableYear  AMEMassExcess  AMEMassExcessError
-16054       1983     -35536.605             200.029
-16055       1993     -35557.789             145.549
-16056       1995     -35568.032             212.151
-16057       2003     -35566.326             149.248
-16058       2012     -35634.992              70.542
-16059       2016     -35635.830              70.852
-16060       2020     -35583.015               4.870
-```
-Or how does the mass excess of lithium vary across the isotopic chain according to NUBASE in the most recent table for both experimentally measured and theoretical values
-```python
 >>> df.query("TableYear == 2020 and Symbol == 'Li'")[['A', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'Experimental']]
       A  NUBASEMassExcess  NUBASEMassExcessError  Experimental
 38    3        28670.0000              2000.0000         False
@@ -108,9 +114,8 @@ If no value is given, the value of 1 will always be used.
 
 To ensure uniqueness, values for `A` and `Z` must be part of the data.
 With the assumption that you would like to compare and contrast this new data with the published values, the name associated with your data must also match existing columns.
-I know this doesn't quite make sense, as you might not necessarily want to assign your new mass to either AME or NUBASE, but in general, the columns are generic so I'm sure you'll work it out.
 
-Let's imagine I have a new measurement for the mass excess of 100Ag at -78136.4 +/- 0.6 and I want to add it to the table
+Let's imagine I have a new measurement for the mass excess of 100Ag at -78136.4keV +/- 0.6keV and I want to add it to the table
 ```python
 >>> # Addition is done on the class level so create an instance of the MassTable
 >>> from nuclearmasses.mass_table import MassTable
@@ -131,7 +136,8 @@ Let's imagine I have a new measurement for the mass excess of 100Ag at -78136.4 
 >>> table.add_user_data('[{"A": 100, "Z": 47, "NUBASEMassExcess": -78136.4, "NUBASEMassExcessError": 0.6}]')
 >>> # The underlying table has been modified, so we need to get the latest version
 >>> df = table.data
->>> # Re-run the query to see the new value, notice the value for DataSource has been set to 1
+>>> # Re-run the query to see the new value,
+>>> # notice the value for DataSource has been set to 1
 >>> df.query("Symbol == 'Ag' and A == 100")[['A', 'Z', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'DataSource']])
          A  NUBASEMassExcess  NUBASEMassExcessError  DataSource
 6976   100               NaN                    NaN           0
@@ -146,7 +152,8 @@ Let's imagine I have a new measurement for the mass excess of 100Ag at -78136.4 
 >>> table.add_user_data('[{"A": 100, "Z": 47, "NUBASEMassExcess": -78136.4, "NUBASEMassExcessError": 0.6}]', source=5)
 >>> # Again, this modifies the underlying dataframe so we need to fetch the updated version
 >>> df = table.data
->>> # Run the query and see that our new data is there twice against two different sources
+>>> # Run the query and see that our new data is there twice,
+>>> # once against the two different sources
 >>> df.query("Symbol == 'Ag' and A == 100")[['A', 'Z', 'NUBASEMassExcess', 'NUBASEMassExcessError', 'DataSource']])
          A  NUBASEMassExcess  NUBASEMassExcessError  DataSource
 6976   100               NaN                    NaN           0
@@ -160,7 +167,7 @@ Let's imagine I have a new measurement for the mass excess of 100Ag at -78136.4 
 21422  100          -78136.4                    0.6           5
 ```
 
-Now let's imagine that we have a large new data set in a json file, but have forgotten to add the `Experimental` attribute and for reasons, it is not possible to edit or update the file with this additional information.
+Now let's imagine that we have a large new data set in a json file, but have forgotten to add the `Experimental` attribute, and for some reason it is not possible to edit or update the file with this additional information.
 When reading in the file, we can pass a dictionary as a parameter, and the keys will be used as the column names, with the values used as value to for all new isotopes.
 
 In the following example, we will assume the data is in a file `new_data.json` and of type [pathlib](https://docs.python.org/3/library/pathlib.html).
@@ -171,10 +178,10 @@ In the following example, we will assume the data is in a file `new_data.json` a
 >>> missed_values = {'Experimental': True}
 >>> new_data = pathlib.Path('new_data.json')
 >>> table.add_user_data(new_data, common_values=missed_values)
->>> # All isotopes from new_data.json will have their Experimental column assigned to True
+>>> # All isotopes from new_data.json will have their Experimental
+>>> # column assigned to True
 ```
-
-If an existing column is not populated with new data, it is assigned the value pd.NA.
+If an existing column is not populated with new data, it is assigned the value pd.NA for reason discussed in [Understanding the data](#understanding-the-data).
 We do not try and infer what a value could, should or might be.
 
 
@@ -184,7 +191,7 @@ If you have ideas for additional functionality or find bugs please create an [is
 
 We use a combination of [ruff](https://docs.astral.sh/ruff/) and [mypy](https://www.mypy-lang.org/) to keep things tidy and hopefully catch errors and bugs before they happen.
 The command below returns no errors or issues so should be run after any code changes.
-We might add a CI pipeline in the future, but for the moment, it's a manual process.
+We might add a dedicated linting and static analysis CI pipeline in the future, but for the moment, it's a manual process.
 ```bash
 ruff format && ruff check && mypy src
 ```
