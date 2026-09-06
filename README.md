@@ -187,19 +187,8 @@ We do not try and infer what a value could, should or might be.
 
 ## Contributing
 
-If you have ideas for additional functionality or find bugs please create an [issue](https://github.com/php1ic/nuclearmasses/issues) or better yet a [pull request](https://github.com/php1ic/nuclearmasses/pulls).
+Details about contributing to the project are in [CONTRIBUTING](https://github.com/php1ic/nuclearmasses/CONTRIBUTING.md)
 
-We use a combination of [ruff](https://docs.astral.sh/ruff/) and [mypy](https://www.mypy-lang.org/) to keep things tidy and hopefully catch errors and bugs before they happen.
-The command below returns no errors or issues so should be run after any code changes.
-We might add a dedicated linting and static analysis CI pipeline in the future, but for the moment, it's a manual process.
-```bash
-ruff format && ruff check && mypy src
-```
-Checking is also done with [ty](https://github.com/astral-sh/ty), but as that is [not yet stable](https://github.com/astral-sh/ty#version-policy), any issues it flags are not yet considered issues.
-Having said that, all checks currently pass with
-```bash
-ty check
-```
 
 ## Known issues
 
