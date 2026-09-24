@@ -9,9 +9,24 @@ Getting Started
    usage/index
 
 
-Overview
---------
+Quickstart
+----------
 
-Read the `README`_ on the project's github while this documentation page is being filled out.
+To get up and running, install via pip
 
-.. _README: https://github.com/php1ic/nuclearmasses
+.. code-block:: bash
+
+  pip install nuclearmasses
+
+then access the table via
+
+.. code-block:: python
+
+  >>> from nuclearmasses.mass_table import MassTable
+  >>> df = MassTable().data
+  >>> print(df)
+
+You now have access to the `pandas`_ ecosystem to sort, slice and analyse the data.
+There is functionality external to pandas, and if you are interested in that see the :ref:`usage` section.
+
+.. _pandas: https://pandas.pydata.org/docs/getting_started/intro_tutorials/index.html
