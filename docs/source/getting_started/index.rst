@@ -18,7 +18,7 @@ To get up and running, install via pip
 
   pip install nuclearmasses
 
-then access the table via
+then access the table as a DataFrame via
 
 .. code-block:: python
 

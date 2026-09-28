@@ -187,7 +187,7 @@ We do not try and infer what a value could, should or might be.
 
 ## Contributing
 
-Details about contributing to the project are in [CONTRIBUTING](https://github.com/php1ic/nuclearmasses/CONTRIBUTING.md)
+Details about contributing to the project are in [CONTRIBUTING](https://github.com/php1ic/nuclearmasses/blob/main/CONTRIBUTING.md)
 
 
 ## Known issues
