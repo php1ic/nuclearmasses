@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.6.2] - 2026-10-03
+- No change again. The mistake was not updating the version in pyproject.toml which has now been done.
+
 ## [0.6.1] - 2016-10-03
 - No changes. I messed up pushing and creating a release so need to push a new tag to start the release pipeline.
 
