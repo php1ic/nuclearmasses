@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.0] - 2026-10-03
+- Small tidy up of redundant code [dfe4bf69](https://github.com/php1ic/nuclearmasses/commit/dfe4bf693d32ba00e23c271f59e3eaa6f4115540)
+- Add documentation files for a page on readthedocs (https://nuclearmasses.readthedocs.io/en/latest/)
+  * README file is now much simpler and points users to the documentation page.
+  * Added a CONTRIBUTING file for those that wish to contribute.
+
 ## [0.5.0] - 2026-05-19
 - Update AME parsing to `join` the dataframes rather than `merge` and avoid the creation of temporary frames.
 - [#31](https://github.com/php1ic/nuclearmasses/pull/31)
