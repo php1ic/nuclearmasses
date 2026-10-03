@@ -12,11 +12,12 @@ description = "A python package to parse and store the various files published b
 version = "0.6.2"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Education",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
@@ -68,7 +69,6 @@ Changelog = "https://github.com/php1ic/nuclearmasses/blob/main/CHANGELOG.md"
 Documentation = "https://nuclearmasses.readthedocs.io"
 
 [tool.setuptools]
-license-files = ["LICENSE"]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
