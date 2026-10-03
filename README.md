@@ -7,6 +7,7 @@
 [![codecov](https://codecov.io/gh/php1ic/nuclearmasses/graph/badge.svg?token=RNEI9PI6X8)](https://codecov.io/gh/php1ic/nuclearmasses)
 [![Read the Docs](https://img.shields.io/readthedocs/nuclearmasses)](https://nuclearmasses.readthedocs.io/)
 
+[![DOI](https://zenodo.org/badge/953582888.svg)](https://doi.org/10.5281/zenodo.23124585)
 
 ## Introduction
 
