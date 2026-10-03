@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.6.1] - 2016-10-03
+- No changes. I messed up pushing and creating a release so need to push a new tag to start the release pipeline.
+
 ## [0.6.0] - 2026-10-03
 - Small tidy up of redundant code [dfe4bf69](https://github.com/php1ic/nuclearmasses/commit/dfe4bf693d32ba00e23c271f59e3eaa6f4115540)
 - Add documentation files for a page on readthedocs (https://nuclearmasses.readthedocs.io/en/latest/)
