@@ -114,3 +114,6 @@ extend-select = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["E501"]
+
+[tool.ty.src]
+include = ["src/nuclearmasses"]
