@@ -29,7 +29,6 @@ def read_fwf(base: DataInput, **kwargs):
     pandas.DataFrame
         The file-like object parsed into a pandas dataframe.
     """
-    # importlib.resource Traversable
     if isinstance(base, Traversable):
         with importlib.resources.as_file(base) as the_file:
             return pd.read_fwf(the_file, **kwargs)
