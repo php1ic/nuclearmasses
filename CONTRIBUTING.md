@@ -15,13 +15,13 @@ Clone the repository and install the package in an editable environment with the
 ```bash
 git clone https://github.com/php1ic/nuclearmasses
 cd nuclearmasses
-# Create a suitable environment if required
+# Create a suitable environment if required and activate it
 pip install -e '.[dev]'
 ```
 
 ## Running the tests
 
-The module use [pytest](https://docs.pytest.org/en/stable/) which is run with
+The module use [pytest](https://docs.pytest.org/en/stable/) which is run from the root of the repository with
 ```bash
 pytest -v
 ```
@@ -47,7 +47,7 @@ Clone the repository and install the package in an editable environment with the
 ```bash
 git clone https://github.com/php1ic/nuclearmasses
 cd nuclearmasses
-# Create a suitable environment if required
+# Create a suitable environment if required and activate it
 pip install -e '.[docs]'
 ```
 
