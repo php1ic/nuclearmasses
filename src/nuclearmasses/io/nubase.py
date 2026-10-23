@@ -37,7 +37,7 @@ class NUBASE:
     """
 
     def __init__(self, data_path: Traversable):
-        self.data_path = data_path
+        self.data_path: Traversable = data_path
         self.years: list[int] = [1995, 2003, 2012, 2016, 2020]
         self.nubase_files: list[str] = [
             "nubtab97.asc",

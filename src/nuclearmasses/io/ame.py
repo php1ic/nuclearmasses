@@ -39,7 +39,7 @@ class AME:
     """
 
     def __init__(self, data_path: Traversable):
-        self.data_path = data_path
+        self.data_path: Traversable = data_path
         self.years: list[int] = [1983, 1993, 1995, 2003, 2012, 2016, 2020]
         self.ame_files: list[tuple[str, str, str]] = [
             ("mass.mas83", "rct1.mas83", "rct2.mas83"),

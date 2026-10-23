@@ -6,7 +6,7 @@ inconsistencies are cleaned from the resultant dataframe.
 
 import pandas as pd
 
-from nuclearmasses.io.ame_mass_file import AMEMassFile
+from nuclearmasses.io.ame_mass_file import AMEMassFile, AMEMassLayout
 from nuclearmasses.utils.dataframe_utils import calculate_relative_error, read_fwf, strip_char_from_string_columns
 from nuclearmasses.utils.periodic import get_symbol
 from nuclearmasses.utils.type_defs import DataInput
@@ -32,14 +32,18 @@ class AMEMassParser:
         The file-like object to parse.
     year : int
         The published year of the data file.
+    layout : AMEMassLayout
+        A storage class containing details of parameters and their location in the line.
+    column_limits : list[tuple[int|None, int|None]]
+        The start and end positions of all parameters
     """
 
     def __init__(self, filename: DataInput, year: int):
         self.filename: DataInput = filename
         self.year: int = year
-        self.layout = AMEMassFile(year=year).layout
 
-        self.column_limits = [
+        self.layout: AMEMassLayout = AMEMassFile(year=year).layout
+        self.column_limits: list[tuple[int | None, int | None]] = [
             (getattr(self.layout, start), getattr(self.layout, end)) for _, start, end in self.layout.positions
         ]
 

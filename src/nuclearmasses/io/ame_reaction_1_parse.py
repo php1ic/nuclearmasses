@@ -6,7 +6,7 @@ inconsistencies are cleaned from the resultant dataframe.
 
 import pandas as pd
 
-from nuclearmasses.io.ame_reaction_1_file import AMEReactionOneFile
+from nuclearmasses.io.ame_reaction_1_file import AMEReactionOneFile, AMEReactionOneLayout
 from nuclearmasses.utils.dataframe_utils import read_fwf, strip_char_from_string_columns
 from nuclearmasses.utils.periodic import get_symbol
 from nuclearmasses.utils.type_defs import DataInput
@@ -32,14 +32,18 @@ class AMEReactionOneParser:
         The file-like object to parse.
     year : int
         The published year of the data file.
+    layout : AMEReactionOneLayout
+        Details about the line layout to be used during parsing
+    column_limits : list[tuple[int|None, int|None]]
+        A list containing the start and end positions of the columns
     """
 
     def __init__(self, filename: DataInput, year: int):
         self.filename: DataInput = filename
-        self.year = year
-        self.layout = AMEReactionOneFile(year).layout
+        self.year: int = year
 
-        self.column_limits = [
+        self.layout: AMEReactionOneLayout = AMEReactionOneFile(year).layout
+        self.column_limits: list[tuple[int | None, int | None]] = [
             (getattr(self.layout, start), getattr(self.layout, end)) for _, start, end in self.layout.positions
         ]
 

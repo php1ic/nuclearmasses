@@ -6,7 +6,7 @@ are cleaned from the resultant dataframe.
 
 import pandas as pd
 
-from nuclearmasses.io.nubase_file import NUBASEFile
+from nuclearmasses.io.nubase_file import NUBASEFile, NUBASELayout
 from nuclearmasses.utils.dataframe_utils import calculate_relative_error, read_fwf, strip_char_from_string_columns
 from nuclearmasses.utils.periodic import get_symbol
 from nuclearmasses.utils.type_defs import DataInput
@@ -33,23 +33,24 @@ class NUBASEParser:
         The file-like object to parse.
     year : int
         The published year of the data file.
-    layout : NUBASEFile
+    layout : NUBASELayout
         A storage class containing details of parameters and their location in the line.
     unit_replacements : dict[str, str]
         A dictionary used to tidy up time units from NUBASE format to one the module recognises.
-    column_limits : list[tuple[int, int]]
+    column_limits : list[tuple[int|None, int|None]]
         The start and end positions of all parameters as a list of tuples that can be passed to :meth:`pandas.read_fwf`.
     """
 
     def __init__(self, filename: DataInput, year: int):
         self.filename: DataInput = filename
         self.year: int = year
-        self.layout = NUBASEFile(year=year).layout
+
+        self.layout: NUBASELayout = NUBASEFile(year=year).layout
         self.unit_replacements: dict[str, str] = {
             r"y$": "yr",
             r"^m$": "min",
         }
-        self.column_limits = [
+        self.column_limits: list[tuple[int | None, int | None]] = [
             (getattr(self.layout, start), getattr(self.layout, end)) for _, start, end in self.layout.positions
         ]
 
