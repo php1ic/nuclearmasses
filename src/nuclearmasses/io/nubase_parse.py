@@ -5,12 +5,56 @@ are cleaned from the resultant dataframe.
 """
 
 import pandas as pd
+import re
+
+from dataclasses import dataclass
+from decimal import Decimal
 
 from nuclearmasses.io.nubase_file import NUBASEFile, NUBASELayout
 from nuclearmasses.utils.dataframe_utils import calculate_relative_error, read_fwf, strip_char_from_string_columns
 from nuclearmasses.utils.periodic import get_symbol
 from nuclearmasses.utils.type_defs import DataInput
 from nuclearmasses.utils.units import unit_to_seconds
+
+
+@dataclass(frozen=True, kw_only=True)
+class DecayMeasurement:
+    """
+    Storage class for decay mode details
+    """
+    decay_type: str
+    operator: str | None
+    percentage: Decimal | None
+    error: Decimal | None = None
+    upper_error: Decimal | None = None
+    lower_error: Decimal | None = None
+    annotation: str | None = None
+    status: str = "reported"
+    raw: str | None = None
+
+
+# Depending on how you are feeling, the next few lines are either beautifully elegant or a chaotic mess.
+# Decimal or scientific-notation number, e.g. 100, .5, 10.0e-13.
+UNSIGNED_NUM = r"(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?"
+
+# NUM allows a leading sign; ERR_NUM does not, e.g. -0.13 vs. 0.7e-3.
+NUM = rf"[+-]?{UNSIGNED_NUM}"
+ERR_NUM = UNSIGNED_NUM
+
+# We are attempting to represent all forms of decay string in a single regex,
+# capturing the parts we are interested into capture groups to access after the match.
+DECAY_PATTERN = re.compile(
+    rf"^(?P<decay_type>[A-Za-z0-9][A-Za-z0-9_+()\-]*)"
+    rf"(?P<operator>>=|<=|=<|=>|>|<|=|~)"
+    rf"(?P<value>{NUM})"
+    rf"(?:"
+    rf"\s+\+(?P<upper_error>{ERR_NUM})"
+    rf"-(?P<lower_error>{ERR_NUM})"
+    rf"|\s+(?P<error>{ERR_NUM})"
+    rf")?"
+    rf"\s*(?P<annotation>\[[^\]]*\])?"
+    rf"\?*$"
+)
 
 
 class NUBASEParser:
@@ -141,6 +185,144 @@ class NUBASEParser:
 
         return na_values
 
+    def parse_single_decay_string(self, text: str) -> DecayMeasurement | pd.NA:
+        """
+        Parse a single decay mode into a DecayMeasurement storage class
+
+        There is a large amount of detail given in a single string. To avoid the loss of any of this informations, we use
+        a custom storage class that has each piece of information extracted into attributes. The raw string is also
+        saved in case there was an issue with the parse.
+
+        Parameters
+        ----------
+        text : str
+            The string containing the decay properties.
+
+        Returns
+        -------
+        DecayMeasurement
+            An instance of the DecayMeasurement storage class with all the necessary data.
+
+        """
+        text = text.strip()
+
+        if not text:
+            return pd.NA
+
+        if text.endswith("?") and "=" not in text:
+            return DecayMeasurement(
+                decay_type=text[:-1],
+                operator=None,
+                percentage=None,
+                status="Energetically Allowed",
+                raw=text,
+            )
+        elif text.endswith("=?"):
+            return DecayMeasurement(
+                decay_type=text[:-2],
+                operator="=",
+                percentage=None,
+                status="Observed but not yet quantified",
+                raw=text,
+            )
+        elif text == "...":
+            return DecayMeasurement(
+                decay_type="Continued",
+                operator="=",
+                percentage=None,
+                status="unknown",
+                raw=text,
+            )
+
+        match = DECAY_PATTERN.fullmatch(text)
+
+        if not match:
+            print(f"Unrecognised decay string: {text!r}")
+            return DecayMeasurement(
+                decay_type="Unparsed",
+                operator="=",
+                percentage=None,
+                status="unknown",
+                raw=text,
+            )
+
+        data = match.groupdict()
+        value = Decimal(data["value"])
+
+        # Scale uncertainties using the final displayed digit of the value.
+        scale = Decimal(10) ** value.as_tuple().exponent
+
+        error = Decimal(data["error"]) * scale if data["error"] is not None else None
+
+        upper_error = Decimal(data["upper_error"]) * scale if data["upper_error"] is not None else None
+        lower_error = Decimal(data["lower_error"]) * scale if data["lower_error"] is not None else None
+
+        annotation = data["annotation"]
+        # Strip square brackets
+        if annotation is not None:
+            annotation = annotation[1:-1]
+
+        return DecayMeasurement(
+            decay_type=data["decay_type"],
+            operator=data["operator"],
+            percentage=value,
+            error=error,
+            upper_error=upper_error,
+            lower_error=lower_error,
+            annotation=annotation,
+            raw=text,
+        )
+
+    def parse_decay_modes(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Parse the raw string with all decay modes
+
+        Parameters
+        ----------
+        raw_df : pandas.DataFrame
+            The dataframe to use to convert raw decay strings into DecayMeasurements.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The updated dataframe with new columns containing decay data.
+        """
+        # Start with some book keeping to fix likely typos
+        # 1997 213Pa
+        # Values is: "23F=10.0e-13 +5.0--0.7", assume single '-' for asymmetric errors to match other instances
+        # (see discussion elsewhere as to why this relates to the 1995 table)
+        if self.year == 1995:
+            Pa231_mask = ((raw_df["A"] == 231) & (raw_df["Z"] == 91))
+            raw_df.loc[Pa231_mask, "DecayModes"] = raw_df.loc[Pa231_mask, "DecayModes"].str.replace('--', '-', regex=False)
+
+        # 2012 198Au
+        # Decay mode is recorded as '-=100', other years have it as "B-=100"
+        if self.year == 2012:
+            Au198_mask = ((raw_df["A"] == 198) & (raw_df["Z"] == 79))
+            raw_df.loc[Au198_mask, "DecayModes"] = "B-=100"
+
+        # 2012 & 2016 142Gd
+        # Decay string is ',' separated rather than ';'
+        if self.year == 2012 or self.year == 2016:
+            Gd142_mask = ((raw_df["A"] == 142) & (raw_df["Z"] == 64))
+            raw_df.loc[Gd142_mask, "DecayModes"] = raw_df.loc[Gd142_mask, "DecayModes"].str.replace(',', ';', regex=False)
+
+        # Split on the ';' and further book keeping and sanitizing to help with parsing
+        raw_df['Decays'] = raw_df['DecayModes'].apply(
+            lambda x: pd.NA if pd.isna(x) else [
+                item.strip().replace(' GE ', '>=').replace(' LE ', '<=').replace(' ?', '?')
+                for item in x.split(';')
+            ]
+        )
+
+        # We should now have a list of strings with each string matching DECAY_PATTERN
+        # The data is too complicated for a simple dictionary so we will use a DecayMeasurement
+        raw_df["ParsedDecays"] = raw_df["Decays"].apply(
+            lambda items: [self.parse_single_decay_string(item) for item in items] if isinstance(items, list) else items
+        )
+
+        return raw_df
+
     def parse_half_life(self, raw_df) -> pd.DataFrame:
         """
         Create additional half-life columns with values in seconds
@@ -251,9 +433,10 @@ class NUBASEParser:
         df = self.parse_half_life(df)
         df = calculate_relative_error(df, "NUBASE")
 
-        if self.year == 2012:
-            # 198Au has a typo in it's decay mode in the 2012 table. It is recorded as '-'
-            df.loc[(df.A == 198) & (df.Z == 79), "DecayModes"] = "B-"
+        df = self.parse_decay_modes(df)
+        # if self.year == 2012:
+        #     # 198Au has a typo in it's decay mode in the 2012 table. It is recorded as '-'
+        #     df.loc[(df.A == 198) & (df.Z == 79), "DecayModes"] = "B-"
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
