@@ -4,11 +4,11 @@ the inputs to :meth:`pandas.read_fwf` dependent on the year of the file. Once pa
 are cleaned from the resultant dataframe.
 """
 
-import pandas as pd
-import re
-
 from dataclasses import dataclass
 from decimal import Decimal
+import re
+
+import pandas as pd
 
 from nuclearmasses.io.nubase_file import NUBASEFile, NUBASELayout
 from nuclearmasses.utils.dataframe_utils import calculate_relative_error, read_fwf, strip_char_from_string_columns
@@ -22,6 +22,7 @@ class DecayMeasurement:
     """
     Storage class for decay mode details
     """
+
     decay_type: str
     operator: str | None
     percentage: Decimal | None
@@ -185,12 +186,12 @@ class NUBASEParser:
 
         return na_values
 
-    def parse_single_decay_string(self, text: str) -> DecayMeasurement | pd.NA:
+    def parse_single_decay_string(self, text: str) -> DecayMeasurement | None:
         """
         Parse a single decay mode into a DecayMeasurement storage class
 
-        There is a large amount of detail given in a single string. To avoid the loss of any of this informations, we use
-        a custom storage class that has each piece of information extracted into attributes. The raw string is also
+        There is a large amount of detail given in a single string. To avoid the loss of any of this informations, we
+        use a custom storage class that has each piece of information extracted into attributes. The raw string is also
         saved in case there was an issue with the parse.
 
         Parameters
@@ -207,7 +208,7 @@ class NUBASEParser:
         text = text.strip()
 
         if not text:
-            return pd.NA
+            return None
 
         if text.endswith("?") and "=" not in text:
             return DecayMeasurement(
@@ -250,7 +251,8 @@ class NUBASEParser:
         value = Decimal(data["value"])
 
         # Scale uncertainties using the final displayed digit of the value.
-        scale = Decimal(10) ** value.as_tuple().exponent
+        # Cast to silence ty checker
+        scale = Decimal(10) ** int(value.as_tuple().exponent)
 
         error = Decimal(data["error"]) * scale if data["error"] is not None else None
 
@@ -292,27 +294,30 @@ class NUBASEParser:
         # Values is: "23F=10.0e-13 +5.0--0.7", assume single '-' for asymmetric errors to match other instances
         # (see discussion elsewhere as to why this relates to the 1995 table)
         if self.year == 1995:
-            Pa231_mask = ((raw_df["A"] == 231) & (raw_df["Z"] == 91))
-            raw_df.loc[Pa231_mask, "DecayModes"] = raw_df.loc[Pa231_mask, "DecayModes"].str.replace('--', '-', regex=False)
+            Pa231 = (raw_df["A"] == 231) & (raw_df["Z"] == 91)
+            raw_df.loc[Pa231, "DecayModes"] = raw_df.loc[Pa231, "DecayModes"].str.replace("--", "-", regex=False)
 
         # 2012 198Au
         # Decay mode is recorded as '-=100', other years have it as "B-=100"
         if self.year == 2012:
-            Au198_mask = ((raw_df["A"] == 198) & (raw_df["Z"] == 79))
-            raw_df.loc[Au198_mask, "DecayModes"] = "B-=100"
+            Au198 = (raw_df["A"] == 198) & (raw_df["Z"] == 79)
+            raw_df.loc[Au198, "DecayModes"] = "B-=100"
 
         # 2012 & 2016 142Gd
         # Decay string is ',' separated rather than ';'
         if self.year == 2012 or self.year == 2016:
-            Gd142_mask = ((raw_df["A"] == 142) & (raw_df["Z"] == 64))
-            raw_df.loc[Gd142_mask, "DecayModes"] = raw_df.loc[Gd142_mask, "DecayModes"].str.replace(',', ';', regex=False)
+            Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
+            raw_df.loc[Gd142, "DecayModes"] = raw_df.loc[Gd142, "DecayModes"].str.replace(",", ";", regex=False)
 
         # Split on the ';' and further book keeping and sanitizing to help with parsing
-        raw_df['Decays'] = raw_df['DecayModes'].apply(
-            lambda x: pd.NA if pd.isna(x) else [
-                item.strip().replace(' GE ', '>=').replace(' LE ', '<=').replace(' ?', '?')
-                for item in x.split(';')
-            ]
+        raw_df["Decays"] = raw_df["DecayModes"].apply(
+            lambda x: (
+                pd.NA
+                if pd.isna(x)
+                else [
+                    item.strip().replace(" GE ", ">=").replace(" LE ", "<=").replace(" ?", "?") for item in x.split(";")
+                ]
+            )
         )
 
         # We should now have a list of strings with each string matching DECAY_PATTERN

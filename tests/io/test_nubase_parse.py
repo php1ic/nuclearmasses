@@ -3,7 +3,7 @@ import io
 import pandas as pd
 import pandas.testing as pdt
 
-from nuclearmasses.io.nubase_parse import NUBASEParser
+from nuclearmasses.io.nubase_parse import DecayMeasurement, NUBASEParser
 
 
 def test_1995_nubase():
@@ -31,6 +31,8 @@ def test_1995_nubase():
             "HalfLifeSecondsError": [4.2],
             "Spin": ["3+"],
             "DecayModes": ["B-=100"],
+            "Decays": [["B-=100"]],
+            "ParsedDecays": [[DecayMeasurement(decay_type="B-", operator="=", percentage=100, raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -65,6 +67,8 @@ def test_2003_nubase():
             "HalfLifeSecondsError": [4.2],
             "Spin": ["3+"],
             "DecayModes": ["B-=100"],
+            "Decays": [["B-=100"]],
+            "ParsedDecays": [[DecayMeasurement(decay_type="B-", operator="=", percentage=100, raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -100,6 +104,8 @@ def test_2012_nubase():
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
             "DecayModes": ["B-=100"],
+            "Decays": [["B-=100"]],
+            "ParsedDecays": [[DecayMeasurement(decay_type="B-", operator="=", percentage=100, raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -135,6 +141,8 @@ def test_2016_nubase():
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
             "DecayModes": ["B-=100"],
+            "Decays": [["B-=100"]],
+            "ParsedDecays": [[DecayMeasurement(decay_type="B-", operator="=", percentage=100, raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -171,6 +179,8 @@ def test_2020_nubase():
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
             "DecayModes": ["B-=100"],
+            "Decays": [["B-=100"]],
+            "ParsedDecays": [[DecayMeasurement(decay_type="B-", operator="=", percentage=100, raw="B-=100")]],
             "DataSource": [0],
         }
     )
