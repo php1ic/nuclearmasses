@@ -437,11 +437,7 @@ class NUBASEParser:
 
         df = self.parse_half_life(df)
         df = calculate_relative_error(df, "NUBASE")
-
         df = self.parse_decay_modes(df)
-        # if self.year == 2012:
-        #     # 198Au has a typo in it's decay mode in the 2012 table. It is recorded as '-'
-        #     df.loc[(df.A == 198) & (df.Z == 79), "DecayModes"] = "B-"
 
         df["TableYear"] = self.year
         df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
