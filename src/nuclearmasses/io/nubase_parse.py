@@ -248,26 +248,24 @@ class NUBASEParser:
                 raw=text,
             )
 
-        data = match.groupdict()
-        value = Decimal(data["value"])
+        (decay_type, operator, val_str, upper_err_str, lower_err_str, err_str, annotation) = match.groups()
 
+        value = Decimal(val_str)
         # Scale uncertainties using the final displayed digit of the value.
         # Cast to silence ty checker
         scale = Decimal(10) ** int(value.as_tuple().exponent)
 
-        error = Decimal(data["error"]) * scale if data["error"] is not None else None
+        error = Decimal(err_str) * scale if err_str is not None else None
+        upper_error = Decimal(upper_err_str) * scale if upper_err_str is not None else None
+        lower_error = Decimal(lower_err_str) * scale if lower_err_str is not None else None
 
-        upper_error = Decimal(data["upper_error"]) * scale if data["upper_error"] is not None else None
-        lower_error = Decimal(data["lower_error"]) * scale if data["lower_error"] is not None else None
-
-        annotation = data["annotation"]
         # Strip square brackets
         if annotation is not None:
             annotation = annotation[1:-1]
 
         return DecayMeasurement(
-            decay_type=data["decay_type"],
-            operator=data["operator"],
+            decay_type=decay_type,
+            operator=operator,
             percentage=value,
             error=error,
             upper_error=upper_error,
@@ -312,18 +310,20 @@ class NUBASEParser:
 
         # Split on the ';' and further book keeping and sanitising to help with parsing
         # Convert to a numpy array to completely bypass Pandas row-by-row overhead used in apply()
-        parsed_results = []
+        parsed_results: list = []
         for val in raw_df["DecayModes"].to_numpy():
             if val is None:
                 parsed_results.append(pd.NA)
             else:
                 # Clean, split, and immediately parse every item in a single pass
-                parsed_results.append([
-                    self.parse_single_decay_string(
-                        item.strip().replace(" GE ", ">=").replace(" LE ", "<=").replace(" ?", "?")
-                    )
-                    for item in val.split(";")
-                ])
+                parsed_results.append(
+                    [
+                        self.parse_single_decay_string(
+                            item.strip().replace(" GE ", ">=").replace(" LE ", "<=").replace(" ?", "?")
+                        )
+                        for item in val.split(";")
+                    ]
+                )
 
         raw_df["ParsedDecays"] = parsed_results
 
