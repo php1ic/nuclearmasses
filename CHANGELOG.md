@@ -1,5 +1,8 @@
 # Changelog
 
+## [?.?.?] - 2026-??-??
+- Require pandas version 3
+
 ## [0.6.2] - 2026-10-03
 - No change again. The mistake was not updating the version in pyproject.toml which has now been done.
 
