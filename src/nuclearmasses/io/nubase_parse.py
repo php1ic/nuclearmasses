@@ -310,22 +310,22 @@ class NUBASEParser:
             Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
             raw_df.loc[Gd142, "DecayModes"] = raw_df.loc[Gd142, "DecayModes"].str.replace(",", ";", regex=False)
 
-        # Split on the ';' and further book keeping and sanitizing to help with parsing
-        raw_df["Decays"] = raw_df["DecayModes"].apply(
-            lambda x: (
-                pd.NA
-                if pd.isna(x)
-                else [
-                    item.strip().replace(" GE ", ">=").replace(" LE ", "<=").replace(" ?", "?") for item in x.split(";")
-                ]
-            )
-        )
+        # Split on the ';' and further book keeping and sanitising to help with parsing
+        # Convert to a numpy array to completely bypass Pandas row-by-row overhead used in apply()
+        parsed_results = []
+        for val in raw_df["DecayModes"].to_numpy():
+            if val is None:
+                parsed_results.append(pd.NA)
+            else:
+                # Clean, split, and immediately parse every item in a single pass
+                parsed_results.append([
+                    self.parse_single_decay_string(
+                        item.strip().replace(" GE ", ">=").replace(" LE ", "<=").replace(" ?", "?")
+                    )
+                    for item in val.split(";")
+                ])
 
-        # We should now have a list of strings with each string matching DECAY_PATTERN
-        # The data is too complicated for a simple dictionary so we will use a DecayMeasurement
-        raw_df["ParsedDecays"] = raw_df["Decays"].apply(
-            lambda items: [self.parse_single_decay_string(item) for item in items] if isinstance(items, list) else items
-        )
+        raw_df["ParsedDecays"] = parsed_results
 
         return raw_df
 
