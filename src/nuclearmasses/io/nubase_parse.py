@@ -210,22 +210,23 @@ class NUBASEParser:
         if not text:
             return None
 
-        if text.endswith("?") and "=" not in text:
-            return DecayMeasurement(
-                decay_type=text[:-1],
-                operator=None,
-                percentage=None,
-                status="Energetically Allowed",
-                raw=text,
-            )
-        elif text.endswith("=?"):
-            return DecayMeasurement(
-                decay_type=text[:-2],
-                operator="=",
-                percentage=None,
-                status="Observed but not yet quantified",
-                raw=text,
-            )
+        if text.endswith("?"):
+            if text.endswith("=?"):
+                return DecayMeasurement(
+                    decay_type=text[:-2],
+                    operator="=",
+                    percentage=None,
+                    status="Observed but not yet quantified",
+                    raw=text,
+                )
+            if "=" not in text:
+                return DecayMeasurement(
+                    decay_type=text[:-1],
+                    operator=None,
+                    percentage=None,
+                    status="Energetically Allowed",
+                    raw=text,
+                )
         elif text == "...":
             return DecayMeasurement(
                 decay_type="Continued",
