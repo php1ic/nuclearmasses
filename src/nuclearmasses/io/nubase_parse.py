@@ -249,13 +249,15 @@ class NUBASEParser:
         (decay_type, operator, val_str, upper_err_str, lower_err_str, err_str, annotation) = match.groups()
 
         value = Decimal(val_str)
-        # Scale uncertainties using the final displayed digit of the value.
         # Cast to silence ty checker
-        scale = Decimal(10) ** int(value.as_tuple().exponent)
+        exponent = int(value.as_tuple().exponent)
 
-        error = Decimal(err_str) * scale if err_str is not None else None
-        upper_error = Decimal(upper_err_str) * scale if upper_err_str is not None else None
-        lower_error = Decimal(lower_err_str) * scale if lower_err_str is not None else None
+        # Scale uncertainties using the final displayed digit of the value.
+        # The "b" in scaleb usually means binary and x.scaleb(y) == x * 2**y. However, as this python implementation is
+        # within the decimal library, it is a power of 10, not 2, so works for what we want it to do.
+        error = Decimal(err_str).scaleb(exponent) if err_str is not None else None
+        upper_error = Decimal(upper_err_str).scaleb(exponent) if upper_err_str is not None else None
+        lower_error = Decimal(lower_err_str).scaleb(exponent) if lower_err_str is not None else None
 
         # Strip square brackets
         if annotation is not None:
