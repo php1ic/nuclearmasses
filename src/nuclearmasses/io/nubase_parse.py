@@ -91,10 +91,6 @@ class NUBASEParser:
         self.year: int = year
 
         self.layout: NUBASELayout = NUBASEFile(year=year).layout
-        self.unit_replacements: dict[str, str] = {
-            r"y$": "yr",
-            r"^m$": "min",
-        }
         self.column_limits: list[tuple[int | None, int | None]] = [
             (getattr(self.layout, start), getattr(self.layout, end)) for _, start, end in self.layout.positions
         ]
@@ -369,10 +365,6 @@ class NUBASEParser:
         raw_df["HalfLifeError"] = pd.to_numeric(
             raw_df["HalfLifeError"].replace(r"[<>?~a-z]", "", regex=True), errors="coerce"
         )
-
-        # Bookkeeping: Tidy up know unusual units, i.e. y for years and m for minutes
-        # We can pass the dictionary and python will expand automatically
-        raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].replace(self.unit_replacements, regex=True)
 
         # Use the 3 half-life columns to create 2 new columns with units of seconds
         # Pre-compute unit -> second conversion
