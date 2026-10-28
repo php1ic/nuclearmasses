@@ -313,13 +313,10 @@ class NUBASEParser:
 
         cleaned_series = raw_df["DecayModes"].str.replace(symbol_replacements, regex=True)
 
-        parsed_results: list = []
-        for val in cleaned_series.to_numpy():
-            if val is None:
-                parsed_results.append(pd.NA)
-            else:
-                # Clean, split, and immediately parse every item in a single pass
-                parsed_results.append([self.parse_single_decay_string(item.strip()) for item in val.split(";")])
+        parsed_results: list = [
+            pd.NA if pd.isna(val) else [self.parse_single_decay_string(item.strip()) for item in val.split(";")]
+            for val in cleaned_series.to_numpy()
+        ]
 
         raw_df["ParsedDecays"] = parsed_results
 
