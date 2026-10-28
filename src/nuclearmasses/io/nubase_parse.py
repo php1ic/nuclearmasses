@@ -284,8 +284,8 @@ class NUBASEParser:
         pandas.DataFrame
             The updated dataframe with new columns containing decay data.
         """
-        # Start with some book keeping to fix likely typos
-        # 1997 213Pa
+        # Start with some bookkeeping to fix likely typos
+        # 1997 231Pa
         # Values is: "23F=10.0e-13 +5.0--0.7", assume single '-' for asymmetric errors to match other instances
         # (see discussion elsewhere as to why this relates to the 1995 table)
         if self.year == 1995:
@@ -304,8 +304,7 @@ class NUBASEParser:
             Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
             raw_df.loc[Gd142, "DecayModes"] = raw_df.loc[Gd142, "DecayModes"].str.replace(",", ";", regex=False)
 
-        # Split on the ';' and further book keeping and sanitising to help with parsing
-        # Convert to a numpy array to completely bypass Pandas row-by-row overhead used in apply()
+        # Replacements for when letters and characters have been used instead of symbols
         symbol_replacements = {
             r" GE ": ">=",
             r" LE ": "<=",
