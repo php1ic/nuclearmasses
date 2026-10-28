@@ -140,6 +140,7 @@ class NUBASEParser:
             "Spin": "string",
             "DiscoveryYear": "Int64",
             "DecayModes": "string",
+            "ParsedDecays": "object",
             "DataSource": "Int64",
             # We will need these one day
             # "State": "Int64",
