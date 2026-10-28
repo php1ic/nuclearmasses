@@ -205,8 +205,6 @@ class NUBASEParser:
             An instance of the DecayMeasurement storage class with all the necessary data.
 
         """
-        text = text.strip()
-
         if not text:
             return None
 
@@ -310,20 +308,21 @@ class NUBASEParser:
 
         # Split on the ';' and further book keeping and sanitising to help with parsing
         # Convert to a numpy array to completely bypass Pandas row-by-row overhead used in apply()
+        symbol_replacements = {
+            r" GE ": ">=",
+            r" LE ": "<=",
+            r" \?": "?",
+        }
+
+        cleaned_series = raw_df["DecayModes"].str.replace(symbol_replacements, regex=True)
+
         parsed_results: list = []
-        for val in raw_df["DecayModes"].to_numpy():
+        for val in cleaned_series.to_numpy():
             if val is None:
                 parsed_results.append(pd.NA)
             else:
                 # Clean, split, and immediately parse every item in a single pass
-                parsed_results.append(
-                    [
-                        self.parse_single_decay_string(
-                            item.strip().replace(" GE ", ">=").replace(" LE ", "<=").replace(" ?", "?")
-                        )
-                        for item in val.split(";")
-                    ]
-                )
+                parsed_results.append([self.parse_single_decay_string(item.strip()) for item in val.split(";")])
 
         raw_df["ParsedDecays"] = parsed_results
 
