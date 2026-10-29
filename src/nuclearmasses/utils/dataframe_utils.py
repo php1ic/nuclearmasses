@@ -60,7 +60,8 @@ def strip_char_from_string_columns(df: pd.DataFrame, char: str) -> pd.DataFrame:
         The original dataframe with all instance of ``char`` removed from string type columns.
     """
     cols = df.select_dtypes(include=["object", "string"]).columns
-    df[cols] = df[cols].apply(lambda s: s.str.replace(char, "", regex=False))
+    if not cols.empty:
+        df[cols] = df[cols].map(lambda s: s.replace(char, "") if isinstance(s, str) else s)
     return df
 
 
