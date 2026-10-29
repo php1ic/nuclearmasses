@@ -11,8 +11,12 @@ import re
 import pandas as pd
 
 from nuclearmasses.io.nubase_file import NUBASEFile, NUBASELayout
-from nuclearmasses.utils.dataframe_utils import calculate_relative_error, read_fwf, strip_char_from_string_columns
-from nuclearmasses.utils.periodic import get_symbol
+from nuclearmasses.utils.dataframe_utils import (
+    add_common_columns,
+    calculate_relative_error,
+    read_fwf,
+    strip_char_from_string_columns,
+)
 from nuclearmasses.utils.type_defs import DataInput
 from nuclearmasses.utils.units import unit_to_seconds
 
@@ -429,10 +433,6 @@ class NUBASEParser:
         df = self.parse_half_life(df)
         df = calculate_relative_error(df, "NUBASE")
         df = self.parse_decay_modes(df)
-
-        df["TableYear"] = self.year
-        df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(get_symbol)
-        df["DataSource"] = 0
+        df = add_common_columns(df, the_year=self.year)
 
         return df.astype(self._data_types())

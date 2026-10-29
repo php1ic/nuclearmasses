@@ -7,8 +7,12 @@ inconsistencies are cleaned from the resultant dataframe.
 import pandas as pd
 
 from nuclearmasses.io.ame_mass_file import AMEMassFile, AMEMassLayout
-from nuclearmasses.utils.dataframe_utils import calculate_relative_error, read_fwf, strip_char_from_string_columns
-from nuclearmasses.utils.periodic import get_symbol
+from nuclearmasses.utils.dataframe_utils import (
+    add_common_columns,
+    calculate_relative_error,
+    read_fwf,
+    strip_char_from_string_columns,
+)
 from nuclearmasses.utils.type_defs import DataInput
 
 
@@ -156,10 +160,6 @@ class AMEMassParser:
         # We need to rescale the error value because we combined the two columns above
         df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
         df = calculate_relative_error(df, "AME")
-
-        df["TableYear"] = self.year
-        df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(get_symbol)
-        df["DataSource"] = 0
+        df = add_common_columns(df, the_year=self.year)
 
         return df.astype(self._data_types())
