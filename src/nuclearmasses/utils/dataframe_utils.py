@@ -115,7 +115,7 @@ def add_common_columns(raw_df: pd.DataFrame, the_year: int, the_source: int = 0)
     """
     raw_df["TableYear"] = the_year
     raw_df["N"] = pd.to_numeric(raw_df["A"]) - pd.to_numeric(raw_df["Z"])
-    raw_df["Symbol"] = pd.to_numeric(raw_df["Z"]).map(Z_TO_SYMBOL, na_actions="ignore")
+    raw_df["Symbol"] = pd.to_numeric(raw_df["Z"]).map(Z_TO_SYMBOL, na_action="ignore")
     raw_df["DataSource"] = the_source
 
     return raw_df
