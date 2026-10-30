@@ -2,10 +2,10 @@ name: Unit Tests
 
 on:
   pull_request:
-    path-ignore:
+    paths-ignore:
       - '**.md'
   push:
-    path-ignore:
+    paths-ignore:
       - '**.md'
 
 jobs:

@@ -6,6 +6,7 @@ values as required.
 """
 
 import dataclasses
+import typing
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -110,7 +111,7 @@ class NUBASEFile:
         A storage class containing details of parameters and their locations in the line.
     """
 
-    NUBASE_YEAR_OVERRIDES: dict[int | str, dict[str, int]] = {
+    NUBASE_YEAR_OVERRIDES: typing.ClassVar[dict[int | str, dict[str, int]]] = {
         "default": {},  # Use this to appease mypy by not returning None for a non-existent value
         # Original columns and their positions are based of the 1995 file
         1995: {},

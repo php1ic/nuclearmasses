@@ -9,7 +9,7 @@ def the_table():
 
 
 def test_initial_complete_parse(the_table):
-    expected_shape = (21421, 51)
+    expected_shape = (21421, 52)
     assert expected_shape == the_table.data.shape
 
 
@@ -17,7 +17,7 @@ def test_valid_user_data(the_table):
     data = '[{"A": 5, "Z": 2, "AMEMassExcess": 123456.7}]'
     the_table.add_user_data(data)
     df = the_table.data
-    assert (21422, 51) == df.shape
+    assert (21422, 52) == df.shape
     assert df[(df["A"] == 5) & (df["Z"] == 2) & (df["DataSource"] == 1)]["AMEMassExcess"].iloc[0] == 123456.7
 
 
@@ -26,7 +26,7 @@ def test_common_value_user_data(the_table):
     common_val = {"TableYear": 2099}
     the_table.add_user_data(data, common_values=common_val)
     df = the_table.data
-    assert (21422, 51) == df.shape
+    assert (21422, 52) == df.shape
     assert df[(df["A"] == 5) & (df["Z"] == 2) & (df["DataSource"] == 1)]["TableYear"].iloc[0] == 2099
 
 
