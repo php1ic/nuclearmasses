@@ -38,7 +38,7 @@ def read_fwf(base: DataInput, **kwargs):
     return pd.read_fwf(base, **kwargs)
 
 
-def strip_char_from_string_columns(df: pd.DataFrame, char: str) -> pd.DataFrame:
+def strip_char_from_string_columns(raw_df: pd.DataFrame, char: str) -> pd.DataFrame:
     """
     Remove ``char`` from columns that are of known string type
 
@@ -60,10 +60,10 @@ def strip_char_from_string_columns(df: pd.DataFrame, char: str) -> pd.DataFrame:
     pandas.DataFrame
         The original dataframe with all instance of ``char`` removed from string type columns.
     """
-    cols = df.select_dtypes(include=["object", "string"]).columns
+    cols = raw_df.select_dtypes(include=["object", "string"]).columns
     if not cols.empty:
-        df[cols] = df[cols].map(lambda s: s.replace(char, "") if isinstance(s, str) else s)
-    return df
+        raw_df[cols] = raw_df[cols].map(lambda s: s.replace(char, "") if isinstance(s, str) else s)
+    return raw_df
 
 
 def calculate_relative_error(raw_df: pd.DataFrame, source: str) -> pd.DataFrame:
