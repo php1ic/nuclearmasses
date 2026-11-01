@@ -1,3 +1,4 @@
+from decimal import Decimal
 import io
 
 import pandas as pd
@@ -31,7 +32,7 @@ def test_1995_nubase():
             "HalfLifeSecondsError": [4.2],
             "Spin": ["3+"],
             "DecayModesRaw": ["B-=100"],
-            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=100, raw="B-=100")]],
+            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=Decimal(100), raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -66,7 +67,7 @@ def test_2003_nubase():
             "HalfLifeSecondsError": [4.2],
             "Spin": ["3+"],
             "DecayModesRaw": ["B-=100"],
-            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=100, raw="B-=100")]],
+            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=Decimal(100), raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -102,7 +103,7 @@ def test_2012_nubase():
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
             "DecayModesRaw": ["B-=100"],
-            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=100, raw="B-=100")]],
+            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=Decimal(100), raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -138,7 +139,7 @@ def test_2016_nubase():
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
             "DecayModesRaw": ["B-=100"],
-            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=100, raw="B-=100")]],
+            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=Decimal(100), raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -175,7 +176,7 @@ def test_2020_nubase():
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
             "DecayModesRaw": ["B-=100"],
-            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=100, raw="B-=100")]],
+            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=Decimal(100), raw="B-=100")]],
             "DataSource": [0],
         }
     )
