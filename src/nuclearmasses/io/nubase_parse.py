@@ -84,8 +84,6 @@ class NUBASEParser:
         The published year of the data file.
     layout : NUBASELayout
         A storage class containing details of parameters and their location in the line.
-    unit_replacements : dict[str, str]
-        A dictionary used to tidy up time units from NUBASE format to one the module recognises.
     column_limits : list[tuple[int|None, int|None]]
         The start and end positions of all parameters as a list of tuples that can be passed to :meth:`pandas.read_fwf`.
     """
