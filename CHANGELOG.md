@@ -1,7 +1,10 @@
 # Changelog
 
-## [?.?.?] - 2026-??-??
-- Require pandas version 3
+## [?.?.?] - BREAKING(ISH) - 2026-??-??
+- Require pandas version 3.
+- Possible breaking change with [#34](https://github.com/php1ic/nuclearmasses/pull/34) resolving [#6](https://github.com/php1ic/nuclearmasses/issues/6)
+  * We now parse the final field in the NUBASE file and store details about the decay mode(s) in a easy to access form.
+  * The data from the file in its raw form is now in a column called `DecayModesRaw` and the original `DeacyModes` column contains the parsed data.
 
 ## [0.6.2] - 2026-10-03
 - No change again. The mistake was not updating the version in pyproject.toml which has now been done.
