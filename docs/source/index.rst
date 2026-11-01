@@ -14,5 +14,6 @@ All data should, however, be accurate.
   :maxdepth: 3
 
   getting_started/index
+  ingestion
   api
 
