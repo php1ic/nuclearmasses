@@ -62,8 +62,8 @@ class NUBASELayout:
     END_HalfLifeError: int = 77
     START_Spin: int = 79
     END_Spin: int = 93
-    START_DecayModes: int = 106
-    END_DecayModes: int | None = None
+    START_DecayModesRaw: int = 106
+    END_DecayModesRaw: int | None = None
 
     # Columns that weren't in the first file so are not part of the default
     START_DiscoveryYear: int | None = None
@@ -86,7 +86,7 @@ class NUBASELayout:
             "Spin",
             # "ENSDF",
             # "DiscoveryYear",
-            "DecayModes",
+            "DecayModesRaw",
         ]
 
         self.positions: list[tuple[str, str, str]] = [(f"{c}", f"START_{c}", f"END_{c}") for c in self.columns]
@@ -121,13 +121,13 @@ class NUBASEFile:
         2012: {
             "START_DiscoveryYear": 105,
             "END_DiscoveryYear": 109,
-            "START_DecayModes": 110,
+            "START_DecayModesRaw": 110,
         },
         # This is the same as 2012 and copy pasting seems to be the simplest way to have the same values
         2016: {
             "START_DiscoveryYear": 105,
             "END_DiscoveryYear": 109,
-            "START_DecayModes": 110,
+            "START_DecayModesRaw": 110,
         },
         # Big update in 2020
         #    Added a header block
@@ -153,7 +153,7 @@ class NUBASEFile:
             "END_ENSDF": 103,
             "START_DiscoveryYear": 114,
             "END_DiscoveryYear": 118,
-            "START_DecayModes": 119,
+            "START_DecayModesRaw": 119,
         },
     }
 

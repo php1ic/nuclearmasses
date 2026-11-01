@@ -143,8 +143,8 @@ class NUBASEParser:
             "HalfLifeSecondsError": "Float64",
             "Spin": "string",
             "DiscoveryYear": "Int64",
-            "DecayModes": "string",
-            "ParsedDecays": "object",
+            "DecayModesRaw": "string",
+            "DecayModes": "object",
             "DataSource": "Int64",
             # We will need these one day
             # "State": "Int64",
@@ -175,7 +175,7 @@ class NUBASEParser:
             "HalfLifeValue": [""],
             "HalfLifeUnit": [""],
             "HalfLifeError": [""],
-            "DecayModes": [""],
+            "DecayModesRaw": [""],
             "Spin": [""],
         }
 
@@ -295,19 +295,19 @@ class NUBASEParser:
         # (see discussion elsewhere as to why this relates to the 1995 table)
         if self.year == 1995:
             Pa231 = (raw_df["A"] == 231) & (raw_df["Z"] == 91)
-            raw_df.loc[Pa231, "DecayModes"] = raw_df.loc[Pa231, "DecayModes"].str.replace("--", "-", regex=False)
+            raw_df.loc[Pa231, "DecayModesRaw"] = raw_df.loc[Pa231, "DecayModesRaw"].str.replace("--", "-", regex=False)
 
         # 2012 198Au
         # Decay mode is recorded as '-=100', other years have it as "B-=100"
         if self.year == 2012:
             Au198 = (raw_df["A"] == 198) & (raw_df["Z"] == 79)
-            raw_df.loc[Au198, "DecayModes"] = "B-=100"
+            raw_df.loc[Au198, "DecayModesRaw"] = "B-=100"
 
         # 2012 & 2016 142Gd
         # Decay string is ',' separated rather than ';'
         if self.year == 2012 or self.year == 2016:
             Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
-            raw_df.loc[Gd142, "DecayModes"] = raw_df.loc[Gd142, "DecayModes"].str.replace(",", ";", regex=False)
+            raw_df.loc[Gd142, "DecayModesRaw"] = raw_df.loc[Gd142, "DecayModesRaw"].str.replace(",", ";", regex=False)
 
         # Replacements for when letters and characters have been used instead of symbols
         symbol_replacements = {
@@ -316,14 +316,14 @@ class NUBASEParser:
             r" \?": "?",
         }
 
-        cleaned_series = raw_df["DecayModes"].str.replace(symbol_replacements, regex=True)
+        cleaned_series = raw_df["DecayModesRaw"].str.replace(symbol_replacements, regex=True)
 
         parsed_results: list = [
             pd.NA if pd.isna(val) else [self.parse_single_decay_string(item.strip()) for item in val.split(";")]
             for val in cleaned_series.to_numpy()
         ]
 
-        raw_df["ParsedDecays"] = parsed_results
+        raw_df["DecayModes"] = parsed_results
 
         return raw_df
 
