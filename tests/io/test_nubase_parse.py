@@ -184,3 +184,25 @@ def test_2020_nubase():
     expected = expected.astype(parser._data_types())
 
     pdt.assert_frame_equal(df, expected, check_like=True)
+
+
+def test_bad_decay_string():
+    line = io.StringIO(
+        "168 0670   168Ho  -60060         30                                     2.99   m 0.07   3+            10          1960 B-=100"
+    )
+    parser = NUBASEParser(line, 2020)
+    parser.layout.HEADER = 0
+
+    bad_string = "Random"
+
+    output = parser.parse_single_decay_string(bad_string)
+
+    expected = DecayMeasurement(
+        decay_type="Unparsed",
+        operator="=",
+        percentage=None,
+        status="unknown",
+        raw=bad_string,
+    )
+
+    assert output == expected
