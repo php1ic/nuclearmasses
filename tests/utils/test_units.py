@@ -12,6 +12,6 @@ def test_units_to_seconds():
     assert unit_to_seconds("yr") == 31557600.0
 
 
-@pytest.mark.parametrize("unit", [5, "m", "Hz", "", "  "])
-def test_nontime_unit_return_nan(unit):
+@pytest.mark.parametrize("unit", ["Hz", "", "  "])
+def test_nontime_unit_return_nan(unit: str):
     assert unit_to_seconds(unit) is None

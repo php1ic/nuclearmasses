@@ -8,6 +8,7 @@ from importlib.resources.abc import Traversable
 
 import pandas as pd
 
+from nuclearmasses.utils.periodic import Z_TO_SYMBOL
 from nuclearmasses.utils.type_defs import DataInput
 
 
@@ -37,7 +38,7 @@ def read_fwf(base: DataInput, **kwargs):
     return pd.read_fwf(base, **kwargs)
 
 
-def strip_char_from_string_columns(df: pd.DataFrame, char: str) -> pd.DataFrame:
+def strip_char_from_string_columns(raw_df: pd.DataFrame, char: str) -> pd.DataFrame:
     """
     Remove ``char`` from columns that are of known string type
 
@@ -59,9 +60,10 @@ def strip_char_from_string_columns(df: pd.DataFrame, char: str) -> pd.DataFrame:
     pandas.DataFrame
         The original dataframe with all instance of ``char`` removed from string type columns.
     """
-    cols = df.select_dtypes(include=["object", "string"]).columns
-    df[cols] = df[cols].apply(lambda s: s.str.replace(char, "", regex=False))
-    return df
+    cols = raw_df.select_dtypes(include=["object", "string"]).columns
+    if not cols.empty:
+        raw_df[cols] = raw_df[cols].map(lambda s: s.replace(char, "") if isinstance(s, str) else s)
+    return raw_df
 
 
 def calculate_relative_error(raw_df: pd.DataFrame, source: str) -> pd.DataFrame:
@@ -88,5 +90,32 @@ def calculate_relative_error(raw_df: pd.DataFrame, source: str) -> pd.DataFrame:
     )
     raw_df.loc[(raw_df.Z == 6) & (raw_df.A == 12), f"{source}RelativeError"] = 0.0
     raw_df[f"{source}RelativeError"] = raw_df[f"{source}RelativeError"].astype("Float64")
+
+    return raw_df
+
+
+def add_common_columns(raw_df: pd.DataFrame, the_year: int, the_source: int = 0) -> pd.DataFrame:
+    """
+    Add columns to ``raw_df`` that are either constant for the entire DataFrame or calculated from other columns
+
+
+    Parameters
+    ----------
+    raw_df : pandas.DataFrame
+        The raw dataframe upon which we will act.
+    the_year: int
+        The year the data was published.
+    the_source : int
+        The value to use to differentiate this data from other sources.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The updated dataframe with the new columns.
+    """
+    raw_df["TableYear"] = the_year
+    raw_df["N"] = pd.to_numeric(raw_df["A"]) - pd.to_numeric(raw_df["Z"])
+    raw_df["Symbol"] = pd.to_numeric(raw_df["Z"]).map(Z_TO_SYMBOL, na_action="ignore")
+    raw_df["DataSource"] = the_source
 
     return raw_df
