@@ -349,13 +349,13 @@ class NUBASEParser:
         raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("string")
 
         # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
-        mask = raw_df["HalfLifeValue"] == "stbl"
-        raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("99.99", "Zyr", "0.0")
+        stable = raw_df["HalfLifeValue"] == "stbl"
+        raw_df.loc[stable, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("99.99", "Zyr", "0.0")
 
         if self.year == 2016:
             # the half-life related columns are misaligned for 92Br in 2016
-            mask = (raw_df.A == 92) & (raw_df.Z == 35)
-            raw_df.loc[mask, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("0.314", "s", "0.016")
+            Br92 = (raw_df.A == 92) & (raw_df.Z == 35)
+            raw_df.loc[Br92, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("0.314", "s", "0.016")
 
         raw_df["HalfLifeValue"] = pd.to_numeric(
             raw_df["HalfLifeValue"].replace(r"[<>?~]", "", regex=True), errors="coerce"
