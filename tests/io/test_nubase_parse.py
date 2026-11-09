@@ -1,9 +1,10 @@
+from decimal import Decimal
 import io
 
 import pandas as pd
 import pandas.testing as pdt
 
-from nuclearmasses.io.nubase_parse import NUBASEParser
+from nuclearmasses.io.nubase_parse import DecayMeasurement, NUBASEParser
 
 
 def test_1995_nubase():
@@ -25,12 +26,13 @@ def test_1995_nubase():
             "NUBASEMassExcessError": [29],
             "NUBASERelativeError": [29 / 60085],
             "HalfLifeValue": [2.99],
-            "HalfLifeUnit": ["min"],
+            "HalfLifeUnit": ["m"],
             "HalfLifeError": [0.07],
             "HalfLifeSeconds": [179.4],
             "HalfLifeSecondsError": [4.2],
             "Spin": ["3+"],
-            "DecayModes": ["B-=100"],
+            "DecayModesRaw": ["B-=100"],
+            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=Decimal(100), raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -59,12 +61,13 @@ def test_2003_nubase():
             "NUBASEMassExcessError": [30],
             "NUBASERelativeError": [30 / 60070],
             "HalfLifeValue": [2.99],
-            "HalfLifeUnit": ["min"],
+            "HalfLifeUnit": ["m"],
             "HalfLifeError": [0.07],
             "HalfLifeSeconds": [179.4],
             "HalfLifeSecondsError": [4.2],
             "Spin": ["3+"],
-            "DecayModes": ["B-=100"],
+            "DecayModesRaw": ["B-=100"],
+            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=Decimal(100), raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -93,13 +96,14 @@ def test_2012_nubase():
             "NUBASEMassExcessError": [30],
             "NUBASERelativeError": [30 / 60060],
             "HalfLifeValue": [2.99],
-            "HalfLifeUnit": ["min"],
+            "HalfLifeUnit": ["m"],
             "HalfLifeError": [0.07],
             "HalfLifeSeconds": [179.4],
             "HalfLifeSecondsError": [4.2],
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
-            "DecayModes": ["B-=100"],
+            "DecayModesRaw": ["B-=100"],
+            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=Decimal(100), raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -128,13 +132,14 @@ def test_2016_nubase():
             "NUBASEMassExcessError": [30],
             "NUBASERelativeError": [30 / 60060],
             "HalfLifeValue": [2.99],
-            "HalfLifeUnit": ["min"],
+            "HalfLifeUnit": ["m"],
             "HalfLifeError": [0.07],
             "HalfLifeSeconds": [179.4],
             "HalfLifeSecondsError": [4.2],
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
-            "DecayModes": ["B-=100"],
+            "DecayModesRaw": ["B-=100"],
+            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=Decimal(100), raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -164,13 +169,14 @@ def test_2020_nubase():
             "NUBASEMassExcessError": [30],
             "NUBASERelativeError": [30 / 60060],
             "HalfLifeValue": [2.99],
-            "HalfLifeUnit": ["min"],
+            "HalfLifeUnit": ["m"],
             "HalfLifeError": [0.07],
             "HalfLifeSeconds": [179.4],
             "HalfLifeSecondsError": [4.2],
             "Spin": ["3+"],
             "DiscoveryYear": [1960],
-            "DecayModes": ["B-=100"],
+            "DecayModesRaw": ["B-=100"],
+            "DecayModes": [[DecayMeasurement(decay_type="B-", operator="=", percentage=Decimal(100), raw="B-=100")]],
             "DataSource": [0],
         }
     )
@@ -178,3 +184,25 @@ def test_2020_nubase():
     expected = expected.astype(parser._data_types())
 
     pdt.assert_frame_equal(df, expected, check_like=True)
+
+
+def test_bad_decay_string():
+    line = io.StringIO(
+        "168 0670   168Ho  -60060         30                                     2.99   m 0.07   3+            10          1960 B-=100"
+    )
+    parser = NUBASEParser(line, 2020)
+    parser.layout.HEADER = 0
+
+    bad_string = "Random"
+
+    output = parser.parse_single_decay_string(bad_string)
+
+    expected = DecayMeasurement(
+        decay_type="Unparsed",
+        operator="=",
+        percentage=None,
+        status="unknown",
+        raw=bad_string,
+    )
+
+    assert output == expected

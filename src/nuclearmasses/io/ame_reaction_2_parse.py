@@ -7,8 +7,7 @@ inconsistencies are cleaned from the resultant dataframe.
 import pandas as pd
 
 from nuclearmasses.io.ame_reaction_2_file import AMEReactionTwoFile, AMEReactionTwoLayout
-from nuclearmasses.utils.dataframe_utils import read_fwf, strip_char_from_string_columns
-from nuclearmasses.utils.periodic import get_symbol
+from nuclearmasses.utils.dataframe_utils import add_common_columns, read_fwf, strip_char_from_string_columns
 from nuclearmasses.utils.type_defs import DataInput
 
 
@@ -148,10 +147,6 @@ class AMEReactionTwoParser:
             # The column headers and units are repeated in the 2020 table
             df = df[(df["A"] != "A") & (df["Z"] != "Z")]
 
-        # Repeated column heading also means we have to cast to create new columns
-        df["TableYear"] = self.year
-        df["N"] = pd.to_numeric(df["A"]) - pd.to_numeric(df["Z"])
-        df["Symbol"] = pd.to_numeric(df["Z"]).map(get_symbol)
-        df["DataSource"] = 0
+        df = add_common_columns(df, the_year=self.year)
 
         return df.astype(self._data_types())

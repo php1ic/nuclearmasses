@@ -8,6 +8,7 @@ The years 1995, 2003, 2012 and 2016 have identical formatting so are used as the
 """
 
 import dataclasses
+import typing
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -110,7 +111,7 @@ class AMEReactionTwoFile:
         A storage class containing details of parameters and their locations in the line.
     """
 
-    YEAR_OVERRIDES: dict[int | str, dict[str, int]] = {
+    YEAR_OVERRIDES: typing.ClassVar[dict[int | str, dict[str, int]]] = {
         "default": {},
         1983: {
             "HEADER": 30,

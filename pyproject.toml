@@ -79,6 +79,15 @@ nuclearmasses = [
  "data/**/*"
 ]
 
+[tool.pytest.ini_options]
+# -v              : I like a verbose output to see what is happening
+# --strict-config : Don't silently skip issues with the config file
+# --tb=short      : Show a single trace back, not the entire chain on error
+addopts = "-v --strict-config --tb=short"
+testpaths = [
+  "tests"
+]
+
 [tool.coverage.report]
 omit = [
  "tests/*"
