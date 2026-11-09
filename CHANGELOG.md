@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.7.1] - BREAKING(ISH) - 2026-11-09
+- No changes. Internal server error on GitHub caused the CI and thus release process to fail. Bumping version so new tag can be pushed.
+
 ## [0.7.0] - BREAKING(ISH) - 2026-11-09
 - Require pandas version 3.
 - Possible breaking change with [#34](https://github.com/php1ic/nuclearmasses/pull/34) resolving [#6](https://github.com/php1ic/nuclearmasses/issues/6)
