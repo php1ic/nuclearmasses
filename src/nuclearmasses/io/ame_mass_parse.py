@@ -109,6 +109,90 @@ class AMEMassParser:
 
         return na_vals
 
+    def _correct_binding_energy(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Convert Binding Energy values into Binding Energy per A
+
+        The data from 1995 and earlier records total Binding Energy. Post 1995 it was recorded as Binding Energy per A.
+        With the assumption that any future data will also be per A, we label the column accordingly and use this
+        function to correct the stored value.
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        a = raw_df["A"].astype(float)
+
+        raw_df["BindingEnergyPerA"] = raw_df["BindingEnergyPerA"].astype(float) / a
+        raw_df["BindingEnergyPerAError"] = raw_df["BindingEnergyPerAError"].astype(float) / a
+
+        return raw_df
+
+    @staticmethod
+    def _patch_1983(raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Modify the data from 1983 to make consistent
+
+        Column header and units are repeated
+        The A value is only present for the first isotope with the value
+        Some isomeric states are present. We will ignore for the time being
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        # The repeated header lines are parsed so we can use the values that are now in specific columns to drop rows
+        raw_df = raw_df[
+            (raw_df["A"] != "A") & (~raw_df["AMEMassExcess"].astype("string").str.contains("keV", na=False))
+        ]
+
+        # If the A value is missing, use the last valid value
+        raw_df["A"] = raw_df["A"].ffill()
+
+        # Assume any row with A and Z equal to the previous row represents an isomeric state and drop it
+        raw_df = raw_df[~((raw_df["A"] == raw_df["A"].shift()) & (raw_df["Z"] == raw_df["Z"].shift()))]
+
+        return raw_df
+
+    def _apply_yearly_patch(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Correct known issues in the data, e.g. typos
+
+        There are typos in specific fields for various years as well as some column misalignments.
+        This function should be called immediately after the initial parse to apply the necessary corrections, allowing
+        the proceeding functions to be generic and not need to test for formatting issues.
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        # NOTE: This function MUST be the first patch applied
+        if self.year == 1983:
+            raw_df = self._patch_1983(raw_df)
+
+        if self.year in (1983, 1993, 1995):
+            raw_df = self._correct_binding_energy(raw_df)
+
+        return raw_df
+
     def read_file(self) -> pd.DataFrame:
         """
         Read the file-like object ``self.filename`` into a dataframe
@@ -135,18 +219,7 @@ class AMEMassParser:
         # so for this data we'll just drop any and all '#' characters
         df = strip_char_from_string_columns(df, "#")
 
-        if self.year == 1983:
-            # The column headers and units are repeated in the 1983 table
-            df = df[(df["A"] != "A") & (~df["AMEMassExcess"].astype("string").str.contains("keV", na=False))]
-            # The A value is not in the column if it doesn't change so we need to fill down
-            df["A"] = df["A"].ffill()
-            # Isomeric states are sometimes included in this version of the file
-            # For each row in the dataframe, if the previous row has equal A and Z, drop the current row
-            df = df[~((df["A"] == df["A"].shift()) & (df["Z"] == df["Z"].shift()))]
-
-        if self.year == 1983 or self.year == 1993 or self.year == 1995:
-            df["BindingEnergyPerA"] = df["BindingEnergyPerA"].astype(float) / df["A"].astype(float)
-            df["BindingEnergyPerAError"] = df["BindingEnergyPerAError"].astype(float) / df["A"].astype(float)
+        df = self._apply_yearly_patch(df)
 
         # Combine the two columns to create the atomic mass then drop the redundant column
         # Pandas is happy to use '+' for any type, but mypy doesn't like it, hence the use of str.cat()
