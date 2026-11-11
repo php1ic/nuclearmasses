@@ -193,6 +193,37 @@ class AMEMassParser:
 
         return raw_df
 
+    def _reconstruct_atomic_mass(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Reconstruct the atomic mass from the components recorded in the data file
+
+        The data file has the atomic mass as 2 columns, the atomic number as an integer and the part after the integer
+        as a left zero padded float with its own decimal place e.g. "9 001234.567". We want it as a single value so a
+        small amount of work needs to be done to correctly concatenate these two columns. The error value is given
+        relative to the float so we also need to appropriately scale that number.
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        # Combine the two columns to create the atomic mass then drop the redundant column
+        raw_df["AtomicMass"] = (
+            raw_df["AtomicNumber"].astype("string")
+            + "."
+            + raw_df["AtomicMass"].astype("string").str.replace(".", "", regex=False)
+        )
+        raw_df = raw_df.drop(columns=["AtomicNumber"])
+        # We need to rescale the error value because we combined the two columns
+        raw_df["AtomicMassError"] = raw_df["AtomicMassError"].astype(float) / 1.0e6
+
+        return raw_df
+
     def read_file(self) -> pd.DataFrame:
         """
         Read the file-like object ``self.filename`` into a dataframe
@@ -221,17 +252,8 @@ class AMEMassParser:
 
         df = self._apply_yearly_patch(df)
 
-        # Combine the two columns to create the atomic mass then drop the redundant column
-        # Pandas is happy to use '+' for any type, but mypy doesn't like it, hence the use of str.cat()
-        df["AtomicMass"] = (
-            df["AtomicNumber"]
-            .astype("string")
-            .str.cat(df["AtomicMass"].astype("string").str.replace(".", "", regex=False), sep=".")
-        )
-        df = df.drop(columns=["AtomicNumber"])
+        df = self._reconstruct_atomic_mass(df)
 
-        # We need to rescale the error value because we combined the two columns above
-        df = df.assign(AtomicMassError=df["AtomicMassError"].astype(float) / 1.0e6)
         df = calculate_relative_error(df, "AME")
         df = add_common_columns(df, the_year=self.year)
 
