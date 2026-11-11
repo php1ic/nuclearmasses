@@ -67,7 +67,7 @@ class NUBASEParser:
     Parse the NUBASE file, doing the necessary preparations and clean up of data.
 
     There are some quirks to the format used in the file. It's based on fixed-width format, but deviates in various
-    various places so additional work is required once the file is parsed.
+    places so additional work is required once the file is parsed.
 
     Parameters
     ----------
@@ -159,7 +159,7 @@ class NUBASEParser:
 
     def _na_values(self) -> dict:
         """
-        Set the columns that have empty fields that should be NaN'd depending on the year.
+        Set the columns that have empty fields so should be set to NaN during the initial parse.
 
         Returns
         -------
@@ -248,7 +248,7 @@ class NUBASEParser:
         """
         Modify the data from 2012 to correct for typos and make consistent
 
-        142Gd has decay modes comma separated instead of semi-colon
+        142Gd has decay modes comma separated instead of semicolon
         198Au has a typo in the decay mode
 
         Parameters
@@ -277,7 +277,7 @@ class NUBASEParser:
         Modify the data from 2016 to correct for typos and make consistent
 
          92Br has misaligned half-life columns
-        142Gd has decay modes comma separated instead of semi-colon
+        142Gd has decay modes comma separated instead of semicolon
 
         Parameters
         ----------
@@ -303,7 +303,7 @@ class NUBASEParser:
         """
         Parse a single decay mode into a DecayMeasurement storage class
 
-        There is a large amount of detail given in a single string. To avoid the loss of any of this informations, we
+        There is a large amount of detail given in a single string. To avoid the loss of any of this information, we
         use a custom storage class that has each piece of information extracted into attributes. The raw string is also
         saved in case there was an issue with the parse.
 
@@ -422,7 +422,7 @@ class NUBASEParser:
         """
         Create additional half-life columns with values in seconds
 
-        The half-life is stored as a human readable value, e.g. 2ms, 4Gyr, 5mins. This is fine to read but not to do
+        The half-life is stored as a human-readable value, e.g. 2ms, 4Gyr, 5mins. This is fine to read but not to do
         any type of sorting or algorithm. Convert to the SI unit of seconds, but don't overwrite original columns.
 
         We do carry out some cleaning of the original columns by removing symbols and letters where we know they are

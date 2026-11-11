@@ -123,7 +123,7 @@ class NUBASEFile:
             "END_DiscoveryYear": 109,
             "START_DecayModesRaw": 110,
         },
-        # This is the same as 2012 and copy pasting seems to be the simplest way to have the same values
+        # This is the same as 2012, simply copying seems to be the simplest way to have the same values
         2016: {
             "START_DiscoveryYear": 105,
             "END_DiscoveryYear": 109,

@@ -18,7 +18,7 @@ from nuclearmasses.utils.type_defs import DataInput
 
 class AMEMassParser:
     """
-    Parse the AME mass file, doing the necessary preparation and clean ups of data.
+    Parse the AME mass file, doing the necessary preparation and clean-ups of data.
 
     There are some quirks to the format used in the file. It's based on fixed-width format, but deviates in various
     places so additional work is required once the file is parsed.
@@ -91,7 +91,7 @@ class AMEMassParser:
 
     def _na_values(self) -> dict:
         """
-        Set the columns that have empty fields that should be NaN'd depending on the year.
+        Set the columns that have empty fields so should be set to NaN during the initial parse.
 
         Returns
         -------
@@ -227,7 +227,7 @@ class AMEMassParser:
         """
         Read the file-like object ``self.filename`` into a dataframe
 
-        The ``AMEMassFile`` and other functions in this class have hopefully sanitized the column names, data types and
+        The ``AMEMassFile`` and other functions in this class have hopefully sanitised the column names, data types and
         locations of the date so we can now make the generic call to parse the file.
 
         Returns
@@ -245,7 +245,7 @@ class AMEMassParser:
             skiprows=self.layout.HEADER,
             skipfooter=self.layout.FOOTER,
         )
-        # We use the NUBASE data to define whether or not an isotope is experimentally measured,
+        # We use the NUBASE data to define whether an isotope is experimentally measured,
         # so for this data we'll just drop any and all '#' characters
         df = strip_char_from_string_columns(df, "#")
 

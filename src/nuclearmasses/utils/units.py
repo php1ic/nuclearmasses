@@ -1,5 +1,5 @@
 """
-The module units contains functionality to convert from human readable strings into SI units. For example the time units
+The module units contains functionality to convert from human-readable strings into SI units. For example the time units
 mins, hr or Gyr would be converted into seconds.
 """
 

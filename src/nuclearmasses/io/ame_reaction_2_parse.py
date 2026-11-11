@@ -13,7 +13,7 @@ from nuclearmasses.utils.type_defs import DataInput
 
 class AMEReactionTwoParser:
     """
-    Parse the second AME reaction file, doing the necessary preparation and clean ups of data.
+    Parse the second AME reaction file, doing the necessary preparation and clean-ups of data.
 
     There are some quirks to the format used in the file. It's based on fixed-width format, but deviates in various
     places so additional work is required once the file is parsed.
@@ -89,7 +89,7 @@ class AMEReactionTwoParser:
 
     def _na_values(self) -> dict:
         """
-        Set the columns that have empty fields that should be NaN'd depending on the year.
+        Set the columns that have empty fields so should be set to NaN during the initial parse.
 
         Returns
         -------
