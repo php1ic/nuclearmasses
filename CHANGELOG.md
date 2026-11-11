@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.7.2] - BREAKING(ISH) - 2026-11-??
+## [0.7.2] - BREAKING(ISH) - 2026-11-11
 - Github was having issues so 0.7.0 and 0.7.1 were not released or pushed to pypi as the CI pipelines failed.
 - [#35](https://github.com/php1ic/nuclearmasses/pull/35)
   * Use SI prefixes for time and half-life units
