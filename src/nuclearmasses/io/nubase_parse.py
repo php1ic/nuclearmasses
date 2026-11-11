@@ -18,7 +18,7 @@ from nuclearmasses.utils.dataframe_utils import (
     strip_char_from_string_columns,
 )
 from nuclearmasses.utils.type_defs import DataInput
-from nuclearmasses.utils.units import unit_to_seconds
+from nuclearmasses.utils.units import UNIT_TO_SECONDS
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -457,7 +457,7 @@ class NUBASEParser:
 
         # Use the 3 half-life columns to create 2 new columns with units of seconds
         # Pre-compute unit -> second conversion
-        unit_map = raw_df["HalfLifeUnit"].map(unit_to_seconds).astype("Float64")
+        unit_map = raw_df["HalfLifeUnit"].map(UNIT_TO_SECONDS).astype("Float64")
 
         raw_df["HalfLifeSeconds"] = raw_df["HalfLifeValue"] * unit_map
         raw_df["HalfLifeSecondsError"] = raw_df["HalfLifeError"] * unit_map
