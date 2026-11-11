@@ -299,7 +299,8 @@ class NUBASEParser:
 
         return raw_df
 
-    def parse_single_decay_string(self, text: str) -> DecayMeasurement | None:
+    @staticmethod
+    def parse_single_decay_string(text: str) -> DecayMeasurement | None:
         """
         Parse a single decay mode into a DecayMeasurement storage class
 
