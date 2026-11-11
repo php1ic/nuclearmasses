@@ -184,11 +184,10 @@ class AMEMassParser:
         pd.DataFrame
             The updated dataframe with corrections made.
         """
-        # NOTE: This function MUST be the first patch applied
         if self.year == 1983:
             raw_df = self._patch_1983(raw_df)
-
-        if self.year in (1983, 1993, 1995):
+            raw_df = self._correct_binding_energy(raw_df)
+        elif self.year in (1993, 1995):
             raw_df = self._correct_binding_energy(raw_df)
 
         return raw_df
