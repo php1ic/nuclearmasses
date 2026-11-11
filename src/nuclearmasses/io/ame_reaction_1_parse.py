@@ -112,6 +112,55 @@ class AMEReactionOneParser:
             "QBetaNeutronError": ["", "*"],
         }
 
+    @staticmethod
+    def _patch_1983(raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Modify the data from 1983 to make consistent
+
+        Column header and units are repeated
+        The A value is only present for the first isotope with the value
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        # The repeated header lines are parsed so we can use the values that are now in specific columns to drop rows
+        raw_df = raw_df[(raw_df["A"] != "A") & (raw_df["Z"] != "")]
+
+        # The A value is not in the column if it doesn't change so we need to fill down
+        raw_df["A"] = raw_df["A"].ffill()
+
+        return raw_df
+
+    def _apply_yearly_patch(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Correct known issues in the data, e.g. typos
+
+        There are typos in specific fields for various years as well as some column misalignments.
+        This function should be called immediately after the initial parse to apply the necessary corrections, allowing
+        the proceeding functions to be generic and not need to test for formatting issues.
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        if self.year == 1983:
+            raw_df = self._patch_1983(raw_df)
+
+        return raw_df
+
     def read_file(self) -> pd.DataFrame:
         """
         Read the file-like object ``self.filename`` into a dataframe
@@ -138,11 +187,7 @@ class AMEReactionOneParser:
         # so for this data we'll just drop any and all '#' characters
         df = strip_char_from_string_columns(df, "#")
 
-        if self.year == 1983:
-            # The column headers and units are repeated in the 1983 table
-            df = df[(df["A"] != "A") & (df["Z"] != "")]
-            # The A value is not in the column if it doesn't change so we need to fill down
-            df["A"] = df["A"].ffill()
+        df = self._apply_yearly_patch(df)
 
         df = add_common_columns(df, the_year=self.year)
 
