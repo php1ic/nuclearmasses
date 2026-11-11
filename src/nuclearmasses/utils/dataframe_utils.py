@@ -50,7 +50,7 @@ def strip_char_from_string_columns(raw_df: pd.DataFrame, char: str) -> pd.DataFr
 
     Parameters
     ----------
-    df : pandas.DataFrame
+    raw_df : pandas.DataFrame
         The dataframe we are removing the character from.
     char : str
         The character we want to remove.

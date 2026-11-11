@@ -27,7 +27,7 @@ class MassTable:
 
     Attributes
     ----------
-    data : pandas.DataFrame
+    complete_df : pandas.DataFrame
         The parsed mass table and any additional user data.
     """
 

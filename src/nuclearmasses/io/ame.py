@@ -13,7 +13,7 @@ from nuclearmasses.io.ame_reaction_2_parse import AMEReactionTwoParser
 
 class AME:
     """
-    Container class to store details related to the years a AME table was published.
+    Container class to store details related to the years an AME table was published.
 
     This is a high level class that tracks details, but delegates the parsing of the files.
 
@@ -29,7 +29,7 @@ class AME:
         Absolute path to the data files location. Not an actual file, rather the top level directory that contains from
         where we access the year then individual file.
     years : list[ints]
-        An ordered list of the years in which a AME table was published.
+        An ordered list of the years in which an AME table was published.
     ame_files : list[tuple[str, str, str]]
         The filenames each AME data file in year order.
     files : dict[int, tuple[str, str, str]]

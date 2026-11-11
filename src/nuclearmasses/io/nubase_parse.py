@@ -18,7 +18,7 @@ from nuclearmasses.utils.dataframe_utils import (
     strip_char_from_string_columns,
 )
 from nuclearmasses.utils.type_defs import DataInput
-from nuclearmasses.utils.units import unit_to_seconds
+from nuclearmasses.utils.units import UNIT_TO_SECONDS
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -67,7 +67,7 @@ class NUBASEParser:
     Parse the NUBASE file, doing the necessary preparations and clean up of data.
 
     There are some quirks to the format used in the file. It's based on fixed-width format, but deviates in various
-    various places so additional work is required once the file is parsed.
+    places so additional work is required once the file is parsed.
 
     Parameters
     ----------
@@ -159,7 +159,7 @@ class NUBASEParser:
 
     def _na_values(self) -> dict:
         """
-        Set the columns that have empty fields that should be NaN'd depending on the year.
+        Set the columns that have empty fields so should be set to NaN during the initial parse.
 
         Returns
         -------
@@ -185,11 +185,126 @@ class NUBASEParser:
 
         return na_values
 
-    def parse_single_decay_string(self, text: str) -> DecayMeasurement | None:
+    def _apply_yearly_patch(self, raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Correct known issues in the data, e.g. typos
+
+        There are typos in specific fields for various years as well as some column misalignments.
+        This function should be called immediately after the initial parse to apply the necessary corrections, allowing
+        the proceeding functions to be generic and not need to test for formatting issues.
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        # We apply the same algorithm to half-life values every year so unconditionally set the type
+        raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("string")
+        raw_df["HalfLifeUnit"] = raw_df["HalfLifeUnit"].astype("string")
+        raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("string")
+
+        patch_registry = {
+            1995: self._patch_1995,
+            2012: self._patch_2012,
+            2016: self._patch_2016,
+        }
+
+        if self.year in patch_registry:
+            raw_df = patch_registry[self.year](raw_df)
+
+        return raw_df
+
+    @staticmethod
+    def _patch_1995(raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Modify the data from 1995 to correct for typos and make consistent
+
+        231Pa has a typo in the decay mode
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        # Values is: "23F=10.0e-13 +5.0--0.7", assume single '-' for asymmetric errors to match other instances
+        # (see discussion elsewhere as to why this relates to the 1995 table)
+        Pa231 = (raw_df["A"] == 231) & (raw_df["Z"] == 91)
+        raw_df.loc[Pa231, "DecayModesRaw"] = raw_df.loc[Pa231, "DecayModesRaw"].str.replace("--", "-", regex=False)
+
+        return raw_df
+
+    @staticmethod
+    def _patch_2012(raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Modify the data from 2012 to correct for typos and make consistent
+
+        142Gd has decay modes comma separated instead of semicolon
+        198Au has a typo in the decay mode
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        # Decay string is ',' separated rather than ';'
+        Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
+        raw_df.loc[Gd142, "DecayModesRaw"] = raw_df.loc[Gd142, "DecayModesRaw"].str.replace(",", ";", regex=False)
+
+        # Decay mode is recorded as '-=100', other years have it as "B-=100"
+        Au198 = (raw_df["A"] == 198) & (raw_df["Z"] == 79)
+        raw_df.loc[Au198, "DecayModesRaw"] = "B-=100"
+
+        return raw_df
+
+    @staticmethod
+    def _patch_2016(raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Modify the data from 2016 to correct for typos and make consistent
+
+         92Br has misaligned half-life columns
+        142Gd has decay modes comma separated instead of semicolon
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        # The half-life related columns are misaligned
+        Br92 = (raw_df.A == 92) & (raw_df.Z == 35)
+        raw_df.loc[Br92, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("0.314", "s", "0.016")
+
+        # Decay string is ',' separated rather than ';'
+        Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
+        raw_df.loc[Gd142, "DecayModesRaw"] = raw_df.loc[Gd142, "DecayModesRaw"].str.replace(",", ";", regex=False)
+
+        return raw_df
+
+    @staticmethod
+    def parse_single_decay_string(text: str) -> DecayMeasurement | None:
         """
         Parse a single decay mode into a DecayMeasurement storage class
 
-        There is a large amount of detail given in a single string. To avoid the loss of any of this informations, we
+        There is a large amount of detail given in a single string. To avoid the loss of any of this information, we
         use a custom storage class that has each piece of information extracted into attributes. The raw string is also
         saved in case there was an issue with the parse.
 
@@ -202,7 +317,6 @@ class NUBASEParser:
         -------
         DecayMeasurement
             An instance of the DecayMeasurement storage class with all the necessary data.
-
         """
         if not text:
             return None
@@ -287,26 +401,6 @@ class NUBASEParser:
         pandas.DataFrame
             The updated dataframe with new columns containing decay data.
         """
-        # Start with some bookkeeping to fix likely typos
-        # 1997 231Pa
-        # Values is: "23F=10.0e-13 +5.0--0.7", assume single '-' for asymmetric errors to match other instances
-        # (see discussion elsewhere as to why this relates to the 1995 table)
-        if self.year == 1995:
-            Pa231 = (raw_df["A"] == 231) & (raw_df["Z"] == 91)
-            raw_df.loc[Pa231, "DecayModesRaw"] = raw_df.loc[Pa231, "DecayModesRaw"].str.replace("--", "-", regex=False)
-
-        # 2012 198Au
-        # Decay mode is recorded as '-=100', other years have it as "B-=100"
-        if self.year == 2012:
-            Au198 = (raw_df["A"] == 198) & (raw_df["Z"] == 79)
-            raw_df.loc[Au198, "DecayModesRaw"] = "B-=100"
-
-        # 2012 & 2016 142Gd
-        # Decay string is ',' separated rather than ';'
-        if self.year == 2012 or self.year == 2016:
-            Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
-            raw_df.loc[Gd142, "DecayModesRaw"] = raw_df.loc[Gd142, "DecayModesRaw"].str.replace(",", ";", regex=False)
-
         # Replacements for when letters and characters have been used instead of symbols
         symbol_replacements = {
             r" GE ": ">=",
@@ -325,11 +419,12 @@ class NUBASEParser:
 
         return raw_df
 
-    def parse_half_life(self, raw_df) -> pd.DataFrame:
+    @staticmethod
+    def parse_half_life(raw_df) -> pd.DataFrame:
         """
         Create additional half-life columns with values in seconds
 
-        The half-life is stored as a human readable value, e.g. 2ms, 4Gyr, 5mins. This is fine to read but not to do
+        The half-life is stored as a human-readable value, e.g. 2ms, 4Gyr, 5mins. This is fine to read but not to do
         any type of sorting or algorithm. Convert to the SI unit of seconds, but don't overwrite original columns.
 
         We do carry out some cleaning of the original columns by removing symbols and letters where we know they are
@@ -345,36 +440,34 @@ class NUBASEParser:
         pandas.DataFrame
             The updated dataframe with new columns containing half-life values in seconds.
         """
-        raw_df["HalfLifeValue"] = raw_df["HalfLifeValue"].astype("string")
-        raw_df["HalfLifeError"] = raw_df["HalfLifeError"].astype("string")
-
-        # Convert stable isotopes into ones with enormous lifetimes with zero error so we can cast
-        stable = raw_df["HalfLifeValue"] == "stbl"
-        raw_df.loc[stable, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("99.99", "Zyr", "0.0")
-
-        if self.year == 2016:
-            # the half-life related columns are misaligned for 92Br in 2016
-            Br92 = (raw_df.A == 92) & (raw_df.Z == 35)
-            raw_df.loc[Br92, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("0.314", "s", "0.016")
-
         raw_df["HalfLifeValue"] = pd.to_numeric(
-            raw_df["HalfLifeValue"].replace(r"[<>?~]", "", regex=True), errors="coerce"
+            raw_df["HalfLifeValue"].replace(r"[<>?~]", "", regex=True), errors="coerce", dtype_backend="numpy_nullable"
         )
+
         # We'll be lazy here and remove any characters in this column. Future us will parse this properly
         raw_df["HalfLifeError"] = pd.to_numeric(
-            raw_df["HalfLifeError"].replace(r"[<>?~a-z]", "", regex=True), errors="coerce"
+            raw_df["HalfLifeError"].replace(r"[<>?~a-z]", "", regex=True),
+            errors="coerce",
+            dtype_backend="numpy_nullable",
         )
+
+        # Convert stable isotopes into ones with enormous lifetimes with zero error
+        stable = raw_df["HalfLifeValue"] == "stbl"
+        raw_df.loc[stable, "HalfLifeValue"] = 99.99
+        raw_df.loc[stable, "HalfLifeUnit"] = "Zyr"
+        raw_df.loc[stable, "HalfLifeError"] = 0.0
 
         # Use the 3 half-life columns to create 2 new columns with units of seconds
         # Pre-compute unit -> second conversion
-        unit_map = raw_df["HalfLifeUnit"].map(unit_to_seconds)
+        unit_map = raw_df["HalfLifeUnit"].map(UNIT_TO_SECONDS).astype("Float64")
 
         raw_df["HalfLifeSeconds"] = raw_df["HalfLifeValue"] * unit_map
         raw_df["HalfLifeSecondsError"] = raw_df["HalfLifeError"] * unit_map
 
         return raw_df
 
-    def parse_state(self, raw_df) -> pd.DataFrame:
+    @staticmethod
+    def parse_state(raw_df) -> pd.DataFrame:
         """
         Interpret the state of the isotope
 
@@ -421,6 +514,7 @@ class NUBASEParser:
             skipfooter=self.layout.FOOTER,
         )
 
+        df = self._apply_yearly_patch(df)
         df = self.parse_state(df)
 
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
