@@ -419,7 +419,8 @@ class NUBASEParser:
 
         return raw_df
 
-    def parse_half_life(self, raw_df) -> pd.DataFrame:
+    @staticmethod
+    def parse_half_life(raw_df) -> pd.DataFrame:
         """
         Create additional half-life columns with values in seconds
 
@@ -465,7 +466,8 @@ class NUBASEParser:
 
         return raw_df
 
-    def parse_state(self, raw_df) -> pd.DataFrame:
+    @staticmethod
+    def parse_state(raw_df) -> pd.DataFrame:
         """
         Interpret the state of the isotope
 
