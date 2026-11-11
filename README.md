@@ -82,8 +82,5 @@ Details about contributing to the project are in [CONTRIBUTING](https://github.c
 
 ## Known issues
 
-- [#6](https://github.com/php1ic/nuclearmasses/issues/6) The decay mode field from the NUBASE data is stored 'as-is' from the file.
-It looks like it can be split on the ';' character for isotopes where there is more than one mode.
-A dictionary of {decay mode: fraction} may be the best way to store all of this information.
 - [#7](https://github.com/php1ic/nuclearmasses/issues/7) Information from anything other than the ground state of an isotope is ignored when parsing the NUBASE file.
 The selection of what is and what is not included appears random to me which is why I simply ignored for the moment.
