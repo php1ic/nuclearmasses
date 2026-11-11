@@ -3,7 +3,7 @@ The module periodic contains functionality to convert between elemental symbol a
 """
 
 # fmt: off
-# Formatter wants to put each item on it's own line, I don't
+# Formatter wants to put each item on its own line, I don't
 Z_TO_SYMBOL: dict[int, str] = {
     0: "n", 1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O", 9: "F",
     10: "Ne", 11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P", 16: "S", 17: "Cl", 18: "Ar", 19: "K",
