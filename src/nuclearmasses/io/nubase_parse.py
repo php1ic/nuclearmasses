@@ -144,10 +144,9 @@ class NUBASEParser:
             "DecayModesRaw": "string",
             "DecayModes": "object",
             "DataSource": "Int64",
-            # We will need these one day
-            # "State": "Int64",
-            # "IsomerEnergy": "Float64",
-            # "IsomerEnergyError": "Float64",
+            "State": "Int64",
+            "IsomerEnergy": "Float64",
+            "IsomerEnergyError": "Float64",
         }
 
         # The discovery year was added after 2003, and I assume it will be there in the future, so we will set up
@@ -175,6 +174,8 @@ class NUBASEParser:
             "HalfLifeError": [""],
             "DecayModesRaw": [""],
             "Spin": [""],
+            "IsomerEnergy": ["", "non-exi", "non-exist"],
+            "IsomerEnergyError": [""],
         }
 
         if self.year == 1995:
@@ -210,8 +211,10 @@ class NUBASEParser:
 
         patch_registry = {
             1995: self._patch_1995,
+            2003: self._patch_2003,
             2012: self._patch_2012,
             2016: self._patch_2016,
+            2020: self._patch_2020,
         }
 
         if self.year in patch_registry:
@@ -238,8 +241,43 @@ class NUBASEParser:
         """
         # Values is: "23F=10.0e-13 +5.0--0.7", assume single '-' for asymmetric errors to match other instances
         # (see discussion elsewhere as to why this relates to the 1995 table)
-        Pa231 = (raw_df["A"] == 231) & (raw_df["Z"] == 91)
+        Pa231 = (raw_df["A"] == 231) & (raw_df["Z"] == 91) & (raw_df["State"] == 0)
         raw_df.loc[Pa231, "DecayModesRaw"] = raw_df.loc[Pa231, "DecayModesRaw"].str.replace("--", "-", regex=False)
+
+        return raw_df
+
+    @staticmethod
+    def _patch_2003(raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Modify the data from 2003 to correct for typos and make consistent
+
+        150nHo has an estimate '~', we will use as an exact value
+        154nLu has a lower limit '>', we will use as an exact value
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        # TODO: Investigate if we can avoid this cast
+        # If we don't cast, tests fail on trying to assign a string to a Float64.
+        # Running outside of pytest does not have this issue.
+        # If we assign as a float, the code crashes everywhere on trying to assign float to string.
+        # As the column contains "~" and ">" I would expect the type to already be string or object for this year.
+        raw_df["IsomerEnergy"] = raw_df["IsomerEnergy"].astype("string")
+
+        # Energy is ~8000, we can't yet parse that so use 8000
+        Ho150n = (raw_df["A"] == 150) & (raw_df["Z"] == 67) & (raw_df["State"] == 2)
+        raw_df.loc[Ho150n, "IsomerEnergy"] = "8000"
+
+        # Energy is >2562, we can't yet parse that so use 2562
+        Lu154n = (raw_df["A"] == 154) & (raw_df["Z"] == 71) & (raw_df["State"] == 2)
+        raw_df.loc[Lu154n, "IsomerEnergy"] = "2562"
 
         return raw_df
 
@@ -262,11 +300,11 @@ class NUBASEParser:
             The updated dataframe with corrections made.
         """
         # Decay string is ',' separated rather than ';'
-        Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
+        Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64) & (raw_df["State"] == 0)
         raw_df.loc[Gd142, "DecayModesRaw"] = raw_df.loc[Gd142, "DecayModesRaw"].str.replace(",", ";", regex=False)
 
         # Decay mode is recorded as '-=100', other years have it as "B-=100"
-        Au198 = (raw_df["A"] == 198) & (raw_df["Z"] == 79)
+        Au198 = (raw_df["A"] == 198) & (raw_df["Z"] == 79) & (raw_df["State"] == 0)
         raw_df.loc[Au198, "DecayModesRaw"] = "B-=100"
 
         return raw_df
@@ -276,8 +314,10 @@ class NUBASEParser:
         """
         Modify the data from 2016 to correct for typos and make consistent
 
-         92Br has misaligned half-life columns
-        142Gd has decay modes comma separated instead of semicolon
+        68mNi  has a typo in its decay mode
+         92Br  has misaligned half-life columns
+        142Gd  has decay modes comma separated instead of semicolon
+        161mTa has a unique format for one decay mode
 
         Parameters
         ----------
@@ -289,13 +329,54 @@ class NUBASEParser:
         pd.DataFrame
             The updated dataframe with corrections made.
         """
+        # Decay mode is "4.IT=100". Assume issue with print to will drop the "4."
+        Ni68m = (raw_df["A"] == 68) & (raw_df["Z"] == 28) & (raw_df["State"] == 1)
+        raw_df.loc[Ni68m, "DecayModesRaw"] = "IT=100"
+
         # The half-life related columns are misaligned
-        Br92 = (raw_df.A == 92) & (raw_df.Z == 35)
+        Br92 = (raw_df.A == 92) & (raw_df.Z == 35) & (raw_df["State"] == 0)
         raw_df.loc[Br92, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("0.314", "s", "0.016")
 
         # Decay string is ',' separated rather than ';'
-        Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
+        Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64) & (raw_df["State"] == 0)
         raw_df.loc[Gd142, "DecayModesRaw"] = raw_df.loc[Gd142, "DecayModesRaw"].str.replace(",", ";", regex=False)
+
+        # The alpha decay mode is A=7(3), change to match how other uncertainties are displayed
+        Ta161m = (raw_df["A"] == 161) & (raw_df["Z"] == 73) & (raw_df["State"] == 1)
+        raw_df.loc[Ta161m, "DecayModesRaw"] = "B+ ?;A=7 3"
+
+        return raw_df
+
+    @staticmethod
+    def _patch_2020(raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Modify the data from 2020 to correct for typos and make consistent
+
+        188nBi has one decay mode as "=~"
+        217mAc has asymmetric errors in non-standard format
+        239pCm has typo in decay modes string
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        # The use of "=~" is unique, we will change to "="
+        Bi188n = (raw_df["A"] == 188) & (raw_df["Z"] == 83) & (raw_df["State"] == 2)
+        raw_df.loc[Bi188n, "DecayModesRaw"] = "A=100;B+ ?;B+SF=0.0046 9"
+
+        # Asymmetric uncertainties usually appear as +x-y rather than space separated so we will use that format
+        Ac217m = (raw_df["A"] == 217) & (raw_df["Z"] == 89) & (raw_df["State"] == 1)
+        raw_df.loc[Ac217m, "DecayModesRaw"] = "IT=95.49 +18-10"
+
+        # Assume trailing "?" is missing
+        Cm239p = (raw_df["A"] == 239) & (raw_df["Z"] == 96) & (raw_df["State"] == 3)
+        raw_df.loc[Cm239p, "DecayModesRaw"] = "IT ?;B+ ?"
 
         return raw_df
 
@@ -471,8 +552,7 @@ class NUBASEParser:
         """
         Interpret the state of the isotope
 
-        Currently we are only interested in ground states so drop any other row that is not that.
-        In the future we will care about isomers.
+        May no longer need this function. Will confirm and delete in due course.
 
         Parameters
         ----------
@@ -484,11 +564,6 @@ class NUBASEParser:
         pandas.DataFrame
             The updated dataframe containing only ground state data
         """
-        # Ignore anything this is not the ground state
-        raw_df = raw_df[raw_df["State"] == 0]
-        # As 'State' is now necessarily 0 and the Isomer columns are empty, drop them.
-        raw_df = raw_df.drop(columns=["State", "IsomerEnergy", "IsomerEnergyError"])
-
         return raw_df
 
     def read_file(self) -> pd.DataFrame:
@@ -515,7 +590,6 @@ class NUBASEParser:
         )
 
         df = self._apply_yearly_patch(df)
-        df = self.parse_state(df)
 
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         df["Experimental"] = ~df["NUBASEMassExcess"].astype("string").str.contains("#", na=False)

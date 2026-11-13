@@ -49,8 +49,8 @@ class NUBASELayout:
     START_NUBASEMassExcess: int = 18
     END_NUBASEMassExcess: int = 29
     START_NUBASEMassExcessError: int = 29
-    END_NUBASEMassExcessError: int = 38
-    START_IsomerEnergy: int = 39
+    END_NUBASEMassExcessError: int = 37
+    START_IsomerEnergy: int = 38
     END_IsomerEnergy: int = 46
     START_IsomerEnergyError: int = 48
     END_IsomerEnergyError: int = 56
@@ -136,8 +136,8 @@ class NUBASEFile:
         2020: {
             "HEADER": 25,
             "START_NUBASEMassExcessError": 31,
-            "END_NUBASEMassExcessError": 42,
-            "START_IsomerEnergy": 43,
+            "END_NUBASEMassExcessError": 41,
+            "START_IsomerEnergy": 42,
             "END_IsomerEnergy": 53,
             "START_IsomerEnergyError": 54,
             "END_IsomerEnergyError": 64,
