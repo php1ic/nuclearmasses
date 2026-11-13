@@ -251,6 +251,8 @@ class NUBASEParser:
         """
         Modify the data from 2003 to correct for typos and make consistent
 
+        150nHo has an estimate '~', we will use as an exact value
+        154nLu has a lower limit '>', we will use as an exact value
 
         Parameters
         ----------
@@ -262,9 +264,18 @@ class NUBASEParser:
         pd.DataFrame
             The updated dataframe with corrections made.
         """
+        # TODO: Investigate if we can avoid this cast
+        # If we don't cast, tests fail on trying to assign a string to a Float64.
+        # Running outside of pytest does not have this issue.
+        # If we assign as a float, the code crashes everywhere on trying to assign float to string.
+        # As the column contains "~" and ">" I would expect the type to already be string or object for this year.
+        raw_df["IsomerEnergy"] = raw_df["IsomerEnergy"].astype("string")
+
+        # Energy is ~8000, we can't yet parse that so use 8000
         Ho150n = (raw_df["A"] == 150) & (raw_df["Z"] == 67) & (raw_df["State"] == 2)
         raw_df.loc[Ho150n, "IsomerEnergy"] = "8000"
 
+        # Energy is >2562, we can't yet parse that so use 2562
         Lu154n = (raw_df["A"] == 154) & (raw_df["Z"] == 71) & (raw_df["State"] == 2)
         raw_df.loc[Lu154n, "IsomerEnergy"] = "2562"
 
@@ -303,8 +314,10 @@ class NUBASEParser:
         """
         Modify the data from 2016 to correct for typos and make consistent
 
-         92Br has misaligned half-life columns
-        142Gd has decay modes comma separated instead of semicolon
+        68mNi  has a typo in its decay mode
+         92Br  has misaligned half-life columns
+        142Gd  has decay modes comma separated instead of semicolon
+        161mTa has a unique format for one decay mode
 
         Parameters
         ----------
@@ -316,6 +329,10 @@ class NUBASEParser:
         pd.DataFrame
             The updated dataframe with corrections made.
         """
+        # Decay mode is "4.IT=100". Assume issue with print to will drop the "4."
+        Ni68m = (raw_df["A"] == 68) & (raw_df["Z"] == 28) & (raw_df["State"] == 1)
+        raw_df.loc[Ni68m, "DecayModesRaw"] = "IT=100"
+
         # The half-life related columns are misaligned
         Br92 = (raw_df.A == 92) & (raw_df.Z == 35)
         raw_df.loc[Br92, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("0.314", "s", "0.016")
@@ -324,9 +341,7 @@ class NUBASEParser:
         Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
         raw_df.loc[Gd142, "DecayModesRaw"] = raw_df.loc[Gd142, "DecayModesRaw"].str.replace(",", ";", regex=False)
 
-        Ni68m = (raw_df["A"] == 68) & (raw_df["Z"] == 28) & (raw_df["State"] == 1)
-        raw_df.loc[Ni68m, "DecayModesRaw"] = "IT=100"
-
+        # The alpha decay mode is A=7(3), change to match how other uncertainties are displayed
         Ta161m = (raw_df["A"] == 161) & (raw_df["Z"] == 73) & (raw_df["State"] == 1)
         raw_df.loc[Ta161m, "DecayModesRaw"] = "B+ ?;A=7 3"
 
@@ -337,6 +352,9 @@ class NUBASEParser:
         """
         Modify the data from 2020 to correct for typos and make consistent
 
+        188nBi has one decay mode as "=~"
+        217mAc has asymmetric errors in non-standard format
+        239pCm has typo in decay modes string
 
         Parameters
         ----------
@@ -348,14 +366,17 @@ class NUBASEParser:
         pd.DataFrame
             The updated dataframe with corrections made.
         """
+        # The use of "=~" is unique, we will change to "="
         Bi188n = (raw_df["A"] == 188) & (raw_df["Z"] == 83) & (raw_df["State"] == 2)
         raw_df.loc[Bi188n, "DecayModesRaw"] = "A=100;B+ ?;B+SF=0.0046 9"
 
+        # Asymmetric uncertainties usually appear as +x-y rather than space separated so we will use that format
         Ac217m = (raw_df["A"] == 217) & (raw_df["Z"] == 89) & (raw_df["State"] == 1)
         raw_df.loc[Ac217m, "DecayModesRaw"] = "IT=95.49 +18-10"
 
+        # Assume trailing "?" is missing
         Cm239p = (raw_df["A"] == 239) & (raw_df["Z"] == 96) & (raw_df["State"] == 3)
-        raw_df.loc[Cm239p, "DecayModesRaw"] = "B+ ?"
+        raw_df.loc[Cm239p, "DecayModesRaw"] = "IT ?;B+ ?"
 
         return raw_df
 
