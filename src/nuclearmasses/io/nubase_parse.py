@@ -241,7 +241,7 @@ class NUBASEParser:
         """
         # Values is: "23F=10.0e-13 +5.0--0.7", assume single '-' for asymmetric errors to match other instances
         # (see discussion elsewhere as to why this relates to the 1995 table)
-        Pa231 = (raw_df["A"] == 231) & (raw_df["Z"] == 91)
+        Pa231 = (raw_df["A"] == 231) & (raw_df["Z"] == 91) & (raw_df["State"] == 0)
         raw_df.loc[Pa231, "DecayModesRaw"] = raw_df.loc[Pa231, "DecayModesRaw"].str.replace("--", "-", regex=False)
 
         return raw_df
@@ -300,11 +300,11 @@ class NUBASEParser:
             The updated dataframe with corrections made.
         """
         # Decay string is ',' separated rather than ';'
-        Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
+        Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64) & (raw_df["State"] == 0)
         raw_df.loc[Gd142, "DecayModesRaw"] = raw_df.loc[Gd142, "DecayModesRaw"].str.replace(",", ";", regex=False)
 
         # Decay mode is recorded as '-=100', other years have it as "B-=100"
-        Au198 = (raw_df["A"] == 198) & (raw_df["Z"] == 79)
+        Au198 = (raw_df["A"] == 198) & (raw_df["Z"] == 79) & (raw_df["State"] == 0)
         raw_df.loc[Au198, "DecayModesRaw"] = "B-=100"
 
         return raw_df
@@ -334,11 +334,11 @@ class NUBASEParser:
         raw_df.loc[Ni68m, "DecayModesRaw"] = "IT=100"
 
         # The half-life related columns are misaligned
-        Br92 = (raw_df.A == 92) & (raw_df.Z == 35)
+        Br92 = (raw_df.A == 92) & (raw_df.Z == 35) & (raw_df["State"] == 0)
         raw_df.loc[Br92, ["HalfLifeValue", "HalfLifeUnit", "HalfLifeError"]] = ("0.314", "s", "0.016")
 
         # Decay string is ',' separated rather than ';'
-        Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
+        Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64) & (raw_df["State"] == 0)
         raw_df.loc[Gd142, "DecayModesRaw"] = raw_df.loc[Gd142, "DecayModesRaw"].str.replace(",", ";", regex=False)
 
         # The alpha decay mode is A=7(3), change to match how other uncertainties are displayed
