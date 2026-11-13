@@ -144,10 +144,9 @@ class NUBASEParser:
             "DecayModesRaw": "string",
             "DecayModes": "object",
             "DataSource": "Int64",
-            # We will need these one day
-            # "State": "Int64",
-            # "IsomerEnergy": "Float64",
-            # "IsomerEnergyError": "Float64",
+            "State": "Int64",
+            "IsomerEnergy": "Float64",
+            "IsomerEnergyError": "Float64",
         }
 
         # The discovery year was added after 2003, and I assume it will be there in the future, so we will set up
@@ -175,6 +174,8 @@ class NUBASEParser:
             "HalfLifeError": [""],
             "DecayModesRaw": [""],
             "Spin": [""],
+            "IsomerEnergy": ["", "non-exi", "non-exist"],
+            "IsomerEnergyError": [""],
         }
 
         if self.year == 1995:
@@ -210,8 +211,10 @@ class NUBASEParser:
 
         patch_registry = {
             1995: self._patch_1995,
+            2003: self._patch_2003,
             2012: self._patch_2012,
             2016: self._patch_2016,
+            2020: self._patch_2020,
         }
 
         if self.year in patch_registry:
@@ -240,6 +243,30 @@ class NUBASEParser:
         # (see discussion elsewhere as to why this relates to the 1995 table)
         Pa231 = (raw_df["A"] == 231) & (raw_df["Z"] == 91)
         raw_df.loc[Pa231, "DecayModesRaw"] = raw_df.loc[Pa231, "DecayModesRaw"].str.replace("--", "-", regex=False)
+
+        return raw_df
+
+    @staticmethod
+    def _patch_2003(raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Modify the data from 2003 to correct for typos and make consistent
+
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        Ho150n = (raw_df["A"] == 150) & (raw_df["Z"] == 67) & (raw_df["State"] == 2)
+        raw_df.loc[Ho150n, "IsomerEnergy"] = "8000"
+
+        Lu154n = (raw_df["A"] == 154) & (raw_df["Z"] == 71) & (raw_df["State"] == 2)
+        raw_df.loc[Lu154n, "IsomerEnergy"] = "2562"
 
         return raw_df
 
@@ -296,6 +323,39 @@ class NUBASEParser:
         # Decay string is ',' separated rather than ';'
         Gd142 = (raw_df["A"] == 142) & (raw_df["Z"] == 64)
         raw_df.loc[Gd142, "DecayModesRaw"] = raw_df.loc[Gd142, "DecayModesRaw"].str.replace(",", ";", regex=False)
+
+        Ni68m = (raw_df["A"] == 68) & (raw_df["Z"] == 28) & (raw_df["State"] == 1)
+        raw_df.loc[Ni68m, "DecayModesRaw"] = "IT=100"
+
+        Ta161m = (raw_df["A"] == 161) & (raw_df["Z"] == 73) & (raw_df["State"] == 1)
+        raw_df.loc[Ta161m, "DecayModesRaw"] = "B+ ?;A=7 3"
+
+        return raw_df
+
+    @staticmethod
+    def _patch_2020(raw_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Modify the data from 2020 to correct for typos and make consistent
+
+
+        Parameters
+        ----------
+        raw_df : pd.DataFrame
+            The raw dataframe, immediately after the file parse.
+
+        Returns
+        -------
+        pd.DataFrame
+            The updated dataframe with corrections made.
+        """
+        Bi188n = (raw_df["A"] == 188) & (raw_df["Z"] == 83) & (raw_df["State"] == 2)
+        raw_df.loc[Bi188n, "DecayModesRaw"] = "A=100;B+ ?;B+SF=0.0046 9"
+
+        Ac217m = (raw_df["A"] == 217) & (raw_df["Z"] == 89) & (raw_df["State"] == 1)
+        raw_df.loc[Ac217m, "DecayModesRaw"] = "IT=95.49 +18-10"
+
+        Cm239p = (raw_df["A"] == 239) & (raw_df["Z"] == 96) & (raw_df["State"] == 3)
+        raw_df.loc[Cm239p, "DecayModesRaw"] = "B+ ?"
 
         return raw_df
 
@@ -471,8 +531,7 @@ class NUBASEParser:
         """
         Interpret the state of the isotope
 
-        Currently we are only interested in ground states so drop any other row that is not that.
-        In the future we will care about isomers.
+        May no longer need this function. Will confirm and delete in due course.
 
         Parameters
         ----------
@@ -484,11 +543,6 @@ class NUBASEParser:
         pandas.DataFrame
             The updated dataframe containing only ground state data
         """
-        # Ignore anything this is not the ground state
-        raw_df = raw_df[raw_df["State"] == 0]
-        # As 'State' is now necessarily 0 and the Isomer columns are empty, drop them.
-        raw_df = raw_df.drop(columns=["State", "IsomerEnergy", "IsomerEnergyError"])
-
         return raw_df
 
     def read_file(self) -> pd.DataFrame:
@@ -515,7 +569,6 @@ class NUBASEParser:
         )
 
         df = self._apply_yearly_patch(df)
-        df = self.parse_state(df)
 
         # We use the NUBASE data to define whether or not an isotope is experimentally measured,
         df["Experimental"] = ~df["NUBASEMassExcess"].astype("string").str.contains("#", na=False)
