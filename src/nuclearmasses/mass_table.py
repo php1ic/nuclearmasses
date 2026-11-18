@@ -48,9 +48,16 @@ class MassTable:
         """
         data_path = importlib.resources.files("nuclearmasses").joinpath("data")
 
-        common_columns = ["A", "Z", "N", "TableYear", "Symbol", "DataSource"]
+        common_columns = ["A", "Z", "N", "TableYear", "Symbol", "DataSource", "State"]
 
-        return pd.merge(AME(data_path).ame_df, NUBASE(data_path).nubase_df, on=common_columns, how="outer")
+        return pd.merge(
+            AME(data_path).ame_df,
+            NUBASE(data_path).nubase_df,
+            on=common_columns,
+            how="outer",
+            suffixes=("_AME", "_NUBASE"),
+            validate="one_to_one",
+        )
 
     def add_user_data(
         self,
