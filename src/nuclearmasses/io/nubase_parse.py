@@ -127,9 +127,9 @@ class NUBASEParser:
         """
         data_types = {
             "Symbol": "string",
-            "A": "Int64",
-            "Z": "Int64",
-            "N": "Int64",
+            "A": "Int16",
+            "Z": "Int16",
+            "N": "Int16",
             "Experimental": "boolean",
             "NUBASEMassExcess": "Float64",
             "NUBASEMassExcessError": "Float64",
@@ -140,11 +140,11 @@ class NUBASEParser:
             "HalfLifeSeconds": "Float64",
             "HalfLifeSecondsError": "Float64",
             "Spin": "string",
-            "DiscoveryYear": "Int64",
+            "DiscoveryYear": "Int16",
             "DecayModesRaw": "string",
             "DecayModes": "object",
-            "DataSource": "Int64",
-            "State": "Int64",
+            "DataSource": "Int16",
+            "State": "Int16",
             "IsomerEnergy": "Float64",
             "IsomerEnergyError": "Float64",
         }

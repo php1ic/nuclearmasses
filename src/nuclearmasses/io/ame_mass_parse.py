@@ -77,11 +77,11 @@ class AMEMassParser:
             A dictionary of the columns that exist and their data type
         """
         data_types = {
-            "TableYear": "Int64",
+            "TableYear": "Int16",
             "Symbol": "string",
-            "N": "Int64",
-            "Z": "Int64",
-            "A": "Int64",
+            "N": "Int16",
+            "Z": "Int16",
+            "A": "Int16",
             "AMEMassExcess": "Float64",
             "AMEMassExcessError": "Float64",
             "AMERelativeError": "Float64",
@@ -91,7 +91,7 @@ class AMEMassParser:
             "BetaDecayEnergyError": "Float64",
             "AtomicMass": "Float64",
             "AtomicMassError": "Float64",
-            "DataSource": "Int64",
+            "DataSource": "Int16",
         }
 
         if not with_year:

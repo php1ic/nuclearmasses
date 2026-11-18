@@ -67,11 +67,11 @@ class AMEReactionOneParser:
             A dictionary of the columns that exist and their data type
         """
         data_types = {
-            "TableYear": "Int64",
+            "TableYear": "Int16",
             "Symbol": "string",
-            "A": "Int64",
-            "Z": "Int64",
-            "N": "Int64",
+            "A": "Int16",
+            "Z": "Int16",
+            "N": "Int16",
             "TwoNeutronSeparationEnergy": "Float64",
             "TwoNeutronSeparationEnergyError": "Float64",
             "TwoProtonSeparationEnergy": "Float64",
@@ -84,7 +84,7 @@ class AMEReactionOneParser:
             "QEpsilonError": "Float64",
             "QBetaNeutron": "Float64",
             "QBetaNeutronError": "Float64",
-            "DataSource": "Int64",
+            "DataSource": "Int16",
         }
 
         if not with_year:
