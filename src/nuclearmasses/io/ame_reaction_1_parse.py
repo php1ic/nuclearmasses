@@ -57,7 +57,7 @@ class AMEReactionOneParser:
         """
         return self.layout.columns
 
-    def _data_types(self) -> dict:
+    def _data_types(self, with_year: bool = True) -> dict[str, str]:
         """
         Set the column data types depending on the year.
 
@@ -66,7 +66,7 @@ class AMEReactionOneParser:
         dict[str, str]
             A dictionary of the columns that exist and their data type
         """
-        return {
+        data_types = {
             "TableYear": "Int64",
             "Symbol": "string",
             "A": "Int64",
@@ -87,9 +87,19 @@ class AMEReactionOneParser:
             "DataSource": "Int64",
         }
 
+        if not with_year:
+            data_types.pop("TableYear")
+
+        return data_types
+
     def _na_values(self) -> dict:
         """
         Set the columns that have empty fields so should be set to NaN during the initial parse.
+
+        Parameters
+        ----------
+        with_year : bool
+            Should the table year be included in the returned dictionary
 
         Returns
         -------
@@ -161,12 +171,17 @@ class AMEReactionOneParser:
 
         return raw_df
 
-    def read_file(self) -> pd.DataFrame:
+    def read_file(self, include_year: bool = True) -> pd.DataFrame:
         """
         Read the file-like object ``self.filename`` into a dataframe
 
         The ``AMEReactionOneFile`` and other functions in this class have hopefully sanitized the column names, data
         types and locations of the date so we can now make the generic call to parse the file.
+
+        Parameters
+        ----------
+        include_year : bool
+            Should the year be added to the dataframe
 
         Returns
         -------
@@ -189,6 +204,6 @@ class AMEReactionOneParser:
 
         df = self._apply_yearly_patch(df)
 
-        df = add_common_columns(df, the_year=self.year)
+        df = add_common_columns(df, the_year=self.year if include_year else None, the_source=0)
 
-        return df.astype(self._data_types())
+        return df.astype(self._data_types(with_year=include_year))
