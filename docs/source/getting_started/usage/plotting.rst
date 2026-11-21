@@ -23,7 +23,7 @@ As can be seen from the call to relplot_, this is simply achieved by passing the
    table = MassTable().data
 
    sliced_table = table[(table['Z'] == 50) & (table['TableYear'] == 2020)][['A', 'N', 'AMEMassExcess', 'Experimental']]
-   sliced_table['is_even_N'] = (sliced_table['N'] % 2 == 0).astype("Int64") 
+   sliced_table['is_even_N'] = (sliced_table['N'] % 2 == 0).astype("Int16") 
 
    sns.relplot(data=sliced_table, x='A', y='AMEMassExcess', hue='is_even_N', style='Experimental')
    plt.show()

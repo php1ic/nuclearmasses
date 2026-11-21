@@ -82,5 +82,5 @@ Details about contributing to the project are in [CONTRIBUTING](https://github.c
 
 ## Known issues
 
-- [#7](https://github.com/php1ic/nuclearmasses/issues/7) Information from anything other than the ground state of an isotope is ignored when parsing the NUBASE file.
-The selection of what is and what is not included appears random to me which is why I simply ignored for the moment.
+No known issues, please raise an [issue](https://github.com/php1ic/nuclearmasses/issues) or create a [PR](https://github.com/php1ic/nuclearmasses/pulls) if you find one.
+

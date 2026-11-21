@@ -88,22 +88,24 @@ class AME:
         """
         ame_mass, ame_reaction_1, ame_reaction_2 = self.get_datafiles(year)
 
-        mass_df = AMEMassParser(filename=ame_mass, year=year).read_file()
-        rct1_df = AMEReactionOneParser(filename=ame_reaction_1, year=year).read_file()
-        rct2_df = AMEReactionTwoParser(filename=ame_reaction_2, year=year).read_file()
+        parsers = [
+            AMEMassParser(filename=ame_mass, year=year),
+            AMEReactionOneParser(filename=ame_reaction_1, year=year),
+            AMEReactionTwoParser(filename=ame_reaction_2, year=year),
+        ]
 
         # Merge all 3 of the AME dataframes into one
-        common_columns = ["A", "Z", "N", "TableYear", "Symbol", "DataSource"]
+        common_columns = ["A", "Z", "N", "Symbol", "DataSource"]
+
+        all_dfs = [parser.read_file(include_year=False).set_index(common_columns) for parser in parsers]
+
         return (
-            mass_df.set_index(common_columns)
-            .join(
-                [
-                    rct1_df.set_index(common_columns),
-                    rct2_df.set_index(common_columns),
-                ],
-                how="outer",
-            )
+            pd.concat(all_dfs, axis=1, join="outer")
             .reset_index()
+            .assign(
+                TableYear=lambda df: pd.Series(year, index=df.index, dtype="Int16"),
+                State=lambda df: pd.Series(0, index=df.index, dtype="Int16"),
+            )
         )
 
     def parse_all_years(self) -> pd.DataFrame:
@@ -115,4 +117,4 @@ class AME:
         pandas.DataFrame
             The data from all published years as a single dataframe.
         """
-        return pd.concat((self.parse_year(y) for y in self.years), ignore_index=True)
+        return pd.concat([self.parse_year(y) for y in self.years], ignore_index=True)

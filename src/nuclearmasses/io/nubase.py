@@ -90,4 +90,4 @@ class NUBASE:
         pandas.DataFrame
             The data from all published years as a single dataframe.
         """
-        return pd.concat((self.parse_year(y) for y in self.years), ignore_index=True)
+        return pd.concat([self.parse_year(y) for y in self.years], ignore_index=True)
