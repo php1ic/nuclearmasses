@@ -44,6 +44,17 @@ keywords = [
  "radiation",
  "AME",
  "NUBASE",
+ "nuclear-data",
+ "nuclear-masses",
+ "atomic-masses",
+ "mass-excess",
+ "isotope-data",
+ "nuclear-physics",
+ "scientific-python",
+ "nuclear-structure",
+ "radioactive-decay",
+ "evaluated-nuclear-data",
+ "pandas",
 ]
 
 [project.optional-dependencies]
