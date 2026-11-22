@@ -94,7 +94,7 @@ def calculate_relative_error(raw_df: pd.DataFrame, source: str) -> pd.DataFrame:
     return raw_df
 
 
-def add_common_columns(raw_df: pd.DataFrame, the_year: int, the_source: int = 0) -> pd.DataFrame:
+def add_common_columns(raw_df: pd.DataFrame, the_year: int | None = None, the_source: int = 0) -> pd.DataFrame:
     """
     Add columns to ``raw_df`` that are either constant for the entire DataFrame or calculated from other columns
 
@@ -103,7 +103,7 @@ def add_common_columns(raw_df: pd.DataFrame, the_year: int, the_source: int = 0)
     ----------
     raw_df : pandas.DataFrame
         The raw dataframe upon which we will act.
-    the_year: int
+    the_year: int | None
         The year the data was published.
     the_source : int
         The value to use to differentiate this data from other sources.
@@ -113,7 +113,8 @@ def add_common_columns(raw_df: pd.DataFrame, the_year: int, the_source: int = 0)
     pandas.DataFrame
         The updated dataframe with the new columns.
     """
-    raw_df["TableYear"] = the_year
+    if the_year:
+        raw_df["TableYear"] = the_year
     raw_df["N"] = pd.to_numeric(raw_df["A"]) - pd.to_numeric(raw_df["Z"])
     raw_df["Symbol"] = pd.to_numeric(raw_df["Z"]).map(Z_TO_SYMBOL, na_action="ignore")
     raw_df["DataSource"] = the_source

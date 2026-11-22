@@ -11,8 +11,8 @@
 
 ## Introduction
 
-The package `nuclearmasses` provides convenient Python access to nuclear data published by the Atomic Mass Evaluation ([AME](https://www-nds.iaea.org/amdc/)) and [NUBASE](http://amdc.in2p3.fr/web/nubase_en.html).
-These datasets are published in different, specialised formats, so `nuclearmasses` does the hard work of parsing and combining the data into a [pandas DateFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html), making it simple to query and compare nuclear properties across different evaluations.
+`nuclearmasses` is a Python library for working with evaluated nuclear physics data.
+It provides convenient access to Atomic Mass Evaluation ([AME](https://www-nds.iaea.org/amdc/)) and [NUBASE](http://amdc.in2p3.fr/web/nubase_en.html) datasets, parsing their published formats and combining nuclear masses, mass excesses, radioactive decay properties and isotope information into a [pandas DateFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
 
 No guarantee is supplied with regards to the accuracy of the data presented.
 Estimated values are included, please always refer to the original sources.
@@ -82,5 +82,5 @@ Details about contributing to the project are in [CONTRIBUTING](https://github.c
 
 ## Known issues
 
-- [#7](https://github.com/php1ic/nuclearmasses/issues/7) Information from anything other than the ground state of an isotope is ignored when parsing the NUBASE file.
-The selection of what is and what is not included appears random to me which is why I simply ignored for the moment.
+No known issues, please raise an [issue](https://github.com/php1ic/nuclearmasses/issues) or create a [PR](https://github.com/php1ic/nuclearmasses/pulls) if you find one.
+

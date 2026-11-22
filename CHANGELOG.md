@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.0] - 2026-11-22
+- [#36](https://github.com/php1ic/nuclearmasses/pull/36)
+  * Start parsing non ground-state data from the NUBASE files, resolving [#7](https://github.com/php1ic/nuclearmasses/issues/7).
+- Add python 3.15 to the CI matrix and update to run coverage against it.
+
 ## [0.7.2] - BREAKING(ISH) - 2026-11-11
 - Github was having issues so 0.7.0 and 0.7.1 were not released or pushed to pypi as the CI pipelines failed.
 - [#35](https://github.com/php1ic/nuclearmasses/pull/35)
