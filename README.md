@@ -11,8 +11,8 @@
 
 ## Introduction
 
-The package `nuclearmasses` provides convenient Python access to nuclear data published by the Atomic Mass Evaluation ([AME](https://www-nds.iaea.org/amdc/)) and [NUBASE](http://amdc.in2p3.fr/web/nubase_en.html).
-These datasets are published in different, specialised formats, so `nuclearmasses` does the hard work of parsing and combining the data into a [pandas DateFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html), making it simple to query and compare nuclear properties across different evaluations.
+`nuclearmasses` is a Python library for working with evaluated nuclear physics data.
+It provides convenient access to Atomic Mass Evaluation ([AME](https://www-nds.iaea.org/amdc/)) and [NUBASE](http://amdc.in2p3.fr/web/nubase_en.html) datasets, parsing their published formats and combining nuclear masses, mass excesses, radioactive decay properties and isotope information into a [pandas DateFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
 
 No guarantee is supplied with regards to the accuracy of the data presented.
 Estimated values are included, please always refer to the original sources.
